@@ -1,0 +1,47 @@
+{
+    "name": "Team Eric HITL",
+    "dockerFile": "../Dockerfile",
+    "context": "..",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [
+        8888
+    ],
+    "postCreateCommand": "rm -rf .venv && uv sync",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-python.flake8",
+                "ms-toolsai.jupyter",
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "eamodio.gitlens",
+                "ms-vscode.vscode-markdown",
+                "ms-vscode.vscode-docker",
+                "ms-python.pylint",
+                "ms-python.debugpy",
+                "ms-python.vscode-pylance"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
+                "python.terminal.activateEnvironment": true,
+                "jupyter.serverLaunchTimeout": 60,
+                "python.formatting.provider": "black",
+                "python.linting.enabled": true,
+                "python.linting.flake8Enabled": true,
+                "python.linting.pylintEnabled": true,
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": true
+                },
+                "files.associations": {
+                    "*.yaml": "yaml",
+                    "*.yml": "yaml"
+                }
+            }
+        }
+    }
+}
