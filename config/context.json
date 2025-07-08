@@ -1,0 +1,41 @@
+{
+    "context_settings": {
+        "max_context_entries": 50,
+        "context_retention_days": 30,
+        "context_summary_length": 1000,
+        "relevance_threshold": 0.7
+    },
+    "context_types": {
+        "query": {
+            "description": "User queries and questions",
+            "retention_priority": "high",
+            "include_in_summary": true
+        },
+        "response": {
+            "description": "AI and human responses",
+            "retention_priority": "high",
+            "include_in_summary": true
+        },
+        "escalation": {
+            "description": "Escalation events and decisions",
+            "retention_priority": "medium",
+            "include_in_summary": true
+        },
+        "feedback": {
+            "description": "User feedback and satisfaction",
+            "retention_priority": "medium",
+            "include_in_summary": false
+        },
+        "evaluation": {
+            "description": "Response quality evaluations",
+            "retention_priority": "low",
+            "include_in_summary": false
+        }
+    },
+    "context_analysis": {
+        "sentiment_analysis": true,
+        "topic_extraction": true,
+        "intent_classification": true,
+        "escalation_patterns": true
+    }
+}

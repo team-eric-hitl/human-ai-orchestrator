@@ -1,0 +1,105 @@
+[2025-07-06 16:14:32.545] INFO     test_module | This is an info message | hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.546] WARNING  test_module | This is a warning message | hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.546] ERROR    test_module | This is an error message | hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.547] CRITICAL test_module | This is a critical message | hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.548] INFO     test_module | Message with context | user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.548] INFO     test_module | User interaction: ai_handled | user_id=test_user query_preview=How do I reset my password? response_type=ai_handled session_id=test_session hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.548] INFO     test_module | Model call: test_model - generate_response | model_name=test_model operation=generate_response duration=1.23 token_count=150 user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.549] INFO     test_module | Performance: query_processing took 2.450s | operation=query_processing duration=2.45 metric=True user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.550] WARNING  error_handler | [ERR_000001] ModelError: Test model error | error_id=ERR_000001 error_category=model recovery_strategy=fallback severity=medium operation=test model_name=test_model hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.551] WARNING  error_handler | Model error detected | error_id=ERR_000001 model_name=test_model fallback_required=True hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.552] INFO     error_handler | [ERR_000002] ValidationError: Test validation error | error_id=ERR_000002 error_category=user_input recovery_strategy=ignore severity=low field=test_field invalid_value=invalid hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:32.552] WARNING  error_handler | [ERR_000003] ValueError: Generic error for testing | error_id=ERR_000003 error_category=unknown recovery_strategy=ignore severity=medium test=True hostname=e9b9d36dd099 pid=214671
+[2025-07-06 16:14:44.156] INFO     test_module | This is an info message | hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.156] WARNING  test_module | This is a warning message | hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.157] ERROR    test_module | This is an error message | hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.158] CRITICAL test_module | This is a critical message | hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.158] INFO     test_module | Message with context | user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.158] INFO     test_module | User interaction: ai_handled | user_id=test_user query_preview=How do I reset my password? response_type=ai_handled session_id=test_session hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.159] INFO     test_module | Model call: test_model - generate_response | model_name=test_model operation=generate_response duration=1.23 token_count=150 user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.159] INFO     test_module | Performance: query_processing took 2.450s | operation=query_processing duration=2.45 metric=True user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.161] WARNING  error_handler | [ERR_000001] ModelError: Test model error | error_id=ERR_000001 error_category=model recovery_strategy=fallback severity=medium operation=test model_name=test_model hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.161] WARNING  error_handler | Model error detected | error_id=ERR_000001 model_name=test_model fallback_required=True hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.162] INFO     error_handler | [ERR_000002] ValidationError: Test validation error | error_id=ERR_000002 error_category=user_input recovery_strategy=ignore severity=low field=test_field invalid_value=invalid hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:14:44.163] WARNING  error_handler | [ERR_000003] ValueError: Generic error for testing | error_id=ERR_000003 error_category=unknown recovery_strategy=ignore severity=medium test=True hostname=e9b9d36dd099 pid=215911
+[2025-07-06 16:15:52.067] INFO     test_module | This is an info message | hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.068] WARNING  test_module | This is a warning message | hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.069] ERROR    test_module | This is an error message | hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.069] CRITICAL test_module | This is a critical message | hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.069] INFO     test_module | Message with context | user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.070] INFO     test_module | User interaction: ai_handled | user_id=test_user query_preview=How do I reset my password? response_type=ai_handled session_id=test_session hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.070] INFO     test_module | Model call: test_model - generate_response | model_name=test_model operation=generate_response duration=1.23 token_count=150 user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.070] INFO     test_module | Performance: query_processing took 2.450s | operation=query_processing duration=2.45 metric=True user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.072] WARNING  error_handler | [ERR_000001] ModelError: Test model error | error_id=ERR_000001 error_category=model recovery_strategy=fallback severity=medium operation=test model_name=test_model hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.072] WARNING  error_handler | Model error detected | error_id=ERR_000001 model_name=test_model fallback_required=True hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.073] INFO     error_handler | [ERR_000002] ValidationError: Test validation error | error_id=ERR_000002 error_category=user_input recovery_strategy=ignore severity=low field=test_field invalid_value=invalid hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:15:52.073] WARNING  error_handler | [ERR_000003] ValueError: Generic error for testing | error_id=ERR_000003 error_category=unknown recovery_strategy=ignore severity=medium test=True hostname=e9b9d36dd099 pid=220498
+[2025-07-06 16:16:07.806] INFO     test_module | This is an info message | hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.807] WARNING  test_module | This is a warning message | hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.807] ERROR    test_module | This is an error message | hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.808] CRITICAL test_module | This is a critical message | hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.809] INFO     test_module | Message with context | user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.809] INFO     test_module | User interaction: ai_handled | user_id=test_user query_preview=How do I reset my password? response_type=ai_handled session_id=test_session hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.810] INFO     test_module | Model call: test_model - generate_response | model_name=test_model operation=generate_response duration=1.23 token_count=150 user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.810] INFO     test_module | Performance: query_processing took 2.450s | operation=query_processing duration=2.45 metric=True user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.811] WARNING  error_handler | [ERR_000001] ModelError: Test model error | error_id=ERR_000001 error_category=model recovery_strategy=fallback severity=medium operation=test model_name=test_model hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.812] WARNING  error_handler | Model error detected | error_id=ERR_000001 model_name=test_model fallback_required=True hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.812] INFO     error_handler | [ERR_000002] ValidationError: Test validation error | error_id=ERR_000002 error_category=user_input recovery_strategy=ignore severity=low field=test_field invalid_value=invalid hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:07.813] WARNING  error_handler | [ERR_000003] ValueError: Generic error for testing | error_id=ERR_000003 error_category=unknown recovery_strategy=ignore severity=medium test=True hostname=e9b9d36dd099 pid=221764
+[2025-07-06 16:16:44.651] INFO     test_module | This is an info message | hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.652] WARNING  test_module | This is a warning message | hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.653] ERROR    test_module | This is an error message | hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.654] CRITICAL test_module | This is a critical message | hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.655] INFO     test_module | Message with context | user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.655] INFO     test_module | User interaction: ai_handled | user_id=test_user query_preview=How do I reset my password? response_type=ai_handled session_id=test_session hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.655] INFO     test_module | Model call: test_model - generate_response | model_name=test_model operation=generate_response duration=1.23 token_count=150 user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.656] INFO     test_module | Performance: query_processing took 2.450s | operation=query_processing duration=2.45 metric=True user_id=test_user session_id=test_session hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.658] WARNING  error_handler | [ERR_000001] ModelError: Test model error | error_id=ERR_000001 error_category=model recovery_strategy=fallback severity=medium operation=test model_name=test_model hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.658] WARNING  error_handler | Model error detected | error_id=ERR_000001 model_name=test_model fallback_required=True hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.659] INFO     error_handler | [ERR_000002] ValidationError: Test validation error | error_id=ERR_000002 error_category=user_input recovery_strategy=ignore severity=low field=test_field invalid_value=invalid hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.659] WARNING  error_handler | [ERR_000003] ValueError: Generic error for testing | error_id=ERR_000003 error_category=unknown recovery_strategy=ignore severity=medium test=True hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:44.973] INFO     llm_provider.llama-7b | Initializing LLM provider | model_name=llama-7b model_type=llama is_local=True hostname=e9b9d36dd099 pid=224238
+[2025-07-06 16:16:48.968] INFO     llm_provider.llama-7b | LLM provider initialized successfully | model_name=llama-7b hostname=e9b9d36dd099 pid=224238
+[2025-07-06 18:27:26.324] INFO     test | Testing structured logging | test=True hostname=e9b9d36dd099 pid=362992
+[2025-07-07 18:47:20.980] INFO     llm_provider.factory | Attempting to create provider: llama-7b | hostname=e9b9d36dd099 pid=66187
+[2025-07-07 18:47:20.982] INFO     llm_provider.llama-7b | Initializing LLM provider | model_name=llama-7b model_type=llama is_local=True hostname=e9b9d36dd099 pid=66187
+[2025-07-07 18:47:25.434] INFO     llm_provider.llama-7b | LLM provider initialized successfully | model_name=llama-7b hostname=e9b9d36dd099 pid=66187
+[2025-07-07 18:47:25.435] INFO     llm_provider.factory | Successfully created provider: llama-7b | hostname=e9b9d36dd099 pid=66187
+[2025-07-07 18:48:16.250] INFO     llm_provider.factory | Attempting to create provider: llama-7b | hostname=e9b9d36dd099 pid=70314
+[2025-07-07 18:48:16.252] INFO     llm_provider.llama-7b | Initializing LLM provider | model_name=llama-7b model_type=llama is_local=True hostname=e9b9d36dd099 pid=70314
+[2025-07-07 18:48:20.095] INFO     llm_provider.llama-7b | LLM provider initialized successfully | model_name=llama-7b hostname=e9b9d36dd099 pid=70314
+[2025-07-07 18:48:20.095] INFO     llm_provider.factory | Successfully created provider: llama-7b | hostname=e9b9d36dd099 pid=70314
+[2025-07-07 18:48:20.096] INFO     src.nodes.answer_agent | Answer Agent LLM provider initialized | operation=initialize_llm_provider model_name=llama-7b model_type=llama hostname=e9b9d36dd099 pid=70314
+[2025-07-07 18:49:16.752] INFO     llm_provider.factory | Attempting to create provider: llama-7b | hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:16.754] INFO     llm_provider.llama-7b | Initializing LLM provider | model_name=llama-7b model_type=llama is_local=True hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:19.510] INFO     llm_provider.llama-7b | LLM provider initialized successfully | model_name=llama-7b hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:19.510] INFO     llm_provider.factory | Successfully created provider: llama-7b | hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:19.511] INFO     src.nodes.answer_agent | Answer Agent LLM provider initialized | operation=initialize_llm_provider model_name=llama-7b model_type=llama hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:24.532] ERROR    llm_provider.llama-7b | Response generation failed | model_name=llama-7b duration=5.0179479122161865 error='str' object has no attribute 'content' hostname=e9b9d36dd099 pid=74751
+Exception: Traceback (most recent call last):
+  File "/workspace/src/integrations/llm_providers.py", line 255, in generate_response
+    response_length=len(response.content) if response.content else 0,
+                                             ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'content'
+[2025-07-07 18:49:24.534] WARNING  llm_provider.retry | Attempt 1 failed, retrying in 1.0s | function=generate_response attempt=1 max_retries=3 delay=1.0 error=HybridSystemError.__init__() got an unexpected keyword argument 'extra' hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:26.628] ERROR    llm_provider.llama-7b | Response generation failed | model_name=llama-7b duration=1.0932588577270508 error='str' object has no attribute 'content' hostname=e9b9d36dd099 pid=74751
+Exception: Traceback (most recent call last):
+  File "/workspace/src/integrations/llm_providers.py", line 255, in generate_response
+    response_length=len(response.content) if response.content else 0,
+                                             ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'content'
+[2025-07-07 18:49:26.629] WARNING  llm_provider.retry | Attempt 2 failed, retrying in 2.0s | function=generate_response attempt=2 max_retries=3 delay=2.0 error=HybridSystemError.__init__() got an unexpected keyword argument 'extra' hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:29.726] ERROR    llm_provider.llama-7b | Response generation failed | model_name=llama-7b duration=1.095717430114746 error='str' object has no attribute 'content' hostname=e9b9d36dd099 pid=74751
+Exception: Traceback (most recent call last):
+  File "/workspace/src/integrations/llm_providers.py", line 255, in generate_response
+    response_length=len(response.content) if response.content else 0,
+                                             ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'content'
+[2025-07-07 18:49:29.736] ERROR    llm_provider.retry | All 3 attempts failed | function=generate_response max_retries=3 final_error=HybridSystemError.__init__() got an unexpected keyword argument 'extra' hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:49:29.736] ERROR    src.nodes.answer_agent | Error generating AI response | error=HybridSystemError.__init__() got an unexpected keyword argument 'extra' query_length=30 has_context=False operation=generate_response hostname=e9b9d36dd099 pid=74751
+[2025-07-07 18:50:00.583] INFO     llm_provider.factory | Attempting to create provider: llama-7b | hostname=e9b9d36dd099 pid=78598
+[2025-07-07 18:50:00.584] INFO     llm_provider.llama-7b | Initializing LLM provider | model_name=llama-7b model_type=llama is_local=True hostname=e9b9d36dd099 pid=78598
+[2025-07-07 18:50:03.368] INFO     llm_provider.llama-7b | LLM provider initialized successfully | model_name=llama-7b hostname=e9b9d36dd099 pid=78598
+[2025-07-07 18:50:03.368] INFO     llm_provider.factory | Successfully created provider: llama-7b | hostname=e9b9d36dd099 pid=78598
+[2025-07-07 18:50:03.368] INFO     src.nodes.answer_agent | Answer Agent LLM provider initialized | operation=initialize_llm_provider model_name=llama-7b model_type=llama hostname=e9b9d36dd099 pid=78598
+[2025-07-07 18:50:07.445] INFO     llm_provider.llama-7b | Model call: llama-7b - generate_response | model_name=llama-7b operation=generate_response duration=4.074553728103638 token_count=None prompt_length=30 response_length=36 hostname=e9b9d36dd099 pid=78598

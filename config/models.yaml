@@ -1,0 +1,97 @@
+# Model configurations for local and cloud LLMs
+models:
+  # Local Llama models
+  llama-7b:
+    path: "models/llama-7b.gguf"
+    type: "llama"
+    context_length: 2048
+    gpu_layers: 0
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Llama 7B model - good balance of speed and quality"
+    
+  llama-13b:
+    path: "models/llama-13b.gguf"
+    type: "llama"
+    context_length: 4096
+    gpu_layers: 0
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Llama 13B model - higher quality, slower inference"
+    
+  # Local Mistral models
+  mistral-7b:
+    path: "models/mistral-7b-instruct.gguf"
+    type: "mistral"
+    context_length: 4096
+    gpu_layers: 0
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Mistral 7B Instruct - excellent instruction following"
+    
+  # Code-focused models
+  codellama-7b:
+    path: "models/codellama-7b-instruct.gguf"
+    type: "llama"
+    context_length: 2048
+    gpu_layers: 0
+    temperature: 0.2
+    max_tokens: 2000
+    description: "CodeLlama 7B - optimized for code generation"
+    
+  # OpenAI models (cloud)
+  gpt-4:
+    type: "openai"
+    model_name: "gpt-4"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "OpenAI GPT-4 - highest quality, requires API key"
+    
+  gpt-3.5-turbo:
+    type: "openai"
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "OpenAI GPT-3.5 Turbo - fast and cost-effective"
+    
+  # Anthropic models (cloud)
+  claude-3-sonnet:
+    type: "anthropic"
+    model_name: "claude-3-sonnet-20240229"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Anthropic Claude 3 Sonnet - balanced performance and reasoning"
+    
+  claude-3-haiku:
+    type: "anthropic"
+    model_name: "claude-3-haiku-20240307"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Anthropic Claude 3 Haiku - fast and efficient"
+
+# Default model to use
+default_model: "llama-7b"
+
+# Fallback chain - try these models in order if primary fails
+fallback_models:
+  - "mistral-7b"
+  - "claude-3-haiku"  # Only if ANTHROPIC_API_KEY is set
+  - "gpt-3.5-turbo"  # Only if OPENAI_API_KEY is set
+
+# Model categories for different use cases
+use_cases:
+  general:
+    recommended: "llama-7b"
+    alternatives: ["mistral-7b", "claude-3-sonnet", "gpt-4"]
+    
+  code:
+    recommended: "codellama-7b"
+    alternatives: ["gpt-4", "claude-3-sonnet", "mistral-7b"]
+    
+  fast:
+    recommended: "claude-3-haiku"
+    alternatives: ["gpt-3.5-turbo", "llama-7b"]
+    
+  high_quality:
+    recommended: "gpt-4"
+    alternatives: ["claude-3-sonnet", "mistral-7b", "llama-13b"]

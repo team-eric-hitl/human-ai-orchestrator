@@ -1,168 +1,157 @@
-# Unit Tests for Common Modules
+# Test Suite Documentation
 
-This directory contains comprehensive unit tests for all common modules in the project using pytest.
+This directory contains comprehensive unit and integration tests for the Modular LangGraph Hybrid System.
 
 ## Test Structure
 
 ```
 tests/
-├── conftest.py                          # Pytest configuration and fixtures
-├── common/
-│   ├── error_handling/
-│   │   ├── test_error_handler.py        # Tests for ErrorHandler classes
-│   │   └── test_error_handler_factory.py # Tests for ErrorHandlerFactory
-│   ├── app_logging/
-│   │   └── test_app_logger.py           # Tests for AppLogger
-│   ├── config_management/
-│   │   └── test_config_manager.py       # Tests for ConfigManager
-│   ├── app_file_handling/
-│   │   └── test_app_file_handler.py     # Tests for LocalAppFileHandler
-│   └── test_common_di_container.py      # Tests for CommonDIContainer
-└── README.md                            # This file
+├── unit/                           # Unit tests for individual components
+│   ├── core/                       # Core infrastructure tests
+│   │   ├── test_config_system.py   # Configuration management
+│   │   ├── test_logging_system.py  # Logging and error handling
+│   │   ├── test_context_management.py # Context storage and retrieval
+│   │   └── test_session_tracking.py   # Session metrics and lifecycle
+│   ├── nodes/                      # LangGraph node tests
+│   │   ├── test_answer_agent.py    # Answer generation logic
+│   │   ├── test_evaluator_agent.py # Response evaluation
+│   │   └── test_escalation_router.py # Human agent routing
+│   ├── integrations/               # Integration component tests
+│   │   ├── test_llm_providers.py   # LLM provider abstraction
+│   │   └── test_langsmith_setup.py # LangSmith integration
+│   └── schemas/                    # Data model tests
+│       ├── test_state_schema.py    # State validation
+│       └── test_config_schemas.py  # Config validation
+├── integration/                    # Integration tests
+│   ├── test_workflow_orchestration.py # End-to-end workflows
+│   ├── test_provider_factory.py      # Provider creation & switching
+│   └── test_system_startup.py        # System initialization
+├── fixtures/                       # Test data and utilities
+│   ├── config_files/              # Test configurations
+│   ├── mock_responses/             # LLM response mocks
+│   └── test_data/                  # Sample conversations
+└── test_*.py                       # Validation and framework tests
 ```
-
-## Test Coverage
-
-The test suite covers the following modules:
-
-### Error Handling (`src/common/error_handling/`)
-- **ErrorHandler**: Base error handling class with logging capabilities
-- **ConfigurationError**: Specific error for configuration issues
-- **FileOperationError**: Specific error for file operation issues
-- **ErrorHandlerFactory**: Factory for creating error handlers with proper logging
-
-### Application Logging (`src/common/app_logging/`)
-- **AppLogger**: Structured logging with performance monitoring and context management
-- Logging setup and configuration
-- Structured logging with context
-- Performance monitoring decorators
-- Context managers for log context
-
-### Configuration Management (`src/common/config_management/`)
-- **ConfigManager**: Centralized configuration management with nested file support
-- Configuration file loading and parsing
-- Nested configuration handling
-- Configuration merging and namespace conversion
-- Error handling integration
-
-### File Handling (`src/common/app_file_handling/`)
-- **LocalAppFileHandler**: Local file system operations
-- YAML, JSON, and CSV file operations
-- Directory management and path utilities
-- Temporary directory management
-- Matplotlib figure saving
-
-### Dependency Injection (`src/common/`)
-- **CommonDIContainer**: Dependency injection container for common components
-- Provider configuration and singleton behavior
-- Dependency resolution
-- Error handling wiring
 
 ## Running Tests
 
-### Prerequisites
-
-Make sure you have the development dependencies installed:
-
-```bash
-pip install -e ".[dev]"
-```
-
 ### Run All Tests
-
 ```bash
-pytest
+uv run python -m pytest
 ```
 
-### Run Tests with Coverage
-
+### Run Specific Test Categories
 ```bash
-pytest --cov=src/common --cov-report=html --cov-report=term
+# Unit tests only
+uv run python -m pytest tests/unit/
+
+# Integration tests only
+uv run python -m pytest tests/integration/
+
+# Core infrastructure tests
+uv run python -m pytest tests/unit/core/
+
+# LLM provider tests
+uv run python -m pytest tests/unit/integrations/
 ```
 
-### Run Specific Test Module
-
+### Run with Coverage
 ```bash
-# Run error handling tests
-pytest tests/common/error_handling/
-
-# Run logging tests
-pytest tests/common/app_logging/
-
-# Run config management tests
-pytest tests/common/config_management/
-
-# Run file handling tests
-pytest tests/common/app_file_handling/
-
-# Run DI container tests
-pytest tests/common/test_common_di_container.py
+uv run python -m pytest --cov=src --cov-report=html
 ```
 
-### Run Tests with Verbose Output
-
+### Run Specific Test File
 ```bash
-pytest -v
+uv run python -m pytest tests/unit/core/test_config_system.py -v
 ```
 
-### Run Tests and Stop on First Failure
-
+### Run Specific Test Function
 ```bash
-pytest -x
+uv run python -m pytest tests/unit/core/test_config_system.py::TestConfigManager::test_initialization_success -v
 ```
 
 ## Test Features
 
-### Fixtures
+### Comprehensive Coverage
+- **Configuration Management**: Tests all aspects of config loading, validation, and management
+- **Logging System**: Tests structured logging, error handling, and context management
+- **Context Storage**: Tests SQLite-based context storage and retrieval
+- **Session Tracking**: Tests session metrics and lifecycle management
+- **LLM Providers**: Tests provider abstraction and model integration
+- **System Integration**: Tests end-to-end system startup and workflows
 
-The test suite includes several reusable fixtures in `conftest.py`:
+### Mock Strategy
+- **External Services**: OpenAI API, LangSmith API, file system operations
+- **Heavy Operations**: Model loading, database queries, network calls
+- **Environment Dependencies**: Environment variables, system time
+- **Provider Interfaces**: Test doubles for provider contracts
 
-- `temp_dir`: Provides a temporary directory for file operations
-- `mock_logger`: Mock logger for testing
-- `mock_config`: Mock configuration manager
-- `mock_file_handler`: Mock file handler
-- `sample_yaml_data`: Sample YAML data for testing
-- `sample_json_data`: Sample JSON data for testing
-- `sample_csv_data`: Sample CSV data for testing
-- `sample_config_files`: Sample configuration files for testing
+### Test Data Management
+- **Temporary Files**: All tests use temporary directories and files
+- **Sample Configurations**: Valid and invalid config examples
+- **Mock Responses**: Realistic LLM response data
+- **Edge Cases**: Error conditions and boundary values
 
-### Test Categories
+### Error Testing
+- **Configuration Errors**: Missing files, invalid JSON/YAML, validation failures
+- **Runtime Errors**: Model failures, network timeouts, database issues
+- **Recovery Testing**: Fallback mechanisms and error recovery
+- **Performance Testing**: Large datasets and concurrent operations
 
-Each test module includes:
+## Test Development Guidelines
 
-1. **Unit Tests**: Test individual methods and classes in isolation
-2. **Integration Tests**: Test how components work together
-3. **Error Handling Tests**: Test error conditions and edge cases
-4. **Mock Tests**: Test interactions with dependencies using mocks
+### Writing New Tests
+1. **Isolation**: Each test should be independent and not rely on external state
+2. **Mocking**: Mock external dependencies to ensure tests are fast and reliable
+3. **Coverage**: Test both happy path and error conditions
+4. **Clarity**: Use descriptive test names and clear assertions
 
-### Test Patterns
+### Test Naming Convention
+- Test files: `test_<component>_<system>.py`
+- Test classes: `Test<ComponentName>`
+- Test methods: `test_<functionality>_<scenario>`
 
-The tests follow these patterns:
+### Fixtures and Utilities
+- Use pytest fixtures for reusable test setup
+- Create temporary files and directories for file system tests
+- Mock external API calls and heavy operations
+- Validate both positive and negative test cases
 
-- **Arrange-Act-Assert**: Clear test structure
-- **Mocking**: Use of unittest.mock for dependencies
-- **Temporary Files**: Safe file operations using tempfile
-- **Context Managers**: Proper resource cleanup
-- **Comprehensive Coverage**: Test both success and failure scenarios
+## Debugging Tests
 
-## Adding New Tests
+### Verbose Output
+```bash
+uv run python -m pytest -v --tb=short
+```
 
-When adding new tests:
+### Debug Specific Test
+```bash
+uv run python -m pytest tests/unit/core/test_config_system.py::TestConfigManager::test_initialization_success -v -s
+```
 
-1. Follow the existing naming convention: `test_*.py`
-2. Use descriptive test method names: `test_<method>_<scenario>`
-3. Include both unit and integration tests
-4. Use the provided fixtures when appropriate
-5. Add proper docstrings for test methods
-6. Test both success and error scenarios
-7. Use mocks for external dependencies
+### Show Test Coverage
+```bash
+uv run python -m pytest --cov=src --cov-report=term-missing
+```
 
-## Test Quality
+## Continuous Integration
 
-The test suite aims for:
+These tests are designed to run in CI/CD environments:
+- No external dependencies (all mocked)
+- Fast execution (< 30 seconds for full suite)
+- Reliable (no flaky tests)
+- Comprehensive coverage (>90% code coverage target)
 
-- **High Coverage**: Comprehensive testing of all public methods
-- **Fast Execution**: Tests should run quickly
-- **Isolation**: Tests should not depend on each other
-- **Readability**: Clear and maintainable test code
-- **Reliability**: Tests should be deterministic and repeatable 
+## Replacing Simple Scripts
+
+This comprehensive test suite replaces the previous simple scripts:
+- `tests/simple_scripts/test_setup/` → `tests/unit/core/test_config_system.py`
+- `tests/simple_scripts/test_logging/` → `tests/unit/core/test_logging_system.py`  
+- `tests/simple_scripts/test_local/` → `tests/unit/integrations/test_llm_providers.py`
+
+The new test suite provides:
+- **Automated execution** with pytest
+- **Proper assertions** and test isolation
+- **Coverage reporting** to track completeness
+- **CI/CD integration** capability
+- **Better maintainability** with structured organization

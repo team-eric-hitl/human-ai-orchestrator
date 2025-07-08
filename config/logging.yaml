@@ -1,0 +1,311 @@
+# Logging configuration for the hybrid AI system
+# This file defines logging behavior for different environments
+
+# Global logging settings
+global:
+  # Root logger level - affects all loggers
+  root_level: WARNING
+  
+  # Default log format
+  default_format: "%(asctime)s [%(levelname)-8s] %(name)-15s | %(message)s"
+  
+  # Log directory (relative to project root)
+  log_directory: "logs"
+  
+  # Maximum log file size before rotation (bytes)
+  max_file_size: 10485760  # 10MB
+  
+  # Number of backup files to keep
+  backup_count: 5
+  
+  # Log file encoding
+  encoding: "utf-8"
+
+# Environment-specific configurations
+environments:
+  development:
+    level: DEBUG
+    console:
+      enabled: true
+      level: DEBUG
+      use_colors: true
+      use_icons: true
+      stream: stdout
+    
+    file:
+      enabled: true
+      level: DEBUG
+      path: "logs/dev.log"
+      format: structured
+      rotation: size
+      max_bytes: 10485760
+      backup_count: 3
+    
+    debug_file:
+      enabled: true
+      level: DEBUG
+      path: "logs/debug.log"
+      include_stack_trace: true
+    
+    json_file:
+      enabled: false
+    
+    langsmith:
+      enabled: false
+    
+    metrics:
+      enabled: true
+      level: INFO
+    
+    # Development-specific loggers
+    loggers:
+      "src.core.config":
+        level: DEBUG
+      "src.integrations":
+        level: DEBUG
+      "src.nodes":
+        level: DEBUG
+
+  testing:
+    level: CRITICAL
+    console:
+      enabled: false
+    
+    file:
+      enabled: false
+    
+    debug_file:
+      enabled: false
+    
+    json_file:
+      enabled: false
+    
+    langsmith:
+      enabled: false
+    
+    metrics:
+      enabled: false
+    
+    # Suppress most logging during tests
+    loggers:
+      "src":
+        level: CRITICAL
+
+  production:
+    level: INFO
+    console:
+      enabled: true
+      level: WARNING
+      use_colors: false
+      use_icons: false
+      format: compact
+    
+    file:
+      enabled: true
+      level: INFO
+      path: "/var/log/hybrid-ai/app.log"
+      format: structured
+      rotation: time
+      when: midnight
+      backup_count: 30
+    
+    json_file:
+      enabled: true
+      level: INFO
+      path: "/var/log/hybrid-ai/app.json"
+      rotation: time
+      when: midnight
+      backup_count: 30
+    
+    debug_file:
+      enabled: false
+    
+    langsmith:
+      enabled: true
+      level: WARNING
+      buffer_size: 200
+    
+    metrics:
+      enabled: true
+      level: WARNING
+    
+    # Production-specific loggers
+    loggers:
+      "src.core.logging":
+        level: WARNING
+      "src.integrations.langsmith":
+        level: ERROR
+
+# Component-specific logging configuration
+components:
+  models:
+    # Model loading and inference logging
+    level: INFO
+    log_model_calls: true
+    log_performance_metrics: true
+    log_token_usage: true
+    
+    # Model-specific settings
+    model_loggers:
+      llama:
+        level: INFO
+        log_context_usage: true
+      openai:
+        level: WARNING
+        log_api_calls: false  # Don't log API details for privacy
+      mistral:
+        level: INFO
+
+  agents:
+    # Agent decision logging
+    level: INFO
+    log_decisions: true
+    log_evaluations: true
+    log_escalations: true
+    
+    # Agent-specific settings
+    answer_agent:
+      level: INFO
+      log_response_generation: true
+    
+    evaluator_agent:
+      level: INFO
+      log_evaluation_details: true
+    
+    human_interface:
+      level: WARNING
+      log_escalation_reasons: true
+
+  workflows:
+    # Workflow execution logging
+    level: INFO
+    log_state_transitions: true
+    log_step_duration: true
+    log_errors: true
+
+  context:
+    # Context management logging
+    level: INFO
+    log_context_retrieval: true
+    log_context_storage: true
+    log_database_operations: false  # Set to true for debugging
+
+  config:
+    # Configuration loading and validation
+    level: INFO
+    log_config_loading: true
+    log_validation_warnings: true
+    log_environment_overrides: true
+
+# Error handling configuration
+error_handling:
+  # Global error handling settings
+  enabled: true
+  log_all_errors: true
+  include_stack_traces: true
+  
+  # Error categorization logging
+  log_error_categories: true
+  log_recovery_strategies: true
+  
+  # Error notification settings
+  notifications:
+    critical_errors:
+      enabled: true
+      channels: ["log", "langsmith"]
+    
+    high_errors:
+      enabled: true
+      channels: ["log"]
+    
+    medium_errors:
+      enabled: false
+    
+    low_errors:
+      enabled: false
+
+# Performance monitoring
+performance:
+  enabled: true
+  
+  # Log slow operations
+  slow_operation_threshold: 5.0  # seconds
+  log_slow_operations: true
+  
+  # Memory usage monitoring
+  log_memory_usage: false
+  memory_check_interval: 300  # seconds
+  
+  # Request/response timing
+  log_request_timing: true
+  timing_precision: 3  # decimal places
+
+# Security and privacy
+security:
+  # Sensitive data handling
+  mask_sensitive_data: true
+  sensitive_fields:
+    - "password"
+    - "api_key"
+    - "token"
+    - "secret"
+  
+  # User data privacy
+  log_user_queries: false  # Set to false for privacy
+  log_user_data: false
+  anonymize_user_ids: true
+  
+  # API key logging
+  log_api_keys: false
+  mask_api_keys: true
+
+# Integration settings
+integrations:
+  langsmith:
+    # LangSmith-specific logging
+    auto_trace: true
+    log_inputs: true
+    log_outputs: true
+    log_metadata: true
+    buffer_size: 100
+    flush_interval: 60  # seconds
+    
+    # Error handling for LangSmith
+    fallback_on_error: true
+    max_retries: 3
+
+# Log rotation and cleanup
+maintenance:
+  # Automatic log cleanup
+  auto_cleanup: true
+  max_log_age_days: 30
+  cleanup_schedule: "daily"
+  
+  # Compression settings
+  compress_rotated_logs: true
+  compression_format: "gzip"
+  
+  # Disk usage monitoring
+  max_log_disk_usage_mb: 1000
+  cleanup_on_disk_full: true
+
+# Custom formatter configurations
+formatters:
+  structured:
+    format: "[%(asctime)s] %(levelname)-8s %(name)s | %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  json:
+    include_extra: true
+    sort_keys: true
+    indent: null
+  
+  compact:
+    format: "%(asctime)s %(levelname)s %(name)s | %(message)s"
+    datefmt: "%H:%M:%S"
+  
+  colored:
+    use_colors: true
+    use_icons: true
+    show_module: true
+    show_thread: false

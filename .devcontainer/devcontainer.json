@@ -28,6 +28,13 @@
             "settings": {
                 "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
                 "python.terminal.activateEnvironment": true,
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.venvPath": "/workspace/.venv",
+                "python.venvFolders": [
+                    ".venv",
+                    "venv",
+                    "env"
+                ],
                 "jupyter.serverLaunchTimeout": 60,
                 "python.formatting.provider": "black",
                 "python.linting.enabled": true,
@@ -40,6 +47,10 @@
                 "files.associations": {
                     "*.yaml": "yaml",
                     "*.yml": "yaml"
+                },
+                "terminal.integrated.env.linux": {
+                    "VIRTUAL_ENV": "/workspace/.venv",
+                    "PATH": "/workspace/.venv/bin:${env:PATH}"
                 }
             }
         }
