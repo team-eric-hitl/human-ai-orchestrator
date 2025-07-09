@@ -1,28 +1,26 @@
 """
-Centralized configuration management system
+Agent-centric configuration management system
 
 This module provides a unified interface for loading, validating, and accessing
-all configuration files used by the hybrid AI system.
+all configuration files used by the hybrid AI system using the agent-centric approach.
 
 Usage:
     from src.core.config import ConfigManager
 
     config = ConfigManager("config")
-    model_config = config.models.get_model("llama-7b")
-    threshold = config.thresholds.escalation_score
+    agent_config = config.get_agent_config("answer_agent")
+    model = agent_config.get_preferred_model()
 """
 
-from .loaders import ConfigLoader
-from .manager import ConfigManager
-from .schemas import LLMConfig, ModelConfig, SystemConfig, ThresholdsConfig
-from .validators import ConfigValidator
+from .agent_config_manager import AgentConfigManager, AgentConfig, SystemConfig, ConfigLoadError
+
+# Use AgentConfigManager as the primary ConfigManager
+ConfigManager = AgentConfigManager
 
 __all__ = [
     "ConfigManager",
+    "AgentConfigManager", 
+    "AgentConfig",
     "SystemConfig",
-    "ModelConfig",
-    "LLMConfig",
-    "ThresholdsConfig",
-    "ConfigLoader",
-    "ConfigValidator",
+    "ConfigLoadError",
 ]

@@ -6,15 +6,16 @@ Responsibility: Route escalations to appropriate human agents
 from typing import Any
 
 from ..core.logging import get_logger
-from ..interfaces.core.config import ConfigProvider
 from ..interfaces.core.state_schema import EscalationData, HybridSystemState
+from ..core.config import ConfigManager
 
 
 class EscalationRouterNode:
     """LangGraph node for routing escalations to human agents"""
 
-    def __init__(self, config_provider: ConfigProvider):
-        self.config_provider = config_provider
+    def __init__(self, config_manager: ConfigManager):
+        self.config_manager = config_manager
+        self.agent_config = config_manager.get_agent_config("escalation_router")
         self.logger = get_logger(__name__)
         self.human_availability = self._load_human_availability()
 
@@ -93,15 +94,14 @@ class EscalationRouterNode:
         """Identify what type of expertise is needed"""
         query = state["query"].lower()
 
-        technical_keywords = ["technical", "code", "programming", "API", "bug", "error"]
-        financial_keywords = ["billing", "payment", "refund", "price", "cost"]
-
-        if any(keyword in query for keyword in technical_keywords):
-            return "technical"
-        elif any(keyword in query for keyword in financial_keywords):
-            return "financial"
-        else:
-            return "general"
+        # Use agent-specific keyword mapping
+        expertise_mapping = self.agent_config.settings.get("routing", {}).get("expertise_domains", {})
+        
+        for domain, keywords in expertise_mapping.items():
+            if any(keyword in query for keyword in keywords.get("keywords", [])):
+                return domain
+        
+        return "general"
 
     def _calculate_priority(self, state: HybridSystemState) -> str:
         """Calculate escalation priority"""

@@ -25,7 +25,7 @@ from langchain_openai import ChatOpenAI
 from langsmith import traceable
 
 # Config management
-from ..core.config import ConfigManager, ModelConfig
+from ..core.config import ConfigManager
 
 # Logging and error handling
 from ..core.logging import ModelError, ModelInferenceError, get_logger
@@ -83,17 +83,18 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0, backoff: float = 
 class LLMProvider:
     """Abstract LLM provider supporting cloud and local models"""
 
-    def __init__(self, model_config: ModelConfig):
+    def __init__(self, model_config: dict):
         self.model_config = model_config
-        self.provider_type = model_config.type
-        self.logger = get_logger(f"llm_provider.{model_config.name}")
+        self.provider_type = model_config.get("type", "unknown")
+        self.model_name = model_config.get("model_name", "unknown")
+        self.logger = get_logger(f"llm_provider.{self.model_name}")
 
         self.logger.info(
             "Initializing LLM provider",
             extra={
-                "model_name": model_config.name,
-                "model_type": model_config.type,
-                "is_local": model_config.is_local(),
+                "model_name": self.model_name,
+                "model_type": self.provider_type,
+                "is_local": self.provider_type in ["llama", "local"],
             },
         )
 
@@ -101,18 +102,18 @@ class LLMProvider:
             self.client = self._initialize_client()
             self.logger.info(
                 "LLM provider initialized successfully",
-                extra={"model_name": model_config.name},
+                extra={"model_name": self.model_name},
             )
         except Exception as e:
             self.logger.error(
                 "Failed to initialize LLM provider",
                 exc_info=True,
-                extra={"model_name": model_config.name, "error": str(e)},
+                extra={"model_name": self.model_name, "error": str(e)},
             )
             raise ModelError(
-                f"Failed to initialize {model_config.name}",
-                model_name=model_config.name,
-                model_type=model_config.type,
+                f"Failed to initialize {self.model_name}",
+                model_name=self.model_name,
+                model_type=self.provider_type,
             ) from e
 
     def _initialize_client(self) -> BaseChatModel:
@@ -139,9 +140,9 @@ class LLMProvider:
             )
 
         return ChatOpenAI(
-            model=self.model_config.model_name or "gpt-4",
-            temperature=self.model_config.temperature,
-            max_tokens=self.model_config.max_tokens,
+            model=self.model_config.get("model_name", "gpt-4"),
+            temperature=self.model_config.get("temperature", 0.7),
+            max_tokens=self.model_config.get("max_tokens", 2000),
             api_key=api_key,
         )
 
@@ -154,61 +155,64 @@ class LLMProvider:
             )
 
         return ChatAnthropic(
-            model=self.model_config.model_name or "claude-3-sonnet-20240229",
-            temperature=self.model_config.temperature,
-            max_tokens=self.model_config.max_tokens,
+            model=self.model_config.get("model_name", "claude-3-sonnet-20240229"),
+            temperature=self.model_config.get("temperature", 0.7),
+            max_tokens=self.model_config.get("max_tokens", 2000),
             api_key=api_key,
         )
 
     def _setup_llama(self) -> LlamaCpp:
         """Setup LlamaCpp client for local Llama models"""
-        if not self.model_config.path:
-            raise ValueError(f"Model path is required for {self.model_config.name}")
+        model_path = self.model_config.get("path")
+        if not model_path:
+            raise ValueError(f"Model path is required for {self.model_name}")
 
-        if not Path(self.model_config.path).exists():
-            raise FileNotFoundError(f"Model file not found: {self.model_config.path}")
+        if not Path(model_path).exists():
+            raise FileNotFoundError(f"Model file not found: {model_path}")
 
         return LlamaCpp(
-            model_path=self.model_config.path,
-            temperature=self.model_config.temperature,
-            max_tokens=self.model_config.max_tokens,
-            n_ctx=self.model_config.context_length,
-            n_gpu_layers=self.model_config.gpu_layers,
+            model_path=model_path,
+            temperature=self.model_config.get("temperature", 0.7),
+            max_tokens=self.model_config.get("max_tokens", 2000),
+            n_ctx=self.model_config.get("context_length", 2048),
+            n_gpu_layers=self.model_config.get("gpu_layers", 0),
             verbose=False,
         )
 
     def _setup_mistral(self) -> LlamaCpp:
         """Setup Mistral client (uses LlamaCpp backend)"""
-        if not self.model_config.path:
-            raise ValueError(f"Model path is required for {self.model_config.name}")
+        model_path = self.model_config.get("path")
+        if not model_path:
+            raise ValueError(f"Model path is required for {self.model_name}")
 
-        if not Path(self.model_config.path).exists():
-            raise FileNotFoundError(f"Model file not found: {self.model_config.path}")
+        if not Path(model_path).exists():
+            raise FileNotFoundError(f"Model file not found: {model_path}")
 
         return LlamaCpp(
-            model_path=self.model_config.path,
-            temperature=self.model_config.temperature,
-            max_tokens=self.model_config.max_tokens,
-            n_ctx=self.model_config.context_length,
-            n_gpu_layers=self.model_config.gpu_layers,
+            model_path=model_path,
+            temperature=self.model_config.get("temperature", 0.7),
+            max_tokens=self.model_config.get("max_tokens", 2000),
+            n_ctx=self.model_config.get("context_length", 2048),
+            n_gpu_layers=self.model_config.get("gpu_layers", 0),
             verbose=False,
         )
 
     def _setup_ctransformers(self) -> CTransformers:
         """Setup CTransformers client for optimized local models"""
-        if not self.model_config.path:
-            raise ValueError(f"Model path is required for {self.model_config.name}")
+        model_path = self.model_config.get("path")
+        if not model_path:
+            raise ValueError(f"Model path is required for {self.model_name}")
 
-        if not Path(self.model_config.path).exists():
-            raise FileNotFoundError(f"Model file not found: {self.model_config.path}")
+        if not Path(model_path).exists():
+            raise FileNotFoundError(f"Model file not found: {model_path}")
 
         return CTransformers(
-            model=self.model_config.path,
+            model=model_path,
             model_type="llama",  # CTransformers model type
-            temperature=self.model_config.temperature,
-            max_new_tokens=self.model_config.max_tokens,
-            context_length=self.model_config.context_length,
-            gpu_layers=self.model_config.gpu_layers,
+            temperature=self.model_config.get("temperature", 0.7),
+            max_new_tokens=self.model_config.get("max_tokens", 2000),
+            context_length=self.model_config.get("context_length", 2048),
+            gpu_layers=self.model_config.get("gpu_layers", 0),
         )
 
     @retry_on_failure(max_retries=3, delay=1.0, backoff=2.0)
@@ -216,11 +220,11 @@ class LLMProvider:
         run_type="llm",
         name="LLM Response Generation",
         metadata=lambda self, prompt, system_prompt="": {
-            "model_name": self.model_config.name,
-            "model_type": self.model_config.type,
-            "temperature": self.model_config.temperature,
-            "max_tokens": self.model_config.max_tokens,
-            "is_local": self.model_config.is_local(),
+            "model_name": self.model_name,
+            "model_type": self.provider_type,
+            "temperature": self.model_config.get("temperature", 0.7),
+            "max_tokens": self.model_config.get("max_tokens", 2000),
+            "is_local": self.provider_type in ["llama", "local"],
             "prompt_length": len(prompt),
             "has_system_prompt": bool(system_prompt),
         },
@@ -232,7 +236,7 @@ class LLMProvider:
         self.logger.debug(
             "Starting response generation",
             extra={
-                "model_name": self.model_config.name,
+                "model_name": self.model_name,
                 "prompt_length": len(prompt),
                 "has_system_prompt": bool(system_prompt),
             },
@@ -254,7 +258,7 @@ class LLMProvider:
                 response_text = str(response)
 
             self.logger.model_call(
-                model_name=self.model_config.name,
+                model_name=self.model_name,
                 operation="generate_response",
                 duration=duration,
                 prompt_length=len(prompt),
@@ -269,16 +273,16 @@ class LLMProvider:
                 "Response generation failed",
                 exc_info=True,
                 extra={
-                    "model_name": self.model_config.name,
+                    "model_name": self.model_name,
                     "duration": duration,
                     "error": str(e),
                 },
             )
 
             raise ModelInferenceError(
-                f"Failed to generate response with {self.model_config.name}",
-                model_name=self.model_config.name,
-                model_type=self.model_config.type,
+                f"Failed to generate response with {self.model_name}",
+                model_name=self.model_name,
+                model_type=self.provider_type,
                 extra={"prompt_length": len(prompt), "duration": duration},
             ) from e
 
@@ -286,27 +290,27 @@ class LLMProvider:
         run_type="llm",
         name="LLM Response Evaluation",
         metadata=lambda self, query, response: {
-            "model_name": self.model_config.name,
-            "model_type": self.model_config.type,
+            "model_name": self.model_name,
+            "model_type": self.provider_type,
             "query_length": len(query),
             "response_length": len(response),
-            "evaluation_model": self.model_config.name,
+            "evaluation_model": self.model_name,
         },
     )
     def evaluate_response(self, query: str, response: str) -> dict[str, Any]:
         """Evaluate response quality using LLM"""
         evaluation_prompt = f"""
         Evaluate the following AI response to a user query.
-        
+
         User Query: {query}
         AI Response: {response}
-        
+
         Rate the response on a scale of 1-10 for:
         1. Accuracy: How correct and factual is the response?
         2. Completeness: Does it address all aspects of the query?
         3. Clarity: Is it clear and easy to understand?
         4. User Satisfaction: How likely is the user to be satisfied?
-        
+
         Provide your evaluation as JSON:
         {{
             "accuracy": <score>,
@@ -319,7 +323,7 @@ class LLMProvider:
         """
 
         try:
-            result = self.generate_response(evaluation_prompt)
+            self.generate_response(evaluation_prompt)
             # Parse JSON response (simplified - in production, add proper parsing)
             return {
                 "accuracy": 8.0,
@@ -373,62 +377,61 @@ class LLMProviderFactory:
 
     def create_auto_provider(self) -> LLMProvider:
         """Automatically select the best available provider"""
-        strategy = self.config_manager.get_provider_strategy()
+        # Get provider strategy from system config
+        system_config = self.config_manager.get_system_config()
+        strategy = system_config.providers.get("strategy", "auto")
+        
+        # Get available models from config
+        models_config = self.config_manager.get_models_config()
+        available_models = models_config.get("models", {})
+        
+        if not available_models:
+            raise ValueError(
+                "No models are available. Check your configuration and model files."
+            )
 
         if strategy == "auto":
             # Try to find the best available model
-            available_models = self.config_manager.get_available_models()
-
-            if not available_models:
-                raise ValueError(
-                    "No models are available. Check your configuration and model files."
-                )
-
             # Prefer local models, then OpenAI
-            local_models = [m for m in available_models if m.is_local()]
+            local_models = {k: v for k, v in available_models.items() if v.get("type") in ["llama", "local"]}
             if local_models:
-                model_config = local_models[0]
-                print(f"✅ Auto-selected local model: {model_config.name}")
+                model_name = list(local_models.keys())[0]
+                model_config = local_models[model_name]
+                print(f"✅ Auto-selected local model: {model_name}")
             else:
-                model_config = available_models[0]
-                print(f"✅ Auto-selected cloud model: {model_config.name}")
+                model_name = list(available_models.keys())[0]
+                model_config = available_models[model_name]
+                print(f"✅ Auto-selected cloud model: {model_name}")
 
             return LLMProvider(model_config)
 
         elif strategy == "local":
             # Force local model
-            available_models = [
-                m for m in self.config_manager.get_available_models() if m.is_local()
-            ]
-            if not available_models:
+            local_models = {k: v for k, v in available_models.items() if v.get("type") in ["llama", "local"]}
+            if not local_models:
                 raise ValueError("No local models are available")
-            return LLMProvider(available_models[0])
+            model_name = list(local_models.keys())[0]
+            return LLMProvider(local_models[model_name])
 
         elif strategy == "openai":
             # Force OpenAI
-            openai_models = [
-                m
-                for m in self.config_manager.get_available_models()
-                if m.type == "openai"
-            ]
+            openai_models = {k: v for k, v in available_models.items() if v.get("type") == "openai"}
             if not openai_models:
                 raise ValueError(
                     "No OpenAI models are available (check OPENAI_API_KEY)"
                 )
-            return LLMProvider(openai_models[0])
+            model_name = list(openai_models.keys())[0]
+            return LLMProvider(openai_models[model_name])
 
         elif strategy == "anthropic":
             # Force Anthropic
-            anthropic_models = [
-                m
-                for m in self.config_manager.get_available_models()
-                if m.type == "anthropic"
-            ]
+            anthropic_models = {k: v for k, v in available_models.items() if v.get("type") == "anthropic"}
             if not anthropic_models:
                 raise ValueError(
                     "No Anthropic models are available (check ANTHROPIC_API_KEY)"
                 )
-            return LLMProvider(anthropic_models[0])
+            model_name = list(anthropic_models.keys())[0]
+            return LLMProvider(anthropic_models[model_name])
 
         else:
             # Strategy is a specific model name
@@ -442,7 +445,10 @@ class LLMProviderFactory:
         logger = get_logger("llm_provider.factory")
 
         # Get fallback chain from config
-        fallback_models = self.config_manager.models.fallback_models
+        models_config = self.config_manager.get_models_config()
+        use_cases = models_config.get("use_cases", {})
+        general_use_case = use_cases.get("general", {})
+        fallback_models = general_use_case.get("alternatives", [])
 
         # Start with preferred model if specified
         models_to_try = []
@@ -451,9 +457,9 @@ class LLMProviderFactory:
 
         # Add primary model
         try:
-            primary_model = self.config_manager.get_primary_model()
-            if primary_model.name not in models_to_try:
-                models_to_try.append(primary_model.name)
+            primary_model = general_use_case.get("recommended", "llama-7b")
+            if primary_model not in models_to_try:
+                models_to_try.append(primary_model)
         except Exception:
             pass
 

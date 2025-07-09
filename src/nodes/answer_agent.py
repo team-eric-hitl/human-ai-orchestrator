@@ -8,18 +8,17 @@ from langsmith import traceable
 
 from ..core.logging import get_logger
 from ..integrations.llm_providers import LLMProviderFactory
-from ..interfaces.core.config import ConfigProvider
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
+from ..core.config import ConfigManager
 
 
 class AnswerAgentNode:
     """LangGraph node for generating initial AI responses"""
 
-    def __init__(
-        self, config_provider: ConfigProvider, context_provider: ContextProvider
-    ):
-        self.config_provider = config_provider
+    def __init__(self, config_manager: ConfigManager, context_provider: ContextProvider):
+        self.config_manager = config_manager
+        self.agent_config = config_manager.get_agent_config("answer_agent")
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
@@ -28,13 +27,23 @@ class AnswerAgentNode:
         """Initialize the LLM provider with fallback strategy"""
         try:
             factory = LLMProviderFactory()
-            provider = factory.create_provider_with_fallback()
+            
+            # Use agent-specific model configuration
+            preferred_model = self.agent_config.get_preferred_model()
+            fallback_models = self.agent_config.get_fallback_models()
+            provider = factory.create_provider_with_fallback(
+                preferred_model=preferred_model,
+                fallback_models=fallback_models
+            )
+            
             self.logger.info(
                 "Answer Agent LLM provider initialized",
                 extra={
                     "operation": "initialize_llm_provider",
                     "model_name": provider.model_config.name,
                     "model_type": provider.model_config.type,
+                    "preferred_model": preferred_model,
+                    "fallback_models": fallback_models,
                 },
             )
             return provider
@@ -52,10 +61,9 @@ class AnswerAgentNode:
         LangSmith automatically tracks: tokens, latency, costs, errors
         """
 
-        # Get configuration
-        system_prompt = self.config_provider.prompts.answer_agent.get("system_prompt", 
-            "You are a helpful AI assistant. Answer the user's question clearly and concisely.")
-        context_integration = self.config_provider.prompts.answer_agent.get("context_integration", "")
+        # Get configuration from agent config
+        system_prompt = self.agent_config.get_prompt("system")
+        context_integration = self.agent_config.prompts.get("context_integration_prompt", "")
 
         # Build context-aware prompt
         context_prompt = self._build_context_prompt(state)

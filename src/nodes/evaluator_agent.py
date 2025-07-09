@@ -9,18 +9,17 @@ from langsmith import traceable
 
 from ..core.logging import get_logger
 from ..integrations.llm_providers import LLMProviderFactory
-from ..interfaces.core.config import ConfigProvider
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import EvaluationResult, HybridSystemState
+from ..core.config import ConfigManager
 
 
 class EvaluatorAgentNode:
     """LangGraph node for evaluating responses and escalation decisions"""
 
-    def __init__(
-        self, config_provider: ConfigProvider, context_provider: ContextProvider
-    ):
-        self.config_provider = config_provider
+    def __init__(self, config_manager: ConfigManager, context_provider: ContextProvider):
+        self.config_manager = config_manager
+        self.agent_config = config_manager.get_agent_config("evaluator_agent")
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
@@ -29,13 +28,23 @@ class EvaluatorAgentNode:
         """Initialize LLM provider for evaluation with fallback strategy"""
         try:
             factory = LLMProviderFactory()
-            provider = factory.create_provider_with_fallback()
+            
+            # Use agent-specific model configuration
+            preferred_model = self.agent_config.get_preferred_model()
+            fallback_models = self.agent_config.get_fallback_models()
+            provider = factory.create_provider_with_fallback(
+                preferred_model=preferred_model,
+                fallback_models=fallback_models
+            )
+            
             self.logger.info(
                 "Evaluator Agent LLM provider initialized",
                 extra={
                     "operation": "initialize_llm_provider",
                     "model_name": provider.model_config.name,
                     "model_type": provider.model_config.type,
+                    "preferred_model": preferred_model,
+                    "fallback_models": fallback_models,
                 },
             )
             return provider
@@ -153,7 +162,9 @@ class EvaluatorAgentNode:
     def _decide_escalation(self, evaluation: EvaluationResult) -> tuple[bool, str]:
         """Decide if escalation is needed"""
 
-        threshold = self.config_provider.thresholds.escalation_score
+        # Get threshold from agent config
+        threshold = self.agent_config.get_setting("escalation.confidence_threshold", 0.7) * 10  # Convert to 1-10 scale
+        
         reasons = []
 
         if evaluation.overall_score < threshold:

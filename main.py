@@ -31,31 +31,26 @@ def setup_environment():
         # Get configuration summary
         summary = config_manager.get_summary()
         
-        logger.info("Configuration loaded successfully", extra={
-            "provider_strategy": summary['provider_strategy'],
-            "primary_model": summary['primary_model'],
-            "available_models_count": len(summary['available_models']),
-            "total_models_configured": summary['total_models_configured']
+        logger.info("Agent-centric configuration loaded successfully", extra={
+            "environment": summary['environment'],
+            "agents_loaded": summary['agents_loaded'],
+            "models_configured": summary['models_configured']
         })
         
         print(f"🚀 Configuration Summary:")
-        print(f"   Provider Strategy: {summary['provider_strategy']}")
-        print(f"   Primary Model: {summary['primary_model']} ({summary.get('primary_model_type', 'unknown')})")
-        print(f"   Available Models: {len(summary['available_models'])}/{summary['total_models_configured']}")
+        print(f"   Environment: {summary['environment']}")
+        print(f"   System: {summary['system_name']} v{summary['system_version']}")
+        print(f"   Agents Loaded: {summary['agents_loaded']}")
+        print(f"   Agent Names: {', '.join(summary['agent_names'])}")
+        print(f"   Models Configured: {summary['models_configured']}")
+        print(f"   Providers Configured: {summary['providers_configured']}")
         
-        if summary['available_models']:
-            print(f"   ✅ Available: {', '.join(summary['available_models'])}")
-        
-        # Show validation results for local models
-        validation_results = summary.get('validation_results', {})
-        missing_models = [name for name, valid in validation_results.items() if not valid]
-        
-        if missing_models:
-            logger.warning("Missing model files detected", extra={
-                "missing_models": missing_models
-            })
-            print(f"   ⚠️  Missing model files: {', '.join(missing_models)}")
-            print("      Download model files or update paths in config/models.yaml")
+        # Show structure validation
+        structure = summary['config_files_structure']
+        print(f"   Structure: {'✅' if all(structure.values()) else '⚠️'}")
+        for component, exists in structure.items():
+            status = "✅" if exists else "❌"
+            print(f"     {status} {component}")
         
         logger.info("Environment setup completed successfully")
         print("✅ Environment setup complete")
