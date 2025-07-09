@@ -2,16 +2,43 @@
 
 ## Overview
 
-The Hybrid AI-Human System uses a flexible, hierarchical configuration system that allows customization without code changes. This guide covers all configuration options, best practices, and common scenarios.
+The Modular LangGraph Hybrid System uses an **agent-centric configuration approach** that provides maximum modularity and flexibility. Each agent has its own configuration namespace while sharing global settings through a structured hierarchy.
 
-## Configuration Hierarchy
+## Agent-Centric Configuration Architecture
+
+The system uses a three-tier configuration structure:
+
+```
+config/
+├── agents/                          # Agent-specific configurations
+│   ├── answer_agent/
+│   │   ├── config.yaml             # Agent settings & behavior
+│   │   ├── prompts.yaml            # Agent prompts & templates
+│   │   └── models.yaml             # Agent model preferences
+│   ├── evaluator_agent/
+│   ├── escalation_router/
+│   └── human_interface/
+├── shared/                          # Global configurations
+│   ├── models.yaml                 # Master model definitions
+│   ├── system.yaml                 # System-wide settings
+│   └── providers.yaml              # Provider configurations
+├── environments/                    # Environment-specific overrides
+│   ├── development.yaml
+│   ├── testing.yaml
+│   └── production.yaml
+└── config.yaml                     # Main configuration coordinator
+```
+
+## Configuration Loading Priority
 
 The system loads configuration in the following priority order:
 
 ```
 1. Environment Variables (.env file)    [Highest Priority]
-2. Configuration Files (/config/)
-3. Default Values (in code)             [Lowest Priority]
+2. Environment-specific overrides       [config/environments/]
+3. Agent-specific configurations        [config/agents/]
+4. Shared configurations               [config/shared/]
+5. Default Values (in code)            [Lowest Priority]
 ```
 
 Higher priority sources override lower priority ones.
@@ -44,75 +71,60 @@ OPENAI_API_KEY=sk-your_openai_api_key_here
 ANTHROPIC_API_KEY=sk-ant-your_anthropic_key_here
 ```
 
-#### Monitoring and Tracing
+#### Environment and System Settings
 ```bash
+# Environment type affects configuration loading
+HYBRID_SYSTEM_ENV=development  # development, testing, production
+
 # LangSmith for monitoring (optional but recommended)
 LANGCHAIN_API_KEY=ls__your_langsmith_key_here
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_PROJECT=hybrid-ai-system
-```
-
-#### Environment Settings
-```bash
-# Environment type affects logging, performance tuning
-ENVIRONMENT=development  # development, staging, production
 
 # Python environment
 PYTHONPATH=.
 PYTHONDONTWRITEBYTECODE=1
 ```
 
-## Configuration Files (/config/)
+## Shared Configuration Files
 
-### models.yaml - LLM Model Configuration
+### shared/models.yaml - Global Model Definitions
 
-Controls which AI models are available and how they're configured.
+Defines all available models and their configurations:
 
 ```yaml
-# Model definitions
 models:
   # Local models (no API key required)
   llama-7b:
-    path: "models/llama-7b.gguf"        # Path to model file
-    type: "llama"                       # Provider type
-    context_length: 2048                # Maximum context window
-    gpu_layers: 0                       # GPU acceleration layers
-    temperature: 0.7                    # Sampling temperature
-    max_tokens: 2000                    # Maximum tokens to generate
+    provider: "ollama"
+    model_name: "llama2:7b"
+    context_length: 4096
+    temperature: 0.7
+    max_tokens: 2000
     description: "Llama 7B - fast local model"
     
   mistral-7b:
-    path: "models/mistral-7b-instruct.gguf"
-    type: "mistral"
-    context_length: 4096
-    gpu_layers: 0
+    provider: "ollama"
+    model_name: "mistral:7b"
+    context_length: 8192
     temperature: 0.7
     max_tokens: 2000
     description: "Mistral 7B - excellent instruction following"
     
   # Cloud models (require API keys)
   gpt-4:
-    type: "openai"                      # Provider identifier
-    model_name: "gpt-4"                 # Provider-specific model name
+    provider: "openai"
+    model_name: "gpt-4"
     temperature: 0.7
     max_tokens: 2000
     description: "OpenAI GPT-4 - highest quality"
     
   claude-3-sonnet:
-    type: "anthropic"
+    provider: "anthropic"
     model_name: "claude-3-sonnet-20240229"
     temperature: 0.7
     max_tokens: 2000
     description: "Anthropic Claude 3 Sonnet - balanced performance"
-
-# Default model selection
-default_model: "llama-7b"
-
-# Fallback chain (tried in order if primary fails)
-fallback_models:
-  - "mistral-7b"
-  - "claude-3-sonnet"    # Only if ANTHROPIC_API_KEY is set
-  - "gpt-4"              # Only if OPENAI_API_KEY is set
 
 # Model categories for different use cases
 use_cases:
@@ -121,502 +133,347 @@ use_cases:
     alternatives: ["mistral-7b", "claude-3-sonnet", "gpt-4"]
     
   code:
-    recommended: "codellama-7b"
+    recommended: "mistral-7b"
     alternatives: ["gpt-4", "claude-3-sonnet"]
     
   fast:
-    recommended: "claude-3-haiku"
-    alternatives: ["gpt-3.5-turbo", "llama-7b"]
+    recommended: "llama-7b"
+    alternatives: ["mistral-7b"]
     
   high_quality:
     recommended: "gpt-4"
     alternatives: ["claude-3-sonnet", "mistral-7b"]
 ```
 
-#### Model Configuration Options
+### shared/providers.yaml - Provider Configurations
 
-| Option | Description | Required | Default |
-|--------|-------------|----------|---------|
-| `name` | Model identifier | Yes | - |
-| `type` | Provider type (openai, anthropic, llama, mistral) | Yes | - |
-| `model_name` | Provider-specific model name | Cloud only | - |
-| `path` | Local model file path | Local only | - |
-| `temperature` | Sampling temperature (0.0-2.0) | No | 0.7 |
-| `max_tokens` | Maximum tokens to generate | No | 2000 |
-| `context_length` | Maximum context window | Local only | 2048 |
-| `gpu_layers` | GPU acceleration layers | Local only | 0 |
-| `description` | Human-readable description | No | - |
-
-### prompts.json - Agent Prompts and Behavior
-
-Controls how each agent behaves through system prompts and parameters.
-
-```json
-{
-  "answer_agent": {
-    "system_prompt": "You are a helpful AI assistant. Provide accurate, helpful responses to user queries. Use context from previous conversations when available to provide more personalized assistance.",
-    "context_integration": "When context is available, reference previous interactions to provide continuity and avoid repetition.",
-    "response_style": "Clear, concise, and professional while maintaining a helpful tone."
-  },
-  
-  "evaluator_agent": {
-    "system_prompt": "You are an evaluation specialist. Assess the quality of AI responses based on accuracy, completeness, clarity, and user satisfaction. Consider context factors when making escalation decisions.",
-    
-    "evaluation_criteria": {
-      "accuracy": "How correct and factual is the response?",
-      "completeness": "Does the response address all aspects of the query?", 
-      "clarity": "Is the response clear and easy to understand?",
-      "user_satisfaction": "How likely is the user to be satisfied with this response?"
-    },
-    
-    "escalation_thresholds": {
-      "low_score": 4.0,              # Escalate if overall score below this
-      "repeat_query": true,          # Escalate if user repeating similar queries
-      "escalation_history": 2        # Escalate if user has 2+ previous escalations
-    }
-  },
-  
-  "escalation_router": {
-    "system_prompt": "You are an escalation routing specialist. Analyze queries and assign them to the most appropriate human agent based on expertise requirements and priority levels.",
-    
-    "expertise_mapping": {
-      "technical": ["code", "programming", "API", "bug", "error", "technical", "system"],
-      "financial": ["billing", "payment", "refund", "price", "cost", "financial", "money"],
-      "general": ["general", "help", "support", "question"]
-    },
-    
-    "priority_factors": {
-      "high": ["urgent", "critical", "broken", "failed", "error"],
-      "medium": ["issue", "problem", "help", "support"],
-      "low": ["question", "information", "general"]
-    }
-  },
-  
-  "human_interface": {
-    "system_prompt": "You are a human agent interface. Present escalated queries to human agents with clear context and facilitate smooth handoffs between AI and human assistance.",
-    "handoff_message": "This query has been escalated to a human agent. Please provide the following context to assist the user effectively."
-  }
-}
-```
-
-#### Prompt Configuration Best Practices
-1. **Clear Instructions**: Make system prompts specific and actionable
-2. **Context Awareness**: Include instructions for using conversation history
-3. **Consistent Tone**: Maintain brand voice across all agents
-4. **Measurable Criteria**: Define clear evaluation criteria
-5. **Flexible Thresholds**: Make numeric thresholds configurable
-
-### config.json - Core System Settings
-
-System-wide configuration and operational parameters.
-
-```json
-{
-  "system": {
-    "name": "Hybrid AI-Human System",
-    "version": "1.0.0",
-    "description": "Intelligent AI-human workflow orchestration"
-  },
-  
-  "thresholds": {
-    "escalation_score": 6.0,           # Global escalation threshold
-    "confidence_threshold": 0.7,       # Minimum confidence for responses
-    "max_context_entries": 50,         # Maximum context history per user
-    "session_timeout_minutes": 30      # Session expiry time
-  },
-  
-  "providers": {
-    "config": {
-      "type": "file",
-      "config_dir": "config"
-    },
-    "context": {
-      "type": "sqlite",
-      "db_path": "data/hybrid_system.db",
-      "backup_enabled": true,
-      "cleanup_days": 30
-    },
-    "session": {
-      "type": "memory",
-      "max_sessions": 1000
-    }
-  },
-  
-  "performance": {
-    "max_concurrent_requests": 10,
-    "request_timeout_seconds": 30,
-    "retry_attempts": 3,
-    "retry_delay_seconds": 1.0
-  },
-  
-  "monitoring": {
-    "metrics_enabled": true,
-    "health_checks_enabled": true,
-    "log_level": "INFO",
-    "trace_enabled": false
-  }
-}
-```
-
-### logging.yaml - Logging Configuration
-
-Controls system logging behavior and output formats.
+Defines LLM provider settings:
 
 ```yaml
-version: 1
-disable_existing_loggers: false
-
-formatters:
-  standard:
-    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+llm_providers:
+  openai:
+    base_url: "https://api.openai.com/v1"
+    timeout: 30
+    max_retries: 3
+    retry_delay: 1.0
     
-  json:
-    format: "%(asctime)s %(name)s %(levelname)s %(message)s"
-    class: "src.core.logging.formatters.JSONFormatter"
+  anthropic:
+    base_url: "https://api.anthropic.com"
+    timeout: 30
+    max_retries: 3
+    retry_delay: 1.0
     
-  detailed:
-    format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s() - %(message)s"
-
-handlers:
-  console:
-    class: logging.StreamHandler
-    level: INFO
-    formatter: standard
-    stream: ext://sys.stdout
-    
-  file:
-    class: logging.handlers.RotatingFileHandler
-    level: DEBUG
-    formatter: json
-    filename: logs/app.log
-    maxBytes: 10485760  # 10MB
-    backupCount: 5
-    
-  error_file:
-    class: logging.handlers.RotatingFileHandler
-    level: ERROR
-    formatter: detailed
-    filename: logs/error.log
-    maxBytes: 10485760  # 10MB
-    backupCount: 5
-
-loggers:
-  src:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: false
-    
-  src.nodes:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: false
-    
-  src.integrations.llm_providers:
-    level: INFO
-    handlers: [console, file]
-    propagate: false
-
-root:
-  level: INFO
-  handlers: [console, file, error_file]
+  ollama:
+    base_url: "http://localhost:11434"
+    timeout: 60
+    max_retries: 2
+    retry_delay: 2.0
 ```
 
-## Environment-Specific Configuration
+### shared/system.yaml - System-wide Settings
 
-### Development Environment
-```bash
-# .env
-ENVIRONMENT=development
-LOG_LEVEL=DEBUG
-MOCK_LLM_PROVIDERS=true
+Global system configuration:
+
+```yaml
+system:
+  name: "Modular LangGraph Hybrid System"
+  version: "1.0.0"
+  description: "Agent-centric AI workflow orchestration platform"
+
+# Performance and behavior thresholds
+thresholds:
+  response_time_warning: 10.0
+  response_time_error: 30.0
+  quality_score_minimum: 0.7
+  escalation_threshold: 0.5
+  context_length_warning: 0.8
+  retry_attempts: 3
+
+# Monitoring and observability
+monitoring:
+  enable_langsmith: true
+  enable_metrics: true
+  log_level: "INFO"
+  trace_requests: true
+
+# Security settings
+security:
+  validate_inputs: true
+  sanitize_outputs: true
+  rate_limiting: true
+  max_requests_per_minute: 60
+
+# Performance settings
+performance:
+  enable_caching: true
+  cache_ttl: 3600
+  max_concurrent_requests: 5
+  request_timeout: 30
 ```
 
-```json
-// config/config.json (development overrides)
-{
-  "monitoring": {
-    "log_level": "DEBUG",
-    "trace_enabled": true
-  },
-  "performance": {
-    "request_timeout_seconds": 60
-  }
-}
+## Agent-Specific Configuration
+
+Each agent has its own configuration directory with three files:
+
+### agents/{agent_name}/config.yaml - Agent Settings
+
+Example for `answer_agent`:
+
+```yaml
+agent:
+  name: "Answer Agent"
+  description: "Handles direct query responses using configured LLMs"
+  type: "llm_agent"
+  enabled: true
+
+# Agent behavior settings
+behavior:
+  max_thinking_time: 30
+  enable_reasoning: true
+  use_chain_of_thought: true
+  context_retention: "full"
+
+# Agent-specific settings
+settings:
+  response_format: "markdown"
+  include_confidence: true
+  max_response_length: 2000
+  enable_citations: false
+
+# Evaluation criteria for this agent
+evaluation:
+  quality_threshold: 0.8
+  response_time_target: 5.0
+  accuracy_weight: 0.6
+  helpfulness_weight: 0.4
 ```
 
-### Production Environment
-```bash
-# .env
-ENVIRONMENT=production
-LOG_LEVEL=INFO
-LANGCHAIN_TRACING_V2=true
+### agents/{agent_name}/models.yaml - Model Preferences
+
+```yaml
+# Primary model for this agent
+preferred: "llama-7b"
+
+# Fallback models (tried in order)
+fallback:
+  - "mistral-7b"
+  - "claude-3-sonnet"
+
+# Model-specific overrides for this agent
+model_overrides:
+  llama-7b:
+    temperature: 0.5  # More conservative for answers
+    max_tokens: 1500
+  
+  gpt-4:
+    temperature: 0.3  # Very conservative for high-quality answers
+    max_tokens: 2000
+
+# Use case mapping for this agent
+use_cases:
+  simple_questions: "llama-7b"
+  complex_analysis: "gpt-4"
+  code_questions: "mistral-7b"
 ```
 
-```json
-// config/config.json (production overrides)
-{
-  "thresholds": {
-    "escalation_score": 7.0
-  },
-  "performance": {
-    "max_concurrent_requests": 50,
-    "request_timeout_seconds": 15
-  },
-  "monitoring": {
-    "metrics_enabled": true,
-    "health_checks_enabled": true
-  }
-}
+### agents/{agent_name}/prompts.yaml - Agent Prompts
+
+```yaml
+# System prompt for this agent
+system_prompt: |
+  You are an Answer Agent in a hybrid AI-human system. Your role is to provide
+  direct, helpful responses to user queries. Be accurate, concise, and helpful.
+  
+  If you're uncertain about something, indicate your confidence level.
+  If a query is too complex, you may escalate to a human agent.
+
+# Prompt templates for different scenarios
+templates:
+  standard_response: |
+    User Query: {query}
+    
+    Please provide a helpful and accurate response. Include your confidence level.
+  
+  complex_query: |
+    User Query: {query}
+    Context: {context}
+    
+    This appears to be a complex query. Provide the best response you can,
+    or recommend escalation if needed.
+  
+  follow_up: |
+    Previous conversation: {history}
+    New query: {query}
+    
+    Continue the conversation with a helpful response.
+
+# Response formatting templates
+response_formats:
+  with_confidence: |
+    {response}
+    
+    Confidence: {confidence}/10
+  
+  with_citations: |
+    {response}
+    
+    Sources: {citations}
 ```
+
+## Environment-Specific Overrides
+
+### environments/development.yaml
+
+Development environment settings:
+
+```yaml
+system:
+  environment: "development"
+
+# Development-specific thresholds (more permissive)
+thresholds:
+  quality_score_minimum: 0.5
+  response_time_warning: 15.0
+  escalation_threshold: 0.3
+
+# Enhanced logging for development
+monitoring:
+  log_level: "DEBUG"
+  trace_requests: true
+  enable_detailed_metrics: true
+
+# Agent overrides for development
+agents:
+  answer_agent:
+    behavior:
+      enable_reasoning: true
+      max_thinking_time: 60  # More time for debugging
+    
+    settings:
+      include_confidence: true
+      enable_debug_info: true
+```
+
+### environments/production.yaml
+
+Production environment settings:
+
+```yaml
+system:
+  environment: "production"
+
+# Stricter thresholds for production
+thresholds:
+  quality_score_minimum: 0.8
+  response_time_warning: 5.0
+  escalation_threshold: 0.7
+
+# Production monitoring
+monitoring:
+  log_level: "WARNING"
+  enable_detailed_metrics: false
+  alert_on_errors: true
+
+# Security enhancements
+security:
+  validate_inputs: true
+  sanitize_outputs: true
+  rate_limiting: true
+  max_requests_per_minute: 100
+
+# Performance optimizations
+performance:
+  enable_caching: true
+  cache_ttl: 7200
+  max_concurrent_requests: 10
+```
+
+## Benefits of Agent-Centric Configuration
+
+### Developer Isolation
+- Each agent has its own configuration namespace
+- Changes to one agent don't affect others
+- Clear separation of concerns
+
+### Modular Testing
+- Agents can be tested independently
+- Easy to mock or override specific agent configs
+- Test scenarios can target individual agents
+
+### Easy Agent Development
+- New agents can be added without touching existing configs
+- Copy existing agent structure as template
+- Clear configuration contract for each agent
+
+### Environment Management
+- Clean separation of dev/test/prod settings
+- Environment-specific overrides are clearly defined
+- Easy to promote configurations across environments
+
+### Hot-Reloading
+- Configuration changes can be applied without restart
+- Agents can be reconfigured independently
+- Dynamic configuration updates during runtime
 
 ## Configuration Validation
 
-### Automatic Validation
-The system automatically validates configuration on startup:
+The system automatically validates all configuration files on startup:
 
-```python
-# Example validation errors
-ConfigurationError: Missing required API key for model 'gpt-4'
-ConfigurationError: Model file not found: models/missing-model.gguf
-ConfigurationError: Invalid escalation_score: must be between 0.0 and 10.0
-```
+- **Schema validation**: Ensures all required fields are present
+- **Model availability**: Verifies referenced models exist
+- **Provider connectivity**: Tests LLM provider connections
+- **Agent compatibility**: Validates agent configuration consistency
 
-### Manual Validation
-```bash
-# Test configuration validity
-uv run python -c "from src.core.config import ConfigManager; ConfigManager('config')"
+## Best Practices
 
-# Validate specific model
-uv run python -c "
-from src.integrations.llm_providers import LLMProviderFactory
-factory = LLMProviderFactory()
-provider = factory.create_provider('gpt-4')
-print('Model validated successfully')
-"
-```
+### Configuration Organization
+1. **Keep agent configs focused**: Only include settings specific to that agent
+2. **Use shared configs for common settings**: Avoid duplication across agents
+3. **Environment overrides should be minimal**: Only override what's different per environment
 
-## Common Configuration Scenarios
+### Security
+1. **Never commit API keys**: Use environment variables for secrets
+2. **Validate all inputs**: Enable input validation in production
+3. **Use rate limiting**: Protect against abuse in production
 
-### 1. Local-Only Setup (No API Keys)
-```yaml
-# models.yaml
-default_model: "llama-7b"
-fallback_models: ["mistral-7b", "codellama-7b"]
-```
+### Performance
+1. **Enable caching**: Improves response times for similar queries
+2. **Set appropriate timeouts**: Balance responsiveness with reliability
+3. **Monitor resource usage**: Use the monitoring configuration to track performance
 
-```bash
-# .env (no API keys needed)
-ENVIRONMENT=development
-```
+### Development
+1. **Use development environment**: More permissive settings for testing
+2. **Enable debug logging**: Helps with troubleshooting configuration issues
+3. **Test configuration changes**: Validate configs before deploying to production
 
-### 2. Cloud-Only Setup
-```yaml
-# models.yaml
-default_model: "gpt-4"
-fallback_models: ["claude-3-sonnet", "gpt-3.5-turbo"]
-```
+## Troubleshooting
+
+### Common Issues
+
+1. **Configuration not loading**: Check file permissions and YAML syntax
+2. **Model not found**: Verify model is defined in shared/models.yaml
+3. **Provider errors**: Check API keys and provider configuration
+4. **Agent not responding**: Review agent-specific configuration and logs
+
+### Debugging Tools
 
 ```bash
-# .env
-OPENAI_API_KEY=sk-your_key_here
-ANTHROPIC_API_KEY=sk-ant-your_key_here
+# Validate configuration
+uv run python -m src.core.config.agent_config_manager --validate
+
+# Show configuration summary
+uv run python -m src.core.config.agent_config_manager --summary
+
+# Test specific agent configuration
+uv run python -m src.core.config.agent_config_manager --agent answer_agent
 ```
 
-### 3. Hybrid Setup (Local Primary, Cloud Fallback)
-```yaml
-# models.yaml
-default_model: "llama-7b"
-fallback_models: ["mistral-7b", "gpt-4", "claude-3-sonnet"]
-```
+## Migration from Legacy Configuration
 
-```bash
-# .env
-OPENAI_API_KEY=sk-your_key_here  # For fallback only
-```
+If migrating from the old configuration system:
 
-### 4. High-Performance Setup
-```yaml
-# models.yaml - Use GPU acceleration
-llama-7b:
-  path: "models/llama-7b.gguf"
-  type: "llama"
-  gpu_layers: 35  # GPU acceleration
-  context_length: 4096
-```
-
-```json
-// config.json - Increase limits
-{
-  "performance": {
-    "max_concurrent_requests": 100,
-    "request_timeout_seconds": 10
-  }
-}
-```
-
-### 5. Conservative Escalation Setup
-```json
-// prompts.json - Lower escalation threshold
-{
-  "evaluator_agent": {
-    "escalation_thresholds": {
-      "low_score": 7.0,  // Higher threshold = more escalations
-      "repeat_query": true,
-      "escalation_history": 1  // Escalate after 1 previous escalation
-    }
-  }
-}
-```
-
-## Configuration Management Best Practices
-
-### 1. Version Control
-- **Commit configuration files** to version control
-- **Never commit .env files** with secrets
-- **Use .env.example** for documentation
-- **Document configuration changes** in commit messages
-
-### 2. Environment Separation
-```bash
-# Different config directories for environments
-config/
-├── development/
-│   ├── models.yaml
-│   └── prompts.json
-├── staging/
-│   ├── models.yaml
-│   └── prompts.json
-└── production/
-    ├── models.yaml
-    └── prompts.json
-```
-
-### 3. Secret Management
-```bash
-# Use environment-specific secret management
-# Development
-export OPENAI_API_KEY="dev_key_here"
-
-# Production (use secure secret management)
-kubectl create secret generic ai-system-secrets \
-  --from-literal=openai-api-key="prod_key_here"
-```
-
-### 4. Configuration Testing
-```python
-# Test configuration changes
-def test_configuration_loads():
-    config = ConfigManager("config")
-    assert config.models.default_model == "llama-7b"
-    assert config.thresholds.escalation_score == 6.0
-
-def test_model_availability():
-    factory = LLMProviderFactory()
-    provider = factory.create_provider_with_fallback()
-    assert provider is not None
-```
-
-### 5. Documentation
-- **Document all configuration options** in this guide
-- **Include examples** for common scenarios
-- **Explain the impact** of each setting
-- **Provide troubleshooting** for common issues
-
-## Troubleshooting Configuration Issues
-
-### Common Problems and Solutions
-
-#### Problem: "Model file not found"
-```bash
-# Check model file exists
-ls -la models/llama-7b.gguf
-
-# Download if missing
-curl -L "https://huggingface.co/model/resolve/main/model.gguf" -o models/llama-7b.gguf
-```
-
-#### Problem: "API key not found"
-```bash
-# Check environment variable is set
-echo $OPENAI_API_KEY
-
-# Verify .env file is loaded
-grep OPENAI_API_KEY .env
-```
-
-#### Problem: "Configuration validation failed"
-```python
-# Debug configuration loading
-from src.core.config import ConfigManager
-config = ConfigManager("config")
-print(config.models.get_available_models())
-```
-
-#### Problem: "No working models available"
-```bash
-# Test each model individually
-uv run python -c "
-from src.integrations.llm_providers import LLMProviderFactory
-factory = LLMProviderFactory()
-for model in ['llama-7b', 'gpt-4', 'claude-3-sonnet']:
-    try:
-        provider = factory.create_provider(model)
-        print(f'{model}: OK')
-    except Exception as e:
-        print(f'{model}: ERROR - {e}')
-"
-```
-
-### Debug Commands
-```bash
-# Show effective configuration
-uv run python -c "
-from src.core.config import ConfigManager
-import json
-config = ConfigManager('config')
-print(json.dumps(config.get_all_config(), indent=2, default=str))
-"
-
-# Test model creation
-uv run python -c "
-from src.integrations.llm_providers import LLMProviderFactory
-factory = LLMProviderFactory()
-provider = factory.create_provider_with_fallback()
-print(f'Using model: {provider.model_config.name}')
-"
-
-# Validate all configuration files
-make check-config
-```
-
-## Configuration Schema Reference
-
-### Complete Schema
-See `src/core/config/schemas.py` for the complete configuration schema with:
-- Type definitions for all configuration objects
-- Validation rules and constraints
-- Default values and examples
-- Documentation for each field
-
-### Configuration API
-```python
-# Access configuration in code
-from src.core.config import ConfigManager
-
-config = ConfigManager("config")
-
-# Model configuration
-model_config = config.models.get_model("gpt-4")
-available_models = config.models.get_available_models()
-
-# Prompts
-system_prompt = config.prompts.answer_agent["system_prompt"]
-
-# Thresholds
-escalation_threshold = config.thresholds.escalation_score
-
-# Custom settings
-custom_value = config.get_config("custom.setting", default_value)
-```
-
-This configuration guide provides comprehensive coverage of all system configuration options, best practices, and troubleshooting guidance for the Hybrid AI-Human System.
+1. **Move model definitions** from `models.json` to `shared/models.yaml`
+2. **Split agent settings** into individual agent directories
+3. **Create environment overrides** for dev/test/prod differences
+4. **Update import statements** to use `AgentConfigManager`
+5. **Test thoroughly** to ensure all functionality is preserved

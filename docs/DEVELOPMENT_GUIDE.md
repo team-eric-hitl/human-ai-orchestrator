@@ -85,7 +85,7 @@ make help           # Show all commands
 ```
 src/
 ├── core/                    # Core infrastructure
-│   ├── config/             # Configuration management
+│   ├── config/             # Agent-centric configuration management
 │   ├── logging/            # Logging and error handling
 │   ├── context_manager.py  # Conversation context
 │   └── session_tracker.py  # Performance tracking
@@ -103,13 +103,26 @@ src/
     └── hybrid_workflow.py # Main system workflow
 ```
 
-### Configuration Structure
+### Agent-Centric Configuration Structure
 ```
 config/
-├── models.yaml           # LLM model configurations
-├── prompts.json         # System prompts for each agent
-├── config.json          # Core system settings
-└── logging.yaml         # Logging configuration
+├── agents/                          # Agent-specific configurations
+│   ├── answer_agent/
+│   │   ├── config.yaml             # Agent settings & behavior
+│   │   ├── prompts.yaml            # Agent prompts & templates
+│   │   └── models.yaml             # Agent model preferences
+│   ├── evaluator_agent/
+│   ├── escalation_router/
+│   └── human_interface/
+├── shared/                          # Global configurations
+│   ├── models.yaml                 # Master model definitions
+│   ├── system.yaml                 # System-wide settings
+│   └── providers.yaml              # Provider configurations
+├── environments/                    # Environment-specific overrides
+│   ├── development.yaml
+│   ├── testing.yaml
+│   └── production.yaml
+└── config.yaml                     # Main configuration coordinator
 ```
 
 ### Testing Structure
@@ -368,15 +381,45 @@ class SentimentAgentNode(NodeInterface):
         return ["sentiment_analysis"]
 ```
 
-#### Step 2: Add Configuration
-```json
-// config/prompts.json
-{
-    "sentiment_agent": {
-        "system_prompt": "Analyze the sentiment of user queries...",
-        "confidence_threshold": 0.8
-    }
-}
+#### Step 2: Add Agent Configuration
+```bash
+# Create agent directory
+mkdir -p config/agents/sentiment_agent
+
+# Create agent configuration files
+```
+
+```yaml
+# config/agents/sentiment_agent/config.yaml
+agent:
+  name: "Sentiment Agent"
+  description: "Analyzes sentiment of user queries"
+  type: "analysis_agent"
+  enabled: true
+
+settings:
+  confidence_threshold: 0.8
+  analysis_depth: "detailed"
+```
+
+```yaml
+# config/agents/sentiment_agent/prompts.yaml
+system_prompt: |
+  You are a sentiment analysis agent. Analyze the sentiment of user queries
+  and provide detailed emotional context.
+
+templates:
+  analysis: |
+    Analyze the sentiment of this text: {query}
+    Provide polarity, confidence, and emotional indicators.
+```
+
+```yaml
+# config/agents/sentiment_agent/models.yaml
+preferred: "llama-7b"
+fallback:
+  - "mistral-7b"
+  - "gpt-4"
 ```
 
 #### Step 3: Add to Workflow
@@ -427,43 +470,81 @@ def _initialize_client(self) -> BaseChatModel:
 
 #### Step 3: Update Configuration
 ```yaml
-# config/models.yaml
-custom-model:
-  type: "custom"
-  model_name: "custom-model-v1"
-  api_endpoint: "https://api.custom.com/v1"
+# config/shared/models.yaml
+models:
+  custom-model:
+    provider: "custom"
+    model_name: "custom-model-v1"
+    api_endpoint: "https://api.custom.com/v1"
+    timeout: 30
+    max_tokens: 2000
 ```
 
-### 3. Adding New Configuration
+```yaml
+# config/shared/providers.yaml
+llm_providers:
+  custom:
+    base_url: "https://api.custom.com/v1"
+    timeout: 30
+    max_retries: 3
+    retry_delay: 1.0
+```
 
-#### Step 1: Update Schema
+### 3. Adding New System Configuration
+
+#### Step 1: Update AgentConfig or SystemConfig Schema
 ```python
-# src/core/config/models.py
+# src/core/config/agent_config_manager.py
 @dataclass
-class CustomConfig:
-    feature_enabled: bool
-    threshold: float
-    options: List[str]
+class AgentConfig:
+    # Add new agent-specific fields
+    custom_feature_enabled: bool = False
+    custom_threshold: float = 0.5
+    custom_options: list[str] = field(default_factory=list)
+
+@dataclass  
+class SystemConfig:
+    # Add new system-wide fields
+    new_feature: dict[str, Any] = field(default_factory=dict)
 ```
 
-#### Step 2: Add to ConfigProvider
+#### Step 2: Update Configuration Files
+```yaml
+# config/shared/system.yaml - for system-wide settings
+system:
+  name: "Modular LangGraph Hybrid System"
+  version: "1.0.0"
+
+new_feature:
+  enabled: true
+  threshold: 0.8
+  options: ["option1", "option2"]
+```
+
+```yaml
+# config/agents/answer_agent/config.yaml - for agent-specific settings
+agent:
+  name: "Answer Agent"
+  type: "llm_agent"
+
+settings:
+  custom_feature_enabled: true
+  custom_threshold: 0.7
+  custom_options:
+    - "agent_option1"
+    - "agent_option2"
+```
+
+#### Step 3: Access Configuration in Code
 ```python
-# src/core/config/manager.py
-@property
-def custom_config(self) -> CustomConfig:
-    return self._load_custom_config()
-```
+# Access system configuration
+config_manager = AgentConfigManager("config/")
+system_config = config_manager.get_system_config()
+new_feature_settings = system_config.new_feature
 
-#### Step 3: Update Configuration Files
-```json
-// config/config.json
-{
-    "custom_feature": {
-        "feature_enabled": true,
-        "threshold": 0.8,
-        "options": ["option1", "option2"]
-    }
-}
+# Access agent-specific configuration
+agent_config = config_manager.get_agent_config("answer_agent")
+threshold = agent_config.get_setting("custom_threshold", 0.5)
 ```
 
 ## Common Patterns
@@ -491,18 +572,28 @@ class MyComponent:
             raise CustomError(f"Processing failed: {e}") from e
 ```
 
-### 2. Configuration Access Pattern
+### 2. Agent Configuration Access Pattern
 ```python
-class ConfigurableComponent:
-    def __init__(self, config_provider: ConfigProvider):
-        self.config_provider = config_provider
-        self.config = self._load_config()
+from src.core.config.agent_config_manager import AgentConfigManager
+
+class ConfigurableAgent:
+    def __init__(self, config_manager: AgentConfigManager, agent_name: str):
+        self.config_manager = config_manager
+        self.agent_name = agent_name
+        self.agent_config = config_manager.get_agent_config(agent_name)
+        self.system_config = config_manager.get_system_config()
     
-    def _load_config(self):
-        return {
-            "threshold": self.config_provider.get_config("component.threshold", 0.8),
-            "enabled": self.config_provider.get_config("component.enabled", True)
-        }
+    def get_agent_setting(self, key: str, default=None):
+        """Get agent-specific setting with dot notation support"""
+        return self.agent_config.get_setting(key, default)
+    
+    def get_system_threshold(self, threshold_name: str, default=None):
+        """Get system-wide threshold"""
+        return self.config_manager.get_threshold(threshold_name, default)
+    
+    def get_preferred_model(self) -> str:
+        """Get preferred model for this agent"""
+        return self.agent_config.get_preferred_model()
 ```
 
 ### 3. State Management Pattern

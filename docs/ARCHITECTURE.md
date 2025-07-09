@@ -18,11 +18,12 @@ The Hybrid AI-Human System is a modular LangGraph-based workflow orchestration p
 - **Intelligent Routing**: Smart assignment of requests to appropriate human experts
 - **Feedback Loops**: Continuous learning from human interactions
 
-### 3. Configuration-Driven Design
-- **External Configuration**: System behavior controlled through config files
+### 3. Agent-Centric Configuration Design
+- **Agent Isolation**: Each agent has its own configuration namespace
+- **Shared Resources**: Global models, providers, and system settings
+- **Environment Overrides**: Environment-specific configuration layers
+- **Hot-Reloading**: Dynamic configuration updates without restart
 - **Multi-Provider Support**: Multiple LLM providers with automatic fallback
-- **Environment Flexibility**: Different configs for dev/staging/production
-- **Runtime Adaptation**: Dynamic configuration loading and validation
 
 ## System Components
 
@@ -46,12 +47,12 @@ The Hybrid AI-Human System is a modular LangGraph-based workflow orchestration p
 │  │               CORE INFRASTRUCTURE                           │ │
 │  │                                                             │ │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │ │
-│  │  │ Config      │  │ Context     │  │ Session Tracking    │ │ │
+│  │  │ Agent Config│  │ Context     │  │ Session Tracking    │ │ │
 │  │  │ Manager     │  │ Manager     │  │                     │ │ │
 │  │  │             │  │             │  │ • Performance       │ │ │
-│  │  │ • Models    │  │ • SQLite    │  │ • Metrics           │ │ │
-│  │  │ • Prompts   │  │ • History   │  │ • Cost Tracking     │ │ │
-│  │  │ • Settings  │  │ • Memory    │  │ • Error Monitoring  │ │ │
+│  │  │ • Agents/   │  │ • SQLite    │  │ • Metrics           │ │ │
+│  │  │ • Shared/   │  │ • History   │  │ • Cost Tracking     │ │ │
+│  │  │ • Envs/     │  │ • Memory    │  │ • Error Monitoring  │ │ │
 │  │  └─────────────┘  └─────────────┘  └─────────────────────┘ │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
@@ -126,7 +127,7 @@ User Query → State Initialization → Agent Processing → State Update → Ne
 
 **Dependencies**:
 - `LLMProviderFactory`: For model access
-- `ConfigProvider`: For prompts and settings
+- `AgentConfigManager`: For agent-specific configuration and prompts
 - `ContextProvider`: For conversation history
 
 **State Flow**:

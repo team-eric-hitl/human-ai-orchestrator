@@ -77,17 +77,18 @@ This is a **Modular LangGraph Hybrid System** - a flexible AI workflow orchestra
 - `HumanAgent` - Manages human agent interactions and handoffs
 
 **Core Infrastructure** (`src/core/`):
-- `ConfigManager` - Handles model configurations, prompts, and system settings
+- `AgentConfigManager` - Handles agent-centric configuration with hot-reloading
 - `ContextManager` - Manages conversation context and memory (SQLite-based)
 - `SessionTracker` - Tracks metrics and performance data
 - `WorkflowOrchestrator` - Coordinates node execution and state management
 
 - integrated logging/error handling system in /core/logging/
 
-**Configuration System** (`config/`):
-- `models.json` - LLM provider configurations (OpenAI, Anthropic, local models)
-- `prompts.yaml` - System prompts and templates
-- `system_config.json` - Core system settings and thresholds
+**Agent-Centric Configuration System** (`config/`):
+- `config/agents/*/` - Agent-specific configurations, prompts, and model preferences
+- `config/shared/` - Global models, providers, and system settings
+- `config/environments/` - Environment-specific overrides (dev/test/prod)
+- `config/config.yaml` - Main configuration coordinator
 - Environment variables for API keys and runtime settings
 
 ### Interface Separation Pattern
@@ -97,11 +98,44 @@ The codebase follows a strict interface separation philosophy in `src/interfaces
 - This enables AI tools to quickly understand system architecture and reduces context window usage
 
 ### Configuration Management
-The system uses a hierarchical configuration approach:
-- **Model configs** support multiple LLM providers with fallback strategies
-- **Prompt templates** are externalized for easy modification
-- **Environment-specific settings** (development, production, testing)
+The system uses an **agent-centric configuration approach** that provides maximum modularity and flexibility:
+
+### Agent-Centric Configuration
+- **Agent-specific configs** (`config/agents/`) - Each agent has its own configuration namespace
+- **Shared configurations** (`config/shared/`) - Global settings, models, and providers
+- **Environment overrides** (`config/environments/`) - Environment-specific settings
+- **Hot-reloading** - Configuration changes can be applied without restart
 - **Dynamic configuration** loading with validation
+
+### Configuration Structure
+```
+config/
+├── agents/                          # Agent-specific configurations
+│   ├── answer_agent/
+│   │   ├── config.yaml             # Agent settings & behavior
+│   │   ├── prompts.yaml            # Agent prompts & templates
+│   │   └── models.yaml             # Agent model preferences
+│   ├── evaluator_agent/
+│   ├── escalation_router/
+│   └── human_interface/
+├── shared/                          # Global configurations
+│   ├── models.yaml                 # Master model definitions
+│   ├── system.yaml                 # System-wide settings
+│   └── providers.yaml              # Provider configurations
+├── environments/                    # Environment-specific overrides
+│   ├── development.yaml
+│   ├── testing.yaml
+│   └── production.yaml
+└── config.yaml                     # Main configuration coordinator
+```
+
+### Benefits of Agent-Centric Configuration
+- **Developer Isolation**: Each agent has its own configuration namespace
+- **Modular Testing**: Agents can be tested independently
+- **Easy Agent Development**: New agents can be added without touching existing configs
+- **Environment Management**: Clean separation of dev/test/prod settings
+- **Hot-Reloading**: Configuration changes can be applied without restart
+- **Clear Separation**: Agents, shared configs, and environments are clearly separated
 
 ### Human-in-the-Loop Architecture
 - **Escalation thresholds** configurable per query type
@@ -193,11 +227,21 @@ tests/
 
 ## Key Configuration Files
 
+### Agent-Centric Structure
+- `config/config.yaml` - Main configuration coordinator and loading strategy
+- `config/agents/*/config.yaml` - Agent-specific settings and behavior
+- `config/agents/*/prompts.yaml` - Agent prompts and templates
+- `config/agents/*/models.yaml` - Agent model preferences
+- `config/shared/models.yaml` - Global model definitions
+- `config/shared/system.yaml` - System-wide settings
+- `config/shared/providers.yaml` - Provider configurations
+- `config/environments/*.yaml` - Environment-specific overrides
+
+### Development Files
 - `pyproject.toml` - Project dependencies and tool configuration
 - `Makefile` - Development workflow commands
-- `config/models.json` - LLM provider configurations
-- `config/prompts.yaml` - System prompts and templates
-- `config/system_config.json` - Core system settings
+- `scripts/configuration_tutorial.py` - Configuration tutorial and examples
+- `config/config.json` - Experimentation settings (legacy format for compatibility)
 
 ## Environment Variables
 

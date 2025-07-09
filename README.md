@@ -11,7 +11,7 @@ This system showcases a **Modular LangGraph Hybrid Architecture** where speciali
 - **🤖 Multi-Agent Workflow**: Specialized agents for answering, evaluation, and escalation
 - **🔄 Human-in-the-Loop**: Seamless handoffs between AI and human agents
 - **📊 Advanced Monitoring**: LangSmith integration for tracing and analytics
-- **⚙️ Flexible Configuration**: Support for multiple LLM providers with fallback strategies
+- **⚙️ Agent-Centric Configuration**: Modular configuration with agent isolation and shared resources
 - **🎓 Educational**: Comprehensive tutorial for learning AI agent concepts
 - **🧪 Test-Driven**: >90% test coverage with comprehensive test suite
 
@@ -20,7 +20,7 @@ This system showcases a **Modular LangGraph Hybrid Architecture** where speciali
 ```
 src/
 ├── core/                          # Core infrastructure
-│   ├── config/                    # Configuration management system
+│   ├── config/                    # Agent-centric configuration system
 │   ├── logging/                   # Structured logging and error handling
 │   ├── context_manager.py         # Conversation context with SQLite
 │   └── session_tracker.py         # Performance metrics tracking
@@ -86,7 +86,7 @@ LANGCHAIN_PROJECT=hybrid-ai-system
 ENVIRONMENT=development
 ```
 
-**Note**: The `.env` file is automatically loaded by the system and contains only environment variables. System configuration is handled through the files in the `/config/` directory.
+**Note**: The `.env` file is automatically loaded by the system and contains only environment variables. System configuration uses an agent-centric approach in the `/config/` directory with separate configurations for each agent and shared global settings.
 
 ### Run the System
 
@@ -120,7 +120,7 @@ jupyter lab notebooks/AI_Agents_Tutorial.ipynb
 
 1. **Core Concepts**: Start with `/src/interfaces/` to understand the system contracts
 2. **Agent Implementation**: Look at `/src/nodes/` for actual agent logic
-3. **Configuration**: Examine `/config/` for system setup
+3. **Configuration**: Examine `/config/` for agent-centric configuration structure
 4. **Testing**: Review `/tests/` for comprehensive examples
 
 ## 🤖 The Four Core Agents
