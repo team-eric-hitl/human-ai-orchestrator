@@ -1,0 +1,42 @@
+agent:
+  name: "human_interface"
+  description: "Manages handoffs between AI and human agents with context preservation"
+  type: "interface_agent"
+
+models:
+  preferred: "claude-3-haiku"
+  fallback: ["gpt-3.5-turbo", "mistral-7b"]
+  use_case: "fast"
+
+settings:
+  temperature: 0.5
+  max_tokens: 1500
+  timeout: 20
+  handoff_timeout: 10
+
+handoff:
+  context_preservation:
+    include_conversation_history: true
+    max_history_length: 10
+    include_user_preferences: true
+    include_previous_escalations: true
+    
+  notification_settings:
+    notify_user_on_handoff: true
+    provide_wait_time_estimate: true
+    send_confirmation: true
+    
+  formatting:
+    structured_context: true
+    highlight_key_issues: true
+    include_urgency_indicators: true
+
+human_agent:
+  availability_check_interval: 300  # 5 minutes
+  max_response_time: 1800  # 30 minutes
+  escalation_if_no_response: true
+
+monitoring:
+  track_handoff_success: true
+  measure_response_times: true
+  collect_satisfaction_feedback: true

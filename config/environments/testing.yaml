@@ -1,0 +1,66 @@
+# Testing environment configuration overrides
+environment: "testing"
+
+# Testing-specific system settings
+system:
+  debug_mode: false
+  verbose_logging: false
+  log_level: "WARNING"
+  
+# Testing thresholds
+thresholds:
+  escalation_score: 6.0
+  confidence_threshold: 0.7
+  response_time_limit: 10  # Fast tests
+  max_retries: 2
+
+# Testing model preferences (use fast models)
+models:
+  default_model: "claude-3-haiku"
+  enable_fallback: false  # Predictable behavior for tests
+  
+  overrides:
+    temperature: 0.0  # Deterministic responses
+    max_tokens: 1000  # Shorter responses for faster tests
+
+# Testing providers
+providers:
+  context:
+    db_path: ":memory:"  # In-memory database for tests
+    backup_enabled: false
+    
+  # Mock all external services
+  mock_services:
+    enabled: true
+    human_agents: true
+    webhooks: true
+    llm_providers: true
+
+# Testing monitoring (minimal)
+monitoring:
+  metrics_collection: false
+  performance_tracking: false
+  langsmith:
+    enabled: false
+
+# Testing security (disabled)
+security:
+  api_key_rotation: false
+  session_encryption: false
+  audit_logging: false
+  rate_limiting:
+    enabled: false
+
+# Testing performance (optimized for speed)
+performance:
+  model_caching: false
+  preload_models: false
+  parallel_processing: false
+  max_concurrent_requests: 1
+
+# Testing error handling (fail fast)
+error_handling:
+  retry_strategy: "none"
+  max_retry_attempts: 0
+  circuit_breaker:
+    enabled: false

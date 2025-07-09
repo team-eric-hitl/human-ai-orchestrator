@@ -1,0 +1,83 @@
+# Production environment configuration overrides
+environment: "production"
+
+# Production system settings
+system:
+  debug_mode: false
+  verbose_logging: false
+  log_level: "INFO"
+  
+# Production thresholds (strict)
+thresholds:
+  escalation_score: 6.5  # Higher threshold for production
+  confidence_threshold: 0.8
+  response_time_limit: 20  # Stricter timeout
+  max_retries: 3
+
+# Production model preferences (high quality)
+models:
+  default_model: "gpt-4"
+  enable_fallback: true
+  
+  overrides:
+    temperature: 0.7
+    max_tokens: 2000
+
+# Production providers
+providers:
+  context:
+    db_path: "prod_hybrid_system.db"
+    backup_enabled: true
+    backup_interval: 1800  # 30 minutes
+    
+  # Real external services
+  mock_services:
+    enabled: false
+
+# Production monitoring (comprehensive)
+monitoring:
+  metrics_collection: true
+  performance_tracking: true
+  langsmith:
+    enabled: true
+    project_name: "hybrid-ai-system-prod"
+    tags: ["production", "live"]
+
+# Production security (strict)
+security:
+  api_key_rotation: true
+  session_encryption: true
+  audit_logging: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 30  # Conservative rate limit
+    burst_limit: 5
+
+# Production performance (optimized)
+performance:
+  model_caching: true
+  cache_size: 3
+  preload_models: true
+  parallel_processing: true
+  max_concurrent_requests: 20
+
+# Production error handling (robust)
+error_handling:
+  retry_strategy: "exponential_backoff"
+  max_retry_attempts: 3
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 3
+    recovery_timeout: 60
+
+# Production alerts and notifications
+alerts:
+  enabled: true
+  escalation_rate_threshold: 0.15  # Alert if >15% escalation rate
+  response_time_threshold: 30
+  error_rate_threshold: 0.05  # Alert if >5% error rate
+  
+  channels:
+    email: "alerts@company.com"
+    slack: "#ai-system-alerts"
+    webhook: "https://monitoring.company.com/webhooks/ai-system"

@@ -1,0 +1,78 @@
+# System-wide configuration settings
+system:
+  name: "Modular LangGraph Hybrid System"
+  version: "1.0.0"
+  description: "A flexible AI workflow orchestration platform with human-in-the-loop capabilities"
+
+# Global thresholds and limits
+thresholds:
+  escalation_score: 6.0
+  confidence_threshold: 0.7
+  response_time_limit: 30
+  max_retries: 3
+  session_timeout: 3600  # 1 hour
+
+# Provider configurations
+providers:
+  config:
+    type: "file"
+    config_dir: "config"
+    enable_hot_reload: true
+    validation: "strict"
+    
+  context:
+    type: "sqlite"
+    db_path: "hybrid_system.db"
+    backup_enabled: true
+    backup_interval: 3600  # 1 hour
+    
+  session:
+    type: "memory"
+    persistence: true
+    max_sessions: 1000
+
+# Monitoring and observability
+monitoring:
+  metrics_collection: true
+  log_level: "INFO"
+  performance_tracking: true
+  enable_tracing: true
+  
+  # LangSmith integration
+  langsmith:
+    enabled: true
+    project_name: "hybrid-ai-system"
+    tags: ["production", "hybrid-system"]
+    
+  # Health checks
+  health_check:
+    enabled: true
+    interval: 60  # seconds
+    endpoints: ["database", "models", "agents"]
+
+# Security settings
+security:
+  api_key_rotation: true
+  session_encryption: true
+  audit_logging: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst_limit: 10
+
+# Performance optimization
+performance:
+  model_caching: true
+  cache_size: 2
+  preload_models: false
+  parallel_processing: true
+  max_concurrent_requests: 10
+
+# Error handling
+error_handling:
+  retry_strategy: "exponential_backoff"
+  max_retry_attempts: 3
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout: 30

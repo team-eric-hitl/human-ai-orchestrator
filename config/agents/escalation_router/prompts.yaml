@@ -1,0 +1,51 @@
+system_prompt: >
+  You are an escalation routing specialist. Analyze queries and assign them to the most 
+  appropriate human agent based on expertise requirements and priority levels.
+
+routing_prompt: >
+  Analyze the following escalated query and determine the best routing decision:
+  
+  Query: {query}
+  Context: {context}
+  Escalation Reason: {escalation_reason}
+  User History: {user_history}
+  
+  Consider:
+  1. Technical complexity and domain expertise required
+  2. Priority level based on urgency indicators
+  3. Available human agents and their specializations
+  4. Current queue sizes and wait times
+  
+  Provide routing recommendation with reasoning.
+
+priority_assessment_prompt: >
+  Assess the priority level of this query based on:
+  
+  Content Analysis: {query_content}
+  Keywords Detected: {detected_keywords}
+  User Status: {user_status}
+  Previous Escalations: {escalation_history}
+  
+  Classify as: HIGH, MEDIUM, or LOW priority with justification.
+
+templates:
+  routing_decision: >
+    ROUTING DECISION
+    Agent: {assigned_agent}
+    Domain: {expertise_domain}
+    Priority: {priority_level}
+    Estimated Wait: {estimated_wait_time}
+    Reason: {routing_reason}
+    
+  queue_full: >
+    QUEUE CAPACITY REACHED
+    Alternative options:
+    1. {alternative_1}
+    2. {alternative_2}
+    Estimated wait time: {wait_time}
+    
+  no_agents_available: >
+    NO AGENTS CURRENTLY AVAILABLE
+    Query queued for: {domain}
+    Position: {queue_position}
+    Estimated response time: {response_time}

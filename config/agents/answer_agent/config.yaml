@@ -1,0 +1,29 @@
+agent:
+  name: "answer_agent"
+  description: "Primary response generation agent that provides direct answers to user queries"
+  type: "llm_agent"
+
+models:
+  preferred: "llama-7b"
+  fallback: ["mistral-7b", "claude-3-haiku", "gpt-3.5-turbo"]
+  use_case: "general"
+
+settings:
+  temperature: 0.7
+  max_tokens: 2000
+  timeout: 30
+  response_time_limit: 30
+  max_retries: 3
+
+behavior:
+  context_integration: true
+  response_style: "clear_and_professional"
+  personalization: true
+
+escalation:
+  confidence_threshold: 0.7
+  enable_auto_escalation: true
+  escalation_triggers:
+    - "low_confidence"
+    - "user_dissatisfaction"
+    - "repeat_query"

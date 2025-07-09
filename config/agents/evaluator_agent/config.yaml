@@ -1,0 +1,48 @@
+agent:
+  name: "evaluator_agent"
+  description: "Response quality evaluation and escalation decision specialist"
+  type: "evaluation_agent"
+
+models:
+  preferred: "claude-3-sonnet"
+  fallback: ["gpt-4", "mistral-7b"]
+  use_case: "high_quality"
+
+settings:
+  temperature: 0.3
+  max_tokens: 1500
+  timeout: 20
+  evaluation_timeout: 15
+
+evaluation:
+  criteria:
+    accuracy:
+      weight: 0.3
+      description: "How correct and factual is the response?"
+    completeness:
+      weight: 0.25
+      description: "Does the response address all aspects of the query?"
+    clarity:
+      weight: 0.25
+      description: "Is the response clear and easy to understand?"
+    user_satisfaction:
+      weight: 0.2
+      description: "How likely is the user to be satisfied with this response?"
+
+escalation:
+  thresholds:
+    low_score: 4.0
+    critical_score: 2.0
+    repeat_query: true
+    escalation_history: 2
+  
+  triggers:
+    - "score_below_threshold"
+    - "user_feedback_negative"
+    - "repeat_escalation"
+    - "critical_domain_detected"
+
+scoring:
+  scale: 10
+  minimum_passing: 6.0
+  confidence_threshold: 0.8

@@ -1,0 +1,62 @@
+system_prompt: >
+  You are a human agent interface. Present escalated queries to human agents with clear 
+  context and facilitate smooth handoffs between AI and human assistance.
+
+handoff_prompt: >
+  Prepare a comprehensive handoff package for the human agent:
+  
+  User Query: {original_query}
+  Escalation Reason: {escalation_reason}
+  AI Response Attempted: {ai_response}
+  User Context: {user_context}
+  Conversation History: {conversation_history}
+  Priority Level: {priority}
+  
+  Format this information clearly for the human agent to understand the situation
+  and provide effective assistance.
+
+context_summary_prompt: >
+  Summarize the key context for human agent handoff:
+  
+  User Information: {user_info}
+  Issue Summary: {issue_summary}
+  Previous Interactions: {previous_interactions}
+  Technical Details: {technical_details}
+  User Preferences: {user_preferences}
+  
+  Provide a concise but comprehensive summary.
+
+templates:
+  handoff_message: >
+    This query has been escalated to a human agent. Please provide the following 
+    context to assist the user effectively:
+    
+    ESCALATION SUMMARY
+    User: {user_id}
+    Priority: {priority_level}
+    Domain: {expertise_domain}
+    
+    ISSUE DETAILS
+    {issue_details}
+    
+    CONTEXT
+    {context_summary}
+    
+    PREVIOUS ACTIONS
+    {previous_actions}
+    
+  user_notification: >
+    Your query has been escalated to a human specialist. 
+    
+    Agent: {agent_name}
+    Specialization: {agent_expertise}
+    Estimated Response Time: {estimated_time}
+    
+    You will be notified when the agent responds.
+    
+  handoff_confirmation: >
+    HANDOFF COMPLETED
+    Human Agent: {agent_name}
+    Time: {handoff_time}
+    Context Transferred: ✓
+    User Notified: ✓

@@ -1,0 +1,50 @@
+agent:
+  name: "escalation_router"
+  description: "Routes escalated queries to appropriate human agents based on expertise and priority"
+  type: "routing_agent"
+
+models:
+  preferred: "claude-3-haiku"
+  fallback: ["gpt-3.5-turbo", "mistral-7b"]
+  use_case: "fast"
+
+settings:
+  temperature: 0.4
+  max_tokens: 1000
+  timeout: 15
+  routing_timeout: 10
+
+routing:
+  expertise_domains:
+    technical:
+      keywords: ["code", "programming", "API", "bug", "error", "technical", "system"]
+      priority_boost: 1.2
+      preferred_agents: ["tech_support", "developer_support"]
+      
+    financial:
+      keywords: ["billing", "payment", "refund", "price", "cost", "financial", "money"]
+      priority_boost: 1.5
+      preferred_agents: ["billing_support", "finance_team"]
+      
+    general:
+      keywords: ["general", "help", "support", "question"]
+      priority_boost: 1.0
+      preferred_agents: ["general_support", "customer_service"]
+
+priority_classification:
+  high:
+    keywords: ["urgent", "critical", "broken", "failed", "error"]
+    escalation_time: 300  # 5 minutes
+    
+  medium:
+    keywords: ["issue", "problem", "help", "support"]
+    escalation_time: 900  # 15 minutes
+    
+  low:
+    keywords: ["question", "information", "general"]
+    escalation_time: 1800  # 30 minutes
+
+queue_management:
+  max_queue_size: 100
+  load_balancing: true
+  agent_availability_check: true

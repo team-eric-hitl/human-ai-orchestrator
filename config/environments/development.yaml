@@ -1,0 +1,68 @@
+# Development environment configuration overrides
+environment: "development"
+
+# Development-specific system settings
+system:
+  debug_mode: true
+  verbose_logging: true
+  log_level: "DEBUG"
+  
+# Relaxed thresholds for development
+thresholds:
+  escalation_score: 5.0  # Lower threshold for testing
+  confidence_threshold: 0.6
+  response_time_limit: 60  # More generous timeout
+  max_retries: 5
+
+# Development model preferences
+models:
+  default_model: "llama-7b"  # Use local models for development
+  enable_fallback: true
+  
+  # Development-specific overrides
+  overrides:
+    temperature: 0.8  # More creative responses for testing
+    max_tokens: 3000  # Longer responses for development
+    
+# Development providers
+providers:
+  context:
+    db_path: "dev_hybrid_system.db"
+    backup_enabled: false
+    
+  # Mock external services for development
+  mock_services:
+    enabled: true
+    human_agents: true
+    webhooks: true
+
+# Development monitoring
+monitoring:
+  metrics_collection: true
+  performance_tracking: true
+  langsmith:
+    enabled: true
+    project_name: "hybrid-ai-system-dev"
+    tags: ["development", "testing"]
+
+# Development security (relaxed)
+security:
+  api_key_rotation: false
+  session_encryption: false
+  audit_logging: false
+  rate_limiting:
+    enabled: false
+
+# Development performance
+performance:
+  model_caching: true
+  cache_size: 1  # Smaller cache for development
+  preload_models: false
+  parallel_processing: false  # Easier debugging
+
+# Development error handling
+error_handling:
+  retry_strategy: "immediate"
+  max_retry_attempts: 5
+  circuit_breaker:
+    enabled: false  # Disable for easier debugging

@@ -1,0 +1,29 @@
+system_prompt: >
+  You are a helpful AI assistant. Provide accurate, helpful responses to user queries. 
+  Use context from previous conversations when available to provide more personalized assistance.
+
+context_integration_prompt: >
+  When context is available, reference previous interactions to provide continuity and avoid repetition.
+
+response_guidelines:
+  style: "Clear, concise, and professional while maintaining a helpful tone."
+  format: "structured"
+  max_length: 2000
+  include_sources: false
+
+templates:
+  greeting: "Hello! How can I assist you today?"
+  
+  no_context: >
+    I'll help you with your question. Let me provide a comprehensive response.
+    
+  with_context: >
+    Based on our previous conversation, I can see you're working on {context_topic}. 
+    Let me help you with this related question.
+    
+  clarification_request: >
+    I want to make sure I understand your question correctly. Could you please clarify:
+    
+  confidence_low: >
+    I'm not entirely certain about this answer. Let me provide what I know and suggest 
+    where you might find more reliable information.

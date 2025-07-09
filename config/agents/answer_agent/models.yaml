@@ -1,0 +1,28 @@
+primary_model: "llama-7b"
+
+model_preferences:
+  general_queries:
+    primary: "llama-7b"
+    fallback: ["mistral-7b", "claude-3-haiku"]
+    
+  code_queries:
+    primary: "codellama-7b"
+    fallback: ["claude-3-sonnet", "gpt-4"]
+    
+  complex_reasoning:
+    primary: "claude-3-sonnet"
+    fallback: ["gpt-4", "llama-13b"]
+
+model_overrides:
+  temperature: 0.7
+  max_tokens: 2000
+  
+  # Model-specific overrides
+  per_model:
+    codellama-7b:
+      temperature: 0.2
+      max_tokens: 3000
+      
+    gpt-4:
+      temperature: 0.6
+      max_tokens: 2500

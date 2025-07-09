@@ -1,0 +1,113 @@
+# Main configuration file for the Modular LangGraph Hybrid System
+# This file coordinates the new agent-centric configuration structure
+
+# Configuration loading strategy
+config_loader:
+  # Base configuration directory
+  base_dir: "config"
+  
+  # Configuration hierarchy (loaded in order, later overrides earlier)
+  hierarchy:
+    - "shared/system.yaml"          # System-wide settings
+    - "shared/models.yaml"          # Global model definitions
+    - "shared/providers.yaml"       # Provider configurations
+    - "agents/*/config.yaml"        # Agent-specific configurations
+    - "environments/${ENV}.yaml"    # Environment-specific overrides
+    
+  # Environment variable for environment selection
+  environment_var: "HYBRID_SYSTEM_ENV"
+  default_environment: "development"
+  
+  # Validation settings
+  validation:
+    enabled: true
+    strict_mode: true
+    fail_on_missing_refs: true
+
+# Agent registry and discovery
+agents:
+  # Auto-discovery of agents from config/agents/ directory
+  auto_discovery: true
+  
+  # Agent loading order (for dependency resolution)
+  load_order:
+    - "answer_agent"
+    - "evaluator_agent"
+    - "escalation_router"
+    - "human_interface"
+    - "feedback_processor"
+    - "quality_monitor"
+    
+  # Agent configuration inheritance
+  inheritance:
+    enabled: true
+    base_config: "shared/agent_base.yaml"
+
+# Configuration merging strategy
+merging:
+  # How to handle configuration conflicts
+  strategy: "deep_merge"
+  
+  # Special handling for arrays
+  array_strategy: "replace"  # or "merge" or "append"
+  
+  # Agent-specific override behavior
+  agent_overrides:
+    enabled: true
+    # Agent configs take precedence over shared configs
+    precedence: "agent_first"
+
+# Dynamic configuration reloading
+hot_reload:
+  enabled: true
+  watch_directories:
+    - "config/agents"
+    - "config/shared"
+    - "config/environments"
+  
+  # File patterns to watch
+  watch_patterns:
+    - "*.yaml"
+    - "*.yml"
+    - "*.json"
+  
+  # Reload debounce (seconds)
+  debounce: 2
+
+# Configuration validation schema
+validation_schema:
+  agent_config:
+    required_fields:
+      - "agent.name"
+      - "agent.type"
+      - "models.preferred"
+      - "settings.temperature"
+      - "settings.max_tokens"
+    
+  shared_config:
+    required_fields:
+      - "system.name"
+      - "system.version"
+      - "thresholds.escalation_score"
+
+# Backward compatibility
+compatibility:
+  # Support for old configuration files
+  legacy_support: true
+  
+  # Migration warnings
+  warn_deprecated: true
+  
+  # Automatic migration
+  auto_migrate: false
+
+# Configuration documentation
+documentation:
+  # Generate configuration documentation
+  auto_generate_docs: true
+  
+  # Documentation output directory
+  docs_output: "docs/configuration"
+  
+  # Include examples in documentation
+  include_examples: true
