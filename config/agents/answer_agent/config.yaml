@@ -4,8 +4,8 @@ agent:
   type: "llm_agent"
 
 models:
-  preferred: "llama-7b"
-  fallback: ["mistral-7b", "claude-3-haiku", "gpt-3.5-turbo"]
+  preferred: "anthropic_general_budget"
+  fallback: ["local_general_budget", "local_general_standard"]
   use_case: "general"
 
 settings:

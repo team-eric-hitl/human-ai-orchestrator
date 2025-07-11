@@ -4,8 +4,8 @@ agent:
   type: "evaluation_agent"
 
 models:
-  preferred: "claude-3-sonnet"
-  fallback: ["gpt-4", "mistral-7b"]
+  preferred: "anthropic_reasoning_premium"
+  fallback: ["openai_general_standard", "local_general_budget"]
   use_case: "high_quality"
 
 settings:

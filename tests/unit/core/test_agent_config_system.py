@@ -334,7 +334,7 @@ class TestAgentConfig:
         )
         
         assert config.name == "minimal_agent"
-        assert config.get_preferred_model() == "llama-7b"  # Default
+        assert config.get_preferred_model() == "local_general_standard"  # Default
         assert config.get_fallback_models() == []
         assert config.get_setting("nonexistent", "default") == "default"
 

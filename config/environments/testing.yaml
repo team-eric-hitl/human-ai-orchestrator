@@ -16,7 +16,7 @@ thresholds:
 
 # Testing model preferences (use fast models)
 models:
-  default_model: "claude-3-haiku"
+  default_model: "anthropic_general_budget"
   enable_fallback: false  # Predictable behavior for tests
   
   overrides:

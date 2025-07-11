@@ -26,22 +26,21 @@ class AnswerAgentNode:
     def _initialize_llm_provider(self):
         """Initialize the LLM provider with fallback strategy"""
         try:
-            factory = LLMProviderFactory()
+            factory = LLMProviderFactory(self.config_manager.config_dir)
             
             # Use agent-specific model configuration
             preferred_model = self.agent_config.get_preferred_model()
             fallback_models = self.agent_config.get_fallback_models()
             provider = factory.create_provider_with_fallback(
-                preferred_model=preferred_model,
-                fallback_models=fallback_models
+                preferred_model=preferred_model
             )
             
             self.logger.info(
                 "Answer Agent LLM provider initialized",
                 extra={
                     "operation": "initialize_llm_provider",
-                    "model_name": provider.model_config.name,
-                    "model_type": provider.model_config.type,
+                    "model_name": provider.model_name,
+                    "model_type": provider.provider_type,
                     "preferred_model": preferred_model,
                     "fallback_models": fallback_models,
                 },
@@ -151,14 +150,16 @@ class AnswerAgentNode:
 
     def _save_interaction_context(self, state: HybridSystemState, response: str):
         """Save interaction to context store"""
-        from ..core.context_manager import ContextEntry
+        from ..interfaces.core.context import ContextEntry
+        from datetime import datetime
 
         # Save query
+        timestamp = datetime.fromisoformat(state["timestamp"]) if isinstance(state["timestamp"], str) else state["timestamp"]
         query_context = ContextEntry(
             entry_id=f"{state['query_id']}_query",
             user_id=state["user_id"],
             session_id=state["session_id"],
-            timestamp=state["timestamp"],
+            timestamp=timestamp,
             entry_type="query",
             content=state["query"],
             metadata={"query_id": state["query_id"]},
@@ -170,7 +171,7 @@ class AnswerAgentNode:
             entry_id=f"{state['query_id']}_response",
             user_id=state["user_id"],
             session_id=state["session_id"],
-            timestamp=state["timestamp"],
+            timestamp=timestamp,
             entry_type="response",
             content=response,
             metadata={"query_id": state["query_id"], "model_confidence": 0.85},

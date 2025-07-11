@@ -6,7 +6,8 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from ..core.config_manager import ProviderFactory
+from ..core.config import ConfigManager
+from ..core.context_manager import SQLiteContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
 from ..nodes.answer_agent import AnswerAgentNode
 from ..nodes.escalation_router import EscalationRouterNode
@@ -20,12 +21,8 @@ class HybridSystemWorkflow:
         self, config_dir: str = "config", context_db: str = "hybrid_system.db"
     ):
         # Initialize providers
-        self.config_provider = ProviderFactory.create_config_provider(
-            "file", config_dir=config_dir
-        )
-        self.context_provider = ProviderFactory.create_context_provider(
-            "sqlite", db_path=context_db
-        )
+        self.config_provider = ConfigManager(config_dir)
+        self.context_provider = SQLiteContextProvider(context_db)
 
         # Initialize nodes
         self.answer_agent = AnswerAgentNode(self.config_provider, self.context_provider)

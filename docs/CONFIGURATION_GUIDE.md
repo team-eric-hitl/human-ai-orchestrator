@@ -88,62 +88,139 @@ PYTHONDONTWRITEBYTECODE=1
 
 ## Shared Configuration Files
 
-### shared/models.yaml - Global Model Definitions
+### shared/models.yaml - Global Model Definitions with Semantic Aliases
 
-Defines all available models and their configurations:
+The system uses semantic model aliases that allow easy model management and updates:
 
 ```yaml
+# Semantic model aliases - update these when new models are released
+# This allows changing model mappings in one place when newer models become available
+model_aliases:
+  # Anthropic models - organized by use case and performance tier
+  anthropic_general_budget: "claude-3-5-haiku-20241022"
+  anthropic_general_standard: "claude-3-5-sonnet-20241022"
+  anthropic_reasoning_premium: "claude-3-5-sonnet-20241022"
+  anthropic_coding_premium: "claude-3-5-sonnet-20241022"
+  anthropic_flagship: "claude-3-5-sonnet-20241022"
+  
+  # OpenAI models
+  openai_general_standard: "gpt-4"
+  openai_general_budget: "gpt-3.5-turbo"
+  openai_coding_standard: "gpt-4"
+  
+  # Local models
+  local_general_standard: "llama-7b"
+  local_general_premium: "llama-13b"
+  local_coding_standard: "codellama-7b"
+  local_general_budget: "mistral-7b"
+
 models:
-  # Local models (no API key required)
+  # Local Llama models
   llama-7b:
-    provider: "ollama"
-    model_name: "llama2:7b"
+    path: "models/llama-7b.gguf"
+    type: "llama"
+    context_length: 2048
+    gpu_layers: 40
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Llama 7B model - good balance of speed and quality"
+    
+  llama-13b:
+    path: "models/llama-13b.gguf"
+    type: "llama"
     context_length: 4096
+    gpu_layers: 40
     temperature: 0.7
     max_tokens: 2000
-    description: "Llama 7B - fast local model"
+    description: "Llama 13B model - higher quality, slower inference"
     
+  # Local Mistral models
   mistral-7b:
-    provider: "ollama"
-    model_name: "mistral:7b"
-    context_length: 8192
+    path: "models/mistral-7b.gguf"
+    type: "mistral"
+    context_length: 4096
+    gpu_layers: 40
     temperature: 0.7
     max_tokens: 2000
-    description: "Mistral 7B - excellent instruction following"
+    description: "Mistral 7B Instruct - excellent instruction following"
     
-  # Cloud models (require API keys)
+  # Code-focused models
+  codellama-7b:
+    path: "models/codellama-7b.gguf"
+    type: "llama"
+    context_length: 2048
+    gpu_layers: 40
+    temperature: 0.2
+    max_tokens: 2000
+    description: "CodeLlama 7B - optimized for code generation"
+    
+  # OpenAI models (cloud)
   gpt-4:
-    provider: "openai"
+    type: "openai"
     model_name: "gpt-4"
     temperature: 0.7
     max_tokens: 2000
-    description: "OpenAI GPT-4 - highest quality"
+    description: "OpenAI GPT-4 - highest quality, requires API key"
     
-  claude-3-sonnet:
-    provider: "anthropic"
-    model_name: "claude-3-sonnet-20240229"
+  gpt-3.5-turbo:
+    type: "openai"
+    model_name: "gpt-3.5-turbo"
     temperature: 0.7
     max_tokens: 2000
-    description: "Anthropic Claude 3 Sonnet - balanced performance"
+    description: "OpenAI GPT-3.5 Turbo - fast and cost-effective"
+    
+  # Anthropic models (cloud)
+  claude-3-5-sonnet-20241022:
+    type: "anthropic"
+    model_name: "claude-3-5-sonnet-20241022"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Anthropic Claude 3.5 Sonnet - balanced performance and reasoning"
+    
+  claude-3-5-haiku-20241022:
+    type: "anthropic"
+    model_name: "claude-3-5-haiku-20241022"
+    temperature: 0.7
+    max_tokens: 2000
+    description: "Anthropic Claude 3.5 Haiku - fast and efficient"
 
-# Model categories for different use cases
+# Global model categories for different use cases
 use_cases:
   general:
-    recommended: "llama-7b"
-    alternatives: ["mistral-7b", "claude-3-sonnet", "gpt-4"]
+    recommended: "local_general_standard"
+    alternatives: ["local_general_budget", "anthropic_general_standard", "openai_general_standard"]
     
   code:
-    recommended: "mistral-7b"
-    alternatives: ["gpt-4", "claude-3-sonnet"]
+    recommended: "local_coding_standard"
+    alternatives: ["anthropic_coding_premium", "openai_coding_standard", "local_general_budget"]
     
   fast:
-    recommended: "llama-7b"
-    alternatives: ["mistral-7b"]
+    recommended: "anthropic_general_budget"
+    alternatives: ["openai_general_budget", "local_general_standard"]
     
   high_quality:
-    recommended: "gpt-4"
-    alternatives: ["claude-3-sonnet", "mistral-7b"]
+    recommended: "openai_general_standard"
+    alternatives: ["anthropic_reasoning_premium", "anthropic_general_standard", "local_general_budget", "local_general_premium"]
+
+# Global fallback strategy
+fallback_strategy:
+  enabled: true
+  max_retries: 3
+  retry_delay: 5  # seconds
+  
+  # Global fallback chain
+  default_fallback:
+    - "local_general_budget"
+    - "anthropic_general_budget"  # Only if ANTHROPIC_API_KEY is set
+    - "gpt-3.5-turbo"  # Only if OPENAI_API_KEY is set
 ```
+
+#### Benefits of Semantic Aliases
+
+1. **Easy Model Updates**: When a new model version is released, update the alias mapping in one place
+2. **Consistent Naming**: Semantic names like `anthropic_general_budget` are clearer than version numbers
+3. **Provider Independence**: Switch between providers without changing agent configurations
+4. **Environment Flexibility**: Different environments can use different models by updating aliases
 
 ### shared/providers.yaml - Provider Configurations
 
@@ -248,33 +325,43 @@ evaluation:
   helpfulness_weight: 0.4
 ```
 
-### agents/{agent_name}/models.yaml - Model Preferences
+### agents/{agent_name}/models.yaml - Model Preferences with Semantic Aliases
 
 ```yaml
-# Primary model for this agent
-preferred: "llama-7b"
+# Primary model alias for this agent (uses semantic aliases from shared/models.yaml)
+primary_model: "local_general_standard"
 
-# Fallback models (tried in order)
-fallback:
-  - "mistral-7b"
-  - "claude-3-sonnet"
+# Model preferences for different query types
+model_preferences:
+  general_queries:
+    primary: "anthropic_general_budget"
+    fallback: ["local_general_budget", "local_general_standard"]
+    
+  code_queries:
+    primary: "anthropic_coding_premium"
+    fallback: ["local_coding_standard", "local_general_budget"]
+    
+  complex_reasoning:
+    primary: "anthropic_reasoning_premium"
+    fallback: ["local_general_premium", "local_general_budget"]
 
 # Model-specific overrides for this agent
 model_overrides:
-  llama-7b:
-    temperature: 0.5  # More conservative for answers
-    max_tokens: 1500
+  temperature: 0.7
+  max_tokens: 2000
   
-  gpt-4:
-    temperature: 0.3  # Very conservative for high-quality answers
-    max_tokens: 2000
-
-# Use case mapping for this agent
-use_cases:
-  simple_questions: "llama-7b"
-  complex_analysis: "gpt-4"
-  code_questions: "mistral-7b"
+  # Model-specific overrides (using actual model names)
+  per_model:
+    codellama-7b:
+      temperature: 0.2
+      max_tokens: 3000
+      
+    gpt-4:
+      temperature: 0.6
+      max_tokens: 2500
 ```
+
+**Note**: Agent configurations use semantic aliases (like `anthropic_general_budget`) which are resolved to actual model names (like `claude-3-5-haiku-20241022`) automatically by the system. This allows for easy model management and updates.
 
 ### agents/{agent_name}/prompts.yaml - Agent Prompts
 

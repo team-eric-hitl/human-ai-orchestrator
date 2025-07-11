@@ -1,24 +1,24 @@
-primary_model: "claude-3-sonnet"
+primary_model: "anthropic_reasoning_premium"
 
 model_preferences:
   evaluation_tasks:
-    primary: "claude-3-sonnet"
-    fallback: ["gpt-4", "claude-3-haiku"]
+    primary: "anthropic_reasoning_premium"
+    fallback: ["openai_general_standard", "anthropic_general_budget"]
     
   complex_evaluation:
-    primary: "gpt-4"
-    fallback: ["claude-3-sonnet", "mistral-7b"]
+    primary: "openai_general_standard"
+    fallback: ["anthropic_general_standard", "local_general_budget"]
     
   quick_evaluation:
-    primary: "claude-3-haiku"
-    fallback: ["gpt-3.5-turbo", "mistral-7b"]
+    primary: "anthropic_general_budget"
+    fallback: ["openai_general_budget", "local_general_budget"]
 
 model_overrides:
   temperature: 0.3
   max_tokens: 1500
   
   per_model:
-    claude-3-sonnet:
+    claude-4-sonnet:
       temperature: 0.2
       max_tokens: 2000
       

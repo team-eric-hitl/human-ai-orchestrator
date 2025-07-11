@@ -186,13 +186,13 @@ Escalation Reason: {state.get("escalation_reason", "Unknown")}
         """Log escalation for context tracking"""
         self.logger.escalation(
             user_id=state["user_id"],
-            reason=escalation_data.reason,
+            reason=escalation_data.escalation_reason,
             priority=escalation_data.priority,
             extra={
                 "query_id": state["query_id"],
                 "session_id": state["session_id"],
                 "suggested_human_id": escalation_data.suggested_human_id,
-                "confidence_score": escalation_data.confidence_score,
+                "required_expertise": escalation_data.required_expertise,
                 "operation": "escalation_logged",
             },
         )

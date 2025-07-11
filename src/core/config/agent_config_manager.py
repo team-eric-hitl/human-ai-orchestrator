@@ -34,13 +34,21 @@ class AgentConfig:
     evaluation: dict[str, Any] = field(default_factory=dict)
     routing: dict[str, Any] = field(default_factory=dict)
 
-    def get_preferred_model(self) -> str:
-        """Get the preferred model for this agent"""
-        return self.models.get('preferred', 'llama-7b')
+    def get_preferred_model(self, model_aliases: dict[str, str] = None) -> str:
+        """Get the preferred model for this agent, resolving aliases if needed"""
+        preferred = self.models.get('preferred', 'local_general_standard')
+        return self._resolve_model_alias(preferred, model_aliases)
 
-    def get_fallback_models(self) -> list[str]:
-        """Get fallback models for this agent"""
-        return self.models.get('fallback', [])
+    def get_fallback_models(self, model_aliases: dict[str, str] = None) -> list[str]:
+        """Get fallback models for this agent, resolving aliases if needed"""
+        fallbacks = self.models.get('fallback', [])
+        return [self._resolve_model_alias(model, model_aliases) for model in fallbacks]
+    
+    def _resolve_model_alias(self, model_name: str, model_aliases: dict[str, str] = None) -> str:
+        """Resolve a model alias to its actual model name"""
+        if model_aliases and model_name in model_aliases:
+            return model_aliases[model_name]
+        return model_name
 
     def get_setting(self, key: str, default: Any = None) -> Any:
         """Get a setting value with dot notation support"""
@@ -115,6 +123,7 @@ class AgentConfigManager:
         self._system_config: SystemConfig | None = None
         self._models_config: dict[str, Any] = {}
         self._providers_config: dict[str, Any] = {}
+        self._model_aliases: dict[str, str] = {}
         self._lock = Lock()
 
         self.logger = logging.getLogger(__name__)
@@ -167,6 +176,8 @@ class AgentConfigManager:
         if models_file.exists():
             with open(models_file) as f:
                 self._models_config = yaml.safe_load(f) or {}
+                # Load model aliases
+                self._model_aliases = self._models_config.get('model_aliases', {})
 
         # Load providers config
         providers_file = shared_dir / "providers.yaml"
@@ -215,12 +226,17 @@ class AgentConfigManager:
                 with open(models_file) as f:
                     models_data = yaml.safe_load(f) or {}
 
+            # Merge models from both config.yaml and models.yaml
+            merged_models = {}
+            merged_models.update(config_data.get('models', {}))
+            merged_models.update(models_data)
+            
             # Create agent config
             agent_config = AgentConfig(
                 name=config_data.get('agent', {}).get('name', agent_name),
                 description=config_data.get('agent', {}).get('description', ''),
                 type=config_data.get('agent', {}).get('type', 'agent'),
-                models=models_data,
+                models=merged_models,
                 settings=config_data.get('settings', {}),
                 prompts=prompts_data,
                 behavior=config_data.get('behavior', {}),
@@ -284,6 +300,28 @@ class AgentConfigManager:
     def get_providers_config(self) -> dict[str, Any]:
         """Get providers configuration"""
         return self._providers_config
+    
+    def get_model_aliases(self) -> dict[str, str]:
+        """Get model aliases mapping"""
+        return self._model_aliases
+    
+    def resolve_model_name(self, model_alias: str) -> str:
+        """Resolve a model alias to its actual model name"""
+        return self._model_aliases.get(model_alias, model_alias)
+    
+    def get_agent_preferred_model(self, agent_name: str) -> str:
+        """Get the resolved preferred model for an agent"""
+        agent = self.get_agent_config(agent_name)
+        if agent:
+            return agent.get_preferred_model(self._model_aliases)
+        return 'local_general_standard'
+    
+    def get_agent_fallback_models(self, agent_name: str) -> list[str]:
+        """Get the resolved fallback models for an agent"""
+        agent = self.get_agent_config(agent_name)
+        if agent:
+            return agent.get_fallback_models(self._model_aliases)
+        return []
 
     def get_available_agents(self) -> list[str]:
         """Get list of available agent names"""

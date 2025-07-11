@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.core.config.schemas import ModelConfig, ProviderConfig
 from src.core.logging.exceptions import ConfigurationError, ModelError
 from src.integrations.llm_providers import LLMProvider, LLMProviderFactory
 
@@ -19,40 +18,45 @@ class TestLLMProvider:
     @pytest.fixture
     def openai_model_config(self):
         """Create OpenAI model configuration"""
-        return ModelConfig(
-            name="gpt-4",
-            type="openai",
-            max_tokens=4000,
-            temperature=0.7,
-            available=True,
-        )
+        return {
+            "model_name": "gpt-4",
+            "type": "openai",
+            "max_tokens": 4000,
+            "temperature": 0.7,
+        }
 
     @pytest.fixture
     def local_model_config(self):
         """Create local model configuration"""
-        return ModelConfig(
-            name="llama-7b",
-            type="llama",
-            model_path="/models/llama-7b.gguf",
-            max_tokens=2000,
-            temperature=0.8,
-            available=True,
-        )
+        return {
+            "model_name": "llama-7b",
+            "type": "llama",
+            "path": "/models/llama-7b.gguf",
+            "max_tokens": 2000,
+            "temperature": 0.8,
+        }
 
     @pytest.fixture
     def openai_provider_config(self, openai_model_config):
         """Create OpenAI provider configuration"""
-        return ProviderConfig(
-            api_key_env="OPENAI_API_KEY", models={"gpt-4": openai_model_config}
-        )
+        return {
+            "api_key_env": "OPENAI_API_KEY", 
+            "models": {"gpt-4": openai_model_config}
+        }
 
     def test_llm_provider_initialization(self, openai_model_config):
         """Test LLMProvider initialization"""
-        provider = LLMProvider(model_config=openai_model_config, provider_config=None)
+        with patch("src.integrations.llm_providers.ChatOpenAI") as mock_openai:
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+                mock_client = Mock()
+                mock_openai.return_value = mock_client
+                
+                provider = LLMProvider(model_config=openai_model_config)
 
-        assert provider.model_config == openai_model_config
-        assert provider.provider_config is None
-        assert provider.model is None  # Not initialized yet
+                assert provider.model_config == openai_model_config
+                assert provider.provider_type == "openai"
+                assert provider.model_name == "gpt-4"
+                assert provider.client == mock_client
 
     def test_openai_provider_initialization(
         self, openai_model_config, openai_provider_config

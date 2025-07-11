@@ -6,9 +6,9 @@ from datetime import datetime
 
 import pytest
 
-from src.core.config_manager import FileConfigProvider
+from src.core.config.agent_config_manager import AgentConfigManager
 from src.core.context_manager import SQLiteContextProvider
-from src.core.state_schema import HybridSystemState
+from src.interfaces.core.state_schema import HybridSystemState
 from src.nodes.answer_agent import AnswerAgentNode
 
 
@@ -16,9 +16,9 @@ class TestAnswerAgentNode:
     """Test suite for AnswerAgentNode"""
 
     @pytest.fixture
-    def config_provider(self):
-        """Create a test configuration provider"""
-        return FileConfigProvider(config_dir="config")
+    def config_manager(self):
+        """Create a test configuration manager"""
+        return AgentConfigManager(config_dir="config")
 
     @pytest.fixture
     def context_provider(self):
@@ -26,9 +26,9 @@ class TestAnswerAgentNode:
         return SQLiteContextProvider(db_path=":memory:")
 
     @pytest.fixture
-    def answer_agent(self, config_provider, context_provider):
+    def answer_agent(self, config_manager, context_provider):
         """Create an AnswerAgentNode instance"""
-        return AnswerAgentNode(config_provider, context_provider)
+        return AnswerAgentNode(config_manager, context_provider)
 
     @pytest.fixture
     def sample_state(self):
@@ -45,8 +45,9 @@ class TestAnswerAgentNode:
     def test_answer_agent_initialization(self, answer_agent):
         """Test that AnswerAgentNode initializes correctly"""
         assert answer_agent is not None
-        assert answer_agent.config_provider is not None
+        assert answer_agent.config_manager is not None
         assert answer_agent.context_provider is not None
+        assert answer_agent.agent_config is not None
 
     def test_generate_response(self, answer_agent):
         """Test response generation"""

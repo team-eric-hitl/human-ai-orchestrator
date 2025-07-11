@@ -153,21 +153,55 @@ jupyter lab notebooks/AI_Agents_Tutorial.ipynb
 
 The system uses a hierarchical configuration approach:
 
-### Model Configuration (`config/models.yaml`)
+### Model Configuration (`config/shared/models.yaml`)
 ```yaml
+# Semantic model aliases - update these when new models are released
+model_aliases:
+  # Anthropic models - organized by use case and performance tier
+  anthropic_general_budget: "claude-3-5-haiku-20241022"
+  anthropic_general_standard: "claude-3-5-sonnet-20241022"
+  anthropic_reasoning_premium: "claude-3-5-sonnet-20241022"
+  anthropic_coding_premium: "claude-3-5-sonnet-20241022"
+  
+  # OpenAI models
+  openai_general_standard: "gpt-4"
+  openai_general_budget: "gpt-3.5-turbo"
+  openai_coding_standard: "gpt-4"
+  
+  # Local models
+  local_general_standard: "llama-7b"
+  local_general_premium: "llama-13b"
+  local_coding_standard: "codellama-7b"
+  local_general_budget: "mistral-7b"
+
 models:
+  # Local Llama models
   llama-7b:
     path: "models/llama-7b.gguf"
     type: "llama"
     context_length: 2048
     temperature: 0.7
+    description: "Llama 7B model - good balance of speed and quality"
+    
+  # OpenAI models (cloud)
   gpt-4:
     type: "openai"
     model_name: "gpt-4"
     temperature: 0.7
+    description: "OpenAI GPT-4 - highest quality, requires API key"
+    
+  # Anthropic models (cloud)
+  claude-3-5-sonnet-20241022:
+    type: "anthropic"
+    model_name: "claude-3-5-sonnet-20241022"
+    temperature: 0.7
+    description: "Anthropic Claude 3.5 Sonnet - balanced performance and reasoning"
 
-default_model: "llama-7b"
-fallback_models: ["gpt-4", "claude-3-sonnet"]
+# Global model categories for different use cases
+use_cases:
+  general:
+    recommended: "local_general_standard"
+    alternatives: ["local_general_budget", "anthropic_general_standard", "openai_general_standard"]
 ```
 
 ### Prompts Configuration (`config/prompts.json`)

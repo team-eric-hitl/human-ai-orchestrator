@@ -26,6 +26,7 @@ from langsmith import traceable
 
 # Config management
 from ..core.config import ConfigManager
+from ..core.config.agent_config_manager import AgentConfigManager
 
 # Logging and error handling
 from ..core.logging import ModelError, ModelInferenceError, get_logger
@@ -155,7 +156,7 @@ class LLMProvider:
             )
 
         return ChatAnthropic(
-            model=self.model_config.get("model_name", "claude-3-sonnet-20240229"),
+            model=self.model_config.get("model_name", "claude-3-5-sonnet-20241022"),
             temperature=self.model_config.get("temperature", 0.7),
             max_tokens=self.model_config.get("max_tokens", 2000),
             api_key=api_key,
@@ -350,29 +351,59 @@ class LLMProviderFactory:
 
     def __init__(self, config_dir: str = "config"):
         self.config_manager = ConfigManager(config_dir)
+        # Also initialize AgentConfigManager for alias resolution
+        try:
+            self.agent_config_manager = AgentConfigManager(config_dir)
+        except Exception:
+            # Fallback if AgentConfigManager fails
+            self.agent_config_manager = None
 
     def create_provider(self, model_name: str | None = None) -> LLMProvider:
         """
         Create LLM provider from configuration
 
         Args:
-            model_name: Specific model name, or None to use primary model
+            model_name: Specific model name or alias, or None to use primary model
         """
+        models_config = self.config_manager.get_models_config()
+        available_models = models_config.get("models", {})
+        
+        # Initialize resolved name
+        resolved_model_name = None
+        
         if model_name:
-            model_config = self.config_manager.models.get_model(model_name)
+            # Resolve model alias if AgentConfigManager is available
+            resolved_model_name = model_name
+            if self.agent_config_manager:
+                resolved_model_name = self.agent_config_manager.resolve_model_name(model_name)
+            
+            if resolved_model_name not in available_models:
+                raise ValueError(f"Model {resolved_model_name} not found in configuration")
+            model_config = available_models[resolved_model_name]
         else:
-            model_config = self.config_manager.get_primary_model()
+            # Get the primary model from use cases
+            use_cases = models_config.get("use_cases", {})
+            general_use_case = use_cases.get("general", {})
+            primary_model_name = general_use_case.get("recommended", "local_general_standard")
+            resolved_model_name = primary_model_name
+            model_config = available_models.get(primary_model_name, {})
 
         # Validate model is available
-        if not model_config.is_available():
-            if model_config.is_local():
-                raise FileNotFoundError(f"Model file not found: {model_config.path}")
-            elif model_config.type == "openai":
-                raise ValueError("OPENAI_API_KEY not set for OpenAI model")
-            else:
-                raise ValueError(f"Model {model_config.name} is not available")
+        model_type = model_config.get("type", "unknown")
+        if model_type in ["llama", "mistral"]:
+            model_path = model_config.get("path", "")
+            if not Path(model_path).exists():
+                raise FileNotFoundError(f"Model file not found: {model_path}")
+        elif model_type == "openai" and not os.getenv("OPENAI_API_KEY"):
+            raise ValueError("OPENAI_API_KEY not set for OpenAI model")
+        elif model_type == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
+            raise ValueError("ANTHROPIC_API_KEY not set for Anthropic model")
 
-        print(f"✅ Creating LLM provider: {model_config.name} ({model_config.type})")
+        # Show both alias and resolved name if different
+        display_name = model_name or resolved_model_name
+        if model_name and self.agent_config_manager and resolved_model_name != model_name:
+            display_name = f"{model_name} → {resolved_model_name}"
+        print(f"✅ Creating LLM provider: {display_name} ({model_type})")
         return LLMProvider(model_config)
 
     def create_auto_provider(self) -> LLMProvider:
@@ -457,7 +488,7 @@ class LLMProviderFactory:
 
         # Add primary model
         try:
-            primary_model = general_use_case.get("recommended", "llama-7b")
+            primary_model = general_use_case.get("recommended", "local_general_standard")
             if primary_model not in models_to_try:
                 models_to_try.append(primary_model)
         except Exception:

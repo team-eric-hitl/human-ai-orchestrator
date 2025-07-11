@@ -27,22 +27,21 @@ class EvaluatorAgentNode:
     def _initialize_llm_provider(self):
         """Initialize LLM provider for evaluation with fallback strategy"""
         try:
-            factory = LLMProviderFactory()
+            factory = LLMProviderFactory(self.config_manager.config_dir)
             
             # Use agent-specific model configuration
             preferred_model = self.agent_config.get_preferred_model()
             fallback_models = self.agent_config.get_fallback_models()
             provider = factory.create_provider_with_fallback(
-                preferred_model=preferred_model,
-                fallback_models=fallback_models
+                preferred_model=preferred_model
             )
             
             self.logger.info(
                 "Evaluator Agent LLM provider initialized",
                 extra={
                     "operation": "initialize_llm_provider",
-                    "model_name": provider.model_config.name,
-                    "model_type": provider.model_config.type,
+                    "model_name": provider.model_name,
+                    "model_type": provider.provider_type,
                     "preferred_model": preferred_model,
                     "fallback_models": fallback_models,
                 },

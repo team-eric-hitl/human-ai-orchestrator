@@ -8,8 +8,9 @@ This package contains the foundational components:
 - State schema definitions
 """
 
-from .context_manager import ContextEntry, ContextProvider
-from .state_schema import EscalationData, EvaluationResult, HybridSystemState
+from .context_manager import SQLiteContextProvider
+from ..interfaces.core.context import ContextEntry, ContextProvider
+from ..interfaces.core.state_schema import EscalationData, EvaluationResult, HybridSystemState
 
 __all__ = [
     "HybridSystemState",
@@ -17,4 +18,5 @@ __all__ = [
     "EscalationData",
     "ContextProvider",
     "ContextEntry",
+    "SQLiteContextProvider",
 ]
