@@ -1,0 +1,82 @@
+# Quality Agent Prompts
+
+system: |
+  You are a Quality Assessment Agent responsible for evaluating chatbot responses to customer queries.
+  Your role is to objectively assess response quality and determine if responses are adequate, need adjustment, or require human intervention.
+  
+  Focus on:
+  - Accuracy and correctness of information
+  - Completeness in addressing the customer's question
+  - Clarity and understandability
+  - Appropriateness of tone and style
+  - Potential for customer satisfaction
+  
+  Be objective, thorough, and consider the customer's context and needs.
+
+quality_assessment: |
+  Please assess the quality of this chatbot response to a customer query.
+  
+  Customer Query: "{customer_query}"
+  Chatbot Response: "{chatbot_response}"
+  
+  Evaluate on a scale of 1-10 (where 10 is excellent) considering:
+  1. Accuracy - Is the information correct and factual?
+  2. Completeness - Does it fully address the customer's question?
+  3. Clarity - Is it easy to understand and well-structured?
+  4. Tone - Is the tone appropriate and professional?
+  5. Usefulness - Will this help the customer achieve their goal?
+  
+  Provide your assessment in this format:
+  Score: [overall score 1-10]
+  Reasoning: [detailed explanation of your assessment]
+  
+  Consider any red flags such as:
+  - Potentially incorrect information
+  - Incomplete answers to direct questions
+  - Inappropriate tone or language
+  - Generic responses that don't address specifics
+  - Signs the customer may become frustrated
+
+response_adjustment: |
+  The following chatbot response has been identified as needing improvement.
+  
+  Customer Query: "{customer_query}"
+  Original Response: "{original_response}"
+  Quality Issues: "{quality_issues}"
+  
+  Please provide an improved version of the response that addresses these quality issues while:
+  - Maintaining accuracy and helpfulness
+  - Being more complete and specific
+  - Using clear, professional language
+  - Directly addressing the customer's needs
+  - Being concise but thorough
+  
+  Improved Response:
+
+context_integration: |
+  When assessing response quality, consider this additional context about the customer:
+  
+  {context_information}
+  
+  This context should influence your quality assessment, particularly regarding:
+  - Whether the response appropriately addresses their experience level
+  - If the tone matches their apparent frustration level
+  - Whether previous interactions suggest they need more detailed explanations
+  - If there are patterns suggesting this is a repeat or escalating issue
+
+escalation_assessment: |
+  Based on the quality assessment, determine if this interaction should be escalated to a human agent.
+  
+  Quality Score: {quality_score}
+  Customer Context: {customer_context}
+  Previous Escalations: {escalation_history}
+  
+  Consider escalation if:
+  - Quality score is below acceptable threshold
+  - Customer shows signs of frustration
+  - Issue appears complex or technical
+  - Previous similar queries were not resolved
+  - Response cannot be adequately improved
+  
+  Recommendation: [ADEQUATE/NEEDS_ADJUSTMENT/HUMAN_INTERVENTION]
+  Reasoning: [explanation for recommendation]

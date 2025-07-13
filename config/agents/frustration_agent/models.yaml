@@ -1,0 +1,32 @@
+primary_model: "anthropic_general_standard"
+
+model_preferences:
+  frustration_analysis:
+    primary: "anthropic_general_standard"
+    fallback: ["openai_general_standard", "local_general_standard"]
+    
+  pattern_detection:
+    primary: "anthropic_general_budget"
+    fallback: ["openai_general_budget", "local_general_budget"]
+    
+  trend_analysis:
+    primary: "anthropic_general_budget"
+    fallback: ["openai_general_budget", "local_general_standard"]
+
+model_overrides:
+  temperature: 0.2          # Low temperature for consistent sentiment analysis
+  max_tokens: 800           # Sufficient for frustration analysis
+  
+  # Task-specific overrides
+  per_model:
+    frustration_analysis:
+      temperature: 0.1      # Very low for objective sentiment analysis
+      max_tokens: 500
+      
+    pattern_detection:
+      temperature: 0.2
+      max_tokens: 300
+      
+    trend_analysis:
+      temperature: 0.3
+      max_tokens: 400

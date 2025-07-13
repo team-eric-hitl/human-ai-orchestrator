@@ -1,0 +1,194 @@
+# Routing Agent Prompts
+
+system: |
+  You are a Routing Agent responsible for selecting the best human agent for customer escalations.
+  Your role is to balance customer needs with employee wellbeing and operational efficiency.
+  
+  Consider:
+  - Customer requirements and complexity
+  - Agent skills and expertise
+  - Current workload distribution
+  - Employee wellbeing and burnout prevention
+  - Performance optimization
+  - Fair workload distribution
+  
+  Prioritize both excellent customer service and sustainable employee experience.
+
+skill_analysis: |
+  Analyze the customer query to determine required skills and expertise level.
+  
+  Customer Query: "{customer_query}"
+  Escalation Reason: "{escalation_reason}"
+  Customer Context: {customer_context}
+  
+  Identify:
+  1. Primary skill domains required (technical, billing, account_management, etc.)
+  2. Complexity level (low, medium, high)
+  3. Specialized knowledge needed
+  4. Language requirements
+  5. Urgency factors
+  
+  Required Skills Assessment:
+  Primary Domain: [domain]
+  Secondary Domains: [list]
+  Complexity Level: [low/medium/high]
+  Expertise Level: [junior/intermediate/senior]
+  Special Requirements: [list any special needs]
+  Estimated Resolution Time: [minutes]
+
+agent_selection: |
+  Select the best available agent for this escalation.
+  
+  Requirements: {routing_requirements}
+  Available Agents: {available_agents}
+  Routing Strategy: {routing_strategy}
+  
+  For each available agent, consider:
+  1. Skill Match Score (0-100)
+  2. Availability Score (0-100) 
+  3. Performance Score (0-100)
+  4. Wellbeing Score (0-100)
+  5. Overall Fit Score (weighted combination)
+  
+  Provide detailed analysis:
+  
+  Agent Evaluation:
+  [For each agent, provide:]
+  - Agent ID: [id]
+  - Skill Match: [score/100] - [reasoning]
+  - Availability: [score/100] - [current workload, capacity]
+  - Performance: [score/100] - [satisfaction, resolution time, escalation rate]
+  - Wellbeing: [score/100] - [recent difficult cases, stress factors]
+  - Overall Score: [weighted total]
+  
+  Recommendation:
+  Selected Agent: [agent_id]
+  Confidence: [0.0-1.0]
+  Reasoning: [detailed justification]
+  Alternative Agents: [backup options]
+
+priority_assessment: |
+  Assess the priority level for this escalation routing.
+  
+  Customer Information:
+  - Frustration Level: {frustration_level}
+  - Query Complexity: {complexity}
+  - Previous Escalations: {escalation_history}
+  - Customer Tier: {customer_tier}
+  
+  Quality Assessment:
+  - Quality Score: {quality_score}
+  - Issue Type: {issue_type}
+  
+  Calculate priority considering:
+  1. Customer frustration and urgency
+  2. Technical complexity
+  3. Business impact
+  4. Historical context
+  5. Time sensitivity
+  
+  Priority Assessment:
+  Priority Level: [low/medium/high/critical]
+  Priority Score: [1-10]
+  Reasoning: [explanation of factors]
+  Recommended SLA: [response time target]
+  Special Handling: [any special requirements]
+
+wellbeing_consideration: |
+  Assess employee wellbeing factors for routing this case.
+  
+  Case Details:
+  - Customer Frustration: {frustration_level}
+  - Case Complexity: {complexity}
+  - Estimated Duration: {estimated_time}
+  
+  Agent Status:
+  - Recent Difficult Cases: {recent_difficult_cases}
+  - Current Workload: {current_workload}
+  - Frustration Tolerance: {frustration_tolerance}
+  - Last Break/Easy Case: {last_break}
+  
+  Wellbeing Assessment:
+  
+  1. Agent Stress Level: [low/medium/high/critical]
+  2. Capacity for Difficult Case: [yes/no/with_support]
+  3. Recommended Support: [none/colleague_backup/supervisor_check/immediate_break_after]
+  4. Rotation Recommendation: [continue/rotate_after_case/immediate_rotation]
+  
+  Employee Protection Measures:
+  - Pre-case briefing needed: [yes/no]
+  - Mid-case check-in: [yes/no] 
+  - Post-case debrief: [yes/no]
+  - Stress monitoring: [yes/no]
+  
+  Recommendation: [safe to assign/assign with support/reassign to different agent]
+  Reasoning: [explanation of wellbeing considerations]
+
+queue_management: |
+  Provide queue management recommendations for this escalation.
+  
+  Current Queue Status:
+  - Queue Length: {queue_length}
+  - Average Wait Time: {avg_wait_time}
+  - Available Agents: {available_agents}
+  
+  Case Details:
+  - Priority Level: {priority_level}
+  - Customer Frustration: {frustration_level}
+  - Complexity: {complexity}
+  
+  Queue Recommendations:
+  
+  1. Queue Placement:
+     - Position: [front/priority/standard/background]
+     - Reasoning: [why this placement]
+  
+  2. Wait Time Management:
+     - Estimated Wait: [minutes]
+     - Communication Plan: [how to keep customer informed]
+     - Escalation Trigger: [conditions for further escalation]
+  
+  3. Resource Allocation:
+     - Agent Assignment Strategy: [immediate/next_available/specific_agent]
+     - Alternative Options: [other channels, self-service, callback]
+  
+  4. Customer Communication:
+     - Initial Response: [acknowledgment message]
+     - Updates Required: [frequency and content]
+     - Expectations Setting: [timeline and process]
+
+performance_optimization: |
+  Analyze routing performance and suggest optimizations.
+  
+  Recent Routing Data:
+  - Average Assignment Time: {avg_assignment_time}
+  - Customer Satisfaction: {customer_satisfaction}
+  - Agent Utilization: {agent_utilization}
+  - Escalation Resolution Rate: {resolution_rate}
+  
+  Current Case:
+  - Requirements: {case_requirements}
+  - Available Resources: {available_resources}
+  - Constraints: {constraints}
+  
+  Performance Analysis:
+  
+  1. Efficiency Metrics:
+     - Expected Resolution Time: [minutes]
+     - Resource Utilization: [percentage]
+     - Customer Wait Time: [minutes]
+  
+  2. Quality Predictions:
+     - Likelihood of Resolution: [percentage]
+     - Expected Satisfaction: [1-5 scale]
+     - Re-escalation Risk: [low/medium/high]
+  
+  3. Optimization Opportunities:
+     - Workload Distribution: [recommendations]
+     - Skill Development: [training needs identified]
+     - Process Improvements: [suggested changes]
+  
+  Recommendations:
+  - Immediate Actions: [for this case]
+  - Short-term Improvements: [next week]
+  - Long-term Optimizations: [strategic changes]

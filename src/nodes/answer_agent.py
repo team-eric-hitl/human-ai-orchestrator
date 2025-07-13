@@ -1,6 +1,7 @@
 """
-Module 1: Answer Agent Node
-Responsibility: Generate initial AI responses to user queries
+Chatbot Agent Node (Answer Agent)
+Responsibility: Generate customer-focused AI responses with enhanced service orientation
+Designed to work as the primary chatbot in the human-in-the-loop system
 """
 
 from langchain_core.messages import AIMessage, HumanMessage
@@ -14,7 +15,7 @@ from ..core.config import ConfigManager
 
 
 class AnswerAgentNode:
-    """LangGraph node for generating initial AI responses"""
+    """LangGraph node for generating customer service-focused chatbot responses"""
 
     def __init__(self, config_manager: ConfigManager, context_provider: ContextProvider):
         self.config_manager = config_manager
@@ -53,108 +54,147 @@ class AnswerAgentNode:
             )
             return None
 
-    @traceable(run_type="llm", name="Answer Agent")
+    @traceable(run_type="llm", name="Chatbot Agent")
     def __call__(self, state: HybridSystemState) -> HybridSystemState:
         """
-        Main node function - generate AI response
-        LangSmith automatically tracks: tokens, latency, costs, errors
+        Main chatbot function - generate customer service response
+        Enhanced for the human-in-the-loop system with customer service focus
         """
 
         # Get configuration from agent config
         system_prompt = self.agent_config.get_prompt("system")
-        context_integration = self.agent_config.prompts.get("context_integration_prompt", "")
+        customer_service_prompt = self.agent_config.get_prompt("customer_service", "")
 
-        # Build context-aware prompt
-        context_prompt = self._build_context_prompt(state)
+        # Build comprehensive context for customer service
+        context_prompt = self._build_customer_service_context(state)
 
-        # Generate response using real LLM
-        ai_response = self._generate_response(
-            state["query"], context_prompt, system_prompt
+        # Detect customer urgency and tone
+        customer_analysis = self._analyze_customer_state(state)
+
+        # Generate customer service response
+        ai_response = self._generate_customer_service_response(
+            state["query"], context_prompt, system_prompt, customer_analysis
         )
 
-        # Save interaction to context
-        self._save_interaction_context(state, ai_response)
+        # Add customer service metadata
+        response_metadata = self._create_response_metadata(ai_response, customer_analysis)
 
-        # Update state
+        # Save interaction to context
+        self._save_interaction_context(state, ai_response, response_metadata)
+
+        # Update state with customer service enhancements
         return {
             **state,
             "ai_response": ai_response,
+            "response_metadata": response_metadata,
+            "customer_analysis": customer_analysis,
             "initial_assessment": {
                 "context_used": len(context_prompt) > 0,
-                "confidence": 0.85,  # Would come from actual model
-                "response_time": 2.3,  # Tracked automatically by LangSmith
+                "confidence": response_metadata.get("confidence", 0.85),
+                "response_time": response_metadata.get("response_time", 2.3),
+                "customer_service_score": response_metadata.get("service_score", 8.0),
             },
             "messages": state.get("messages", [])
             + [HumanMessage(content=state["query"]), AIMessage(content=ai_response)],
-            "next_action": "evaluate",
+            "next_action": "quality_check",  # Go to quality agent instead of evaluator
         }
 
     def _build_context_prompt(self, state: HybridSystemState) -> str:
-        """Build context-aware prompt from conversation history"""
+        """Build context-aware prompt from conversation history (legacy method)"""
+        return self._build_customer_service_context(state)
+
+    def _build_customer_service_context(self, state: HybridSystemState) -> str:
+        """Build comprehensive customer service context"""
 
         context_summary = self.context_provider.get_context_summary(
             state["user_id"], state["session_id"]
         )
 
         if context_summary["entries_count"] == 0:
-            return ""
+            return "New customer - no previous interaction history."
 
-        context_prompt = "CONVERSATION CONTEXT:\n"
-        context_prompt += (
-            f"- User has had {context_summary['entries_count']} recent interactions\n"
-        )
-
-        if context_summary["recent_queries"]:
-            context_prompt += (
-                f"- Recent topics: {', '.join(context_summary['recent_queries'][:2])}\n"
-            )
-
+        # Build customer service focused context
+        context_prompt = "CUSTOMER CONTEXT:\n"
+        
+        # Customer interaction history
+        context_prompt += f"- Customer has had {context_summary['entries_count']} previous interactions\n"
+        
+        # Customer satisfaction indicators
         if context_summary["escalation_count"] > 0:
-            context_prompt += (
-                f"- Previous escalations: {context_summary['escalation_count']}\n"
-            )
+            context_prompt += f"- Previous escalations: {context_summary['escalation_count']} (handle with extra care)\n"
+        
+        # Recent interaction topics
+        if context_summary["recent_queries"]:
+            context_prompt += f"- Recent topics: {', '.join(context_summary['recent_queries'][:3])}\n"
+        
+        # Customer experience indicators
+        if context_summary["entries_count"] > 5:
+            context_prompt += "- Frequent customer - provide detailed, comprehensive assistance\n"
+        elif context_summary["entries_count"] == 1:
+            context_prompt += "- New customer - be welcoming and thorough in explanations\n"
+
+        # Add customer service guidance
+        context_prompt += "\nCUSTOMER SERVICE GUIDANCE:\n"
+        context_prompt += "- Prioritize customer satisfaction and helpfulness\n"
+        context_prompt += "- Be empathetic and understanding\n"
+        context_prompt += "- Provide clear, actionable solutions\n"
+        
+        if context_summary["escalation_count"] > 0:
+            context_prompt += "- Extra attention needed due to previous escalations\n"
 
         return context_prompt
 
     def _generate_response(
         self, query: str, context_prompt: str, system_prompt: str
     ) -> str:
-        """Generate AI response using LLM"""
+        """Generate AI response using LLM (legacy method)"""
+        return self._generate_customer_service_response(query, context_prompt, system_prompt, {})
+
+    def _generate_customer_service_response(
+        self, query: str, context_prompt: str, system_prompt: str, customer_analysis: dict
+    ) -> str:
+        """Generate customer service focused response using LLM"""
         if not self.llm_provider:
-            return "Sorry, I'm having trouble connecting to the AI service. Please try again later."
+            return "I apologize, but I'm currently experiencing technical difficulties. Please try again in a moment, or if this issue persists, I'll connect you with one of our human agents who can assist you immediately."
 
         try:
-            # Build full prompt with context
-            full_prompt = query
-            if context_prompt:
-                full_prompt = f"{context_prompt}\n\nUser: {query}"
+            # Build customer service focused prompt
+            full_prompt = self._build_customer_service_prompt(query, context_prompt, customer_analysis)
 
-            # Generate response using local LLM
+            # Generate response using LLM with customer service system prompt
             response = self.llm_provider.generate_response(
                 prompt=full_prompt, system_prompt=system_prompt
             )
+
+            # Post-process response for customer service standards
+            response = self._enhance_customer_service_response(response, customer_analysis)
 
             return response
 
         except Exception as e:
             self.logger.error(
-                "Error generating AI response",
+                "Error generating customer service response",
                 extra={
                     "error": str(e),
                     "query_length": len(query),
                     "has_context": bool(context_prompt),
-                    "operation": "generate_response",
+                    "customer_analysis": customer_analysis,
+                    "operation": "generate_customer_service_response",
                 },
             )
-            return "I apologize, but I encountered an error while processing your request. Please try again."
+            return "I sincerely apologize, but I'm experiencing technical difficulties at the moment. To ensure you receive the best possible assistance, I'm going to connect you with one of our human agents who can help resolve your question immediately."
 
-    def _save_interaction_context(self, state: HybridSystemState, response: str):
-        """Save interaction to context store"""
+    def _save_interaction_context(self, state: HybridSystemState, response: str, metadata: dict = None):
+        """Save interaction to context store with enhanced metadata"""
         from ..interfaces.core.context import ContextEntry
         from datetime import datetime
 
         # Save query
         timestamp = datetime.fromisoformat(state["timestamp"]) if isinstance(state["timestamp"], str) else state["timestamp"]
+        query_metadata = {"query_id": state["query_id"]}
+        if metadata and "customer_analysis" in metadata:
+            query_metadata["customer_analysis"] = metadata["customer_analysis"]
+        
         query_context = ContextEntry(
             entry_id=f"{state['query_id']}_query",
             user_id=state["user_id"],
@@ -162,11 +202,20 @@ class AnswerAgentNode:
             timestamp=timestamp,
             entry_type="query",
             content=state["query"],
-            metadata={"query_id": state["query_id"]},
+            metadata=query_metadata,
         )
         self.context_provider.save_context_entry(query_context)
 
-        # Save response
+        # Save response with enhanced metadata
+        response_metadata = {
+            "query_id": state["query_id"], 
+            "model_confidence": metadata.get("confidence", 0.85) if metadata else 0.85,
+            "service_score": metadata.get("service_score", 8.0) if metadata else 8.0,
+            "response_type": "chatbot_response",
+        }
+        if metadata:
+            response_metadata.update(metadata)
+        
         response_context = ContextEntry(
             entry_id=f"{state['query_id']}_response",
             user_id=state["user_id"],
@@ -174,6 +223,120 @@ class AnswerAgentNode:
             timestamp=timestamp,
             entry_type="response",
             content=response,
-            metadata={"query_id": state["query_id"], "model_confidence": 0.85},
+            metadata=response_metadata,
         )
         self.context_provider.save_context_entry(response_context)
+
+    def _analyze_customer_state(self, state: HybridSystemState) -> dict:
+        """Analyze customer state for service customization"""
+        query = state.get("query", "").lower()
+        
+        # Basic sentiment analysis
+        urgency_keywords = ["urgent", "asap", "immediately", "emergency", "critical", "help"]
+        frustration_keywords = ["frustrated", "angry", "upset", "disappointed", "problem"]
+        politeness_keywords = ["please", "thank you", "thanks", "appreciate"]
+        
+        analysis = {
+            "urgency_detected": any(keyword in query for keyword in urgency_keywords),
+            "frustration_detected": any(keyword in query for keyword in frustration_keywords),
+            "politeness_detected": any(keyword in query for keyword in politeness_keywords),
+            "query_length": len(query),
+            "question_marks": query.count("?"),
+            "exclamation_marks": query.count("!"),
+            "caps_ratio": sum(1 for c in query if c.isupper()) / max(len(query), 1),
+        }
+        
+        # Determine customer tone
+        if analysis["caps_ratio"] > 0.3 or analysis["exclamation_marks"] > 2:
+            analysis["tone"] = "emphatic"
+        elif analysis["frustration_detected"]:
+            analysis["tone"] = "frustrated"
+        elif analysis["urgency_detected"]:
+            analysis["tone"] = "urgent"
+        elif analysis["politeness_detected"]:
+            analysis["tone"] = "polite"
+        else:
+            analysis["tone"] = "neutral"
+        
+        return analysis
+
+    def _build_customer_service_prompt(self, query: str, context_prompt: str, customer_analysis: dict) -> str:
+        """Build comprehensive customer service prompt"""
+        prompt_parts = []
+        
+        # Add context if available
+        if context_prompt:
+            prompt_parts.append(context_prompt)
+        
+        # Add customer analysis
+        if customer_analysis:
+            prompt_parts.append(f"\nCUSTOMER TONE ANALYSIS:")
+            prompt_parts.append(f"- Detected tone: {customer_analysis.get('tone', 'neutral')}")
+            
+            if customer_analysis.get("urgency_detected"):
+                prompt_parts.append("- URGENT request detected - prioritize quick, direct response")
+            if customer_analysis.get("frustration_detected"):
+                prompt_parts.append("- Customer frustration detected - be extra empathetic and helpful")
+            if customer_analysis.get("politeness_detected"):
+                prompt_parts.append("- Polite customer - match their courteous tone")
+        
+        # Add the actual customer query
+        prompt_parts.append(f"\nCUSTOMER QUERY: {query}")
+        
+        # Add response guidance
+        prompt_parts.append("\nRESPONSE REQUIREMENTS:")
+        prompt_parts.append("- Be helpful, professional, and customer-focused")
+        prompt_parts.append("- Provide clear, actionable solutions when possible")
+        prompt_parts.append("- Show empathy and understanding")
+        prompt_parts.append("- Be concise but thorough")
+        
+        return "\n".join(prompt_parts)
+
+    def _enhance_customer_service_response(self, response: str, customer_analysis: dict) -> str:
+        """Post-process response to enhance customer service quality"""
+        # Basic enhancement - could be expanded with more sophisticated processing
+        
+        # Add empathy for frustrated customers
+        if customer_analysis.get("frustration_detected") and not any(
+            phrase in response.lower() for phrase in ["sorry", "apologize", "understand"]
+        ):
+            response = "I understand this can be frustrating. " + response
+        
+        # Add urgency acknowledgment
+        if customer_analysis.get("urgency_detected") and "urgent" not in response.lower():
+            response = response + " I've prioritized your request to help resolve this quickly."
+        
+        # Ensure polite tone is maintained
+        if not response.endswith((".", "!", "?")):
+            response += "."
+        
+        return response
+
+    def _create_response_metadata(self, response: str, customer_analysis: dict) -> dict:
+        """Create metadata for the response"""
+        
+        # Calculate basic service score
+        service_score = 8.0  # Base score
+        
+        # Adjust based on response characteristics
+        if len(response) > 50:  # Substantial response
+            service_score += 0.5
+        if customer_analysis.get("tone") == "frustrated" and any(
+            phrase in response.lower() for phrase in ["sorry", "apologize", "understand"]
+        ):
+            service_score += 1.0  # Bonus for empathy with frustrated customers
+        
+        # Calculate confidence based on response quality indicators
+        confidence = 0.85  # Base confidence
+        if len(response) < 20:  # Very short responses might be lower quality
+            confidence -= 0.1
+        if "?" in response:  # Asking questions is good for clarification
+            confidence += 0.05
+        
+        return {
+            "confidence": min(1.0, confidence),
+            "service_score": min(10.0, service_score),
+            "response_length": len(response),
+            "customer_analysis": customer_analysis,
+            "response_time": 2.3,  # Would be actual timing in production
+        }

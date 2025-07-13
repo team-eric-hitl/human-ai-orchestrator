@@ -1,0 +1,45 @@
+# Quality Agent Configuration
+# Responsibility: Review chatbot answers and decide if adequate, needs adjustment, or requires human intervention
+
+agent_name: "quality_agent"
+agent_type: "quality_assessment"
+enabled: true
+
+# Quality assessment settings
+settings:
+  # Quality thresholds (1-10 scale)
+  quality_thresholds:
+    adequate_score: 7.0      # Score above this is considered adequate
+    adjustment_score: 5.0    # Score above this needs adjustment, below needs human
+  
+  # Assessment configuration
+  assessment:
+    use_llm_evaluation: true
+    confidence_threshold: 0.7
+    context_weight: 0.3      # How much to weight context in assessment
+    
+  # Response adjustment settings  
+  adjustment:
+    max_attempts: 2
+    improvement_threshold: 1.5  # Minimum improvement needed
+    
+  # Logging and monitoring
+  monitoring:
+    log_all_assessments: true
+    track_improvement_metrics: true
+    alert_on_low_quality: true
+    low_quality_threshold: 4.0
+
+# Escalation settings
+escalation:
+  auto_escalate_below: 3.0     # Auto escalate if score below this
+  escalation_reasons:
+    - "Quality score below threshold"
+    - "Unable to improve response adequately" 
+    - "Context indicates complex issue"
+    
+# Integration settings
+integrations:
+  context_manager: true
+  frustration_agent: true
+  routing_agent: true

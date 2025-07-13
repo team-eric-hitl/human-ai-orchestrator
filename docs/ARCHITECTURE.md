@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Hybrid AI-Human System is a modular LangGraph-based workflow orchestration platform that demonstrates intelligent escalation between AI agents and human experts. This document provides a comprehensive technical overview of the system architecture.
+The Human-in-the-Loop (HITL) AI System is a modular LangGraph-based workflow orchestration platform designed to improve both customer and employee experience through intelligent AI-human collaboration. The system intercepts all customer-AI interactions to ensure quality, detect frustration, and route escalations appropriately while protecting employee wellbeing. This document provides a comprehensive technical overview of the updated system architecture.
 
 ## Core Design Principles
 
@@ -13,10 +13,11 @@ The Hybrid AI-Human System is a modular LangGraph-based workflow orchestration p
 - **Extensibility**: New agents and workflows can be added easily
 
 ### 2. Human-in-the-Loop Integration
-- **Seamless Handoffs**: Smooth transitions between AI and human agents
-- **Context Preservation**: Full conversation context maintained across handoffs
-- **Intelligent Routing**: Smart assignment of requests to appropriate human experts
-- **Feedback Loops**: Continuous learning from human interactions
+- **Quality Interception**: All AI responses reviewed before customer delivery
+- **Frustration Detection**: Real-time monitoring of customer emotional state
+- **Intelligent Routing**: Smart assignment considering both customer needs and employee wellbeing
+- **Employee Protection**: Workload balancing and burnout prevention
+- **Context Preservation**: Full conversation context maintained across all handoffs
 
 ### 3. Agent-Centric Configuration Design
 - **Agent Isolation**: Each agent has its own configuration namespace
@@ -28,47 +29,56 @@ The Hybrid AI-Human System is a modular LangGraph-based workflow orchestration p
 ## System Components
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        HYBRID AI SYSTEM                         │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌──────────────┐ │
-│  │  Answer Agent   │    │ Evaluator Agent │    │ Escalation   │ │
-│  │                 │    │                 │    │ Router       │ │
-│  │ • LLM Integration│    │ • Quality Check │    │ • Human      │ │
-│  │ • Context Aware │────│ • Score Response│────│   Assignment │ │
-│  │ • Multi-Provider│    │ • Escalation    │    │ • Priority   │ │
-│  │ • Fallback      │    │   Decision      │    │   Calculation│ │
-│  └─────────────────┘    └─────────────────┘    └──────────────┘ │
-│           │                       │                     │       │
-│           └───────────────────────┼─────────────────────┘       │
-│                                   │                             │
-│  ┌─────────────────────────────────┼─────────────────────────────┐ │
-│  │               CORE INFRASTRUCTURE                           │ │
-│  │                                                             │ │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │ │
-│  │  │ Agent Config│  │ Context     │  │ Session Tracking    │ │ │
-│  │  │ Manager     │  │ Manager     │  │                     │ │ │
-│  │  │             │  │             │  │ • Performance       │ │ │
-│  │  │ • Agents/   │  │ • SQLite    │  │ • Metrics           │ │ │
-│  │  │ • Shared/   │  │ • History   │  │ • Cost Tracking     │ │ │
-│  │  │ • Envs/     │  │ • Memory    │  │ • Error Monitoring  │ │ │
-│  │  └─────────────┘  └─────────────┘  └─────────────────────┘ │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                    INTEGRATIONS                              │ │
-│  │                                                             │ │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │ │
-│  │  │ LLM         │  │ LangSmith   │  │ Human Interface     │ │ │
-│  │  │ Providers   │  │ Tracing     │  │                     │ │ │
-│  │  │             │  │             │  │ • Agent Management  │ │ │
-│  │  │ • OpenAI    │  │ • Monitoring│  │ • Handoff Protocol  │ │ │
-│  │  │ • Anthropic │  │ • Analytics │  │ • Feedback Collection│ │ │
-│  │  │ • Local     │  │ • Debugging │  │ • Quality Assurance │ │ │
-│  │  └─────────────┘  └─────────────┘  └─────────────────────┘ │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        HUMAN-IN-THE-LOOP AI SYSTEM                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
+│  │  Chatbot Agent  │    │  Quality Agent  │    │  Frustration Agent      │  │
+│  │  (Answer Agent) │    │                 │    │                         │  │
+│  │ • Customer      │    │ • Response      │    │ • Sentiment Analysis    │  │
+│  │   Service Focus │────│   Review        │────│ • Pattern Detection     │  │
+│  │ • Empathy       │    │ • Improvement   │    │ • Escalation Triggers   │  │
+│  │ • Multi-Provider│    │ • Escalation    │    │ • Employee Protection   │  │
+│  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
+│           │                       │                          │              │
+│           └───────────────────────┼──────────────────────────┘              │
+│                                   │                                         │
+│  ┌─────────────────────────────────┼─────────────────────────────────────────┐ │
+│  │     ┌─────────────────────────┐ │ ┌─────────────────────────────────────┐ │ │
+│  │     │    Routing Agent        │ │ │    Context Manager Agent            │ │ │
+│  │     │                         │ │ │                                     │ │ │
+│  │     │ • Employee Wellbeing    │ │ │ • SQL Database Context              │ │ │
+│  │     │ • Skill Matching        │─┼─│ • Interaction History               │ │ │
+│  │     │ • Workload Balancing    │ │ │ • Similar Cases                     │ │ │
+│  │     │ • Strategic Routing     │ │ │ • Web Search (Optional)             │ │ │
+│  │     └─────────────────────────┘ │ └─────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                         CORE INFRASTRUCTURE                             │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌───────────────┐  ┌──────────────┐ │ │
+│  │  │Agent Config │  │ Context     │  │Session        │  │ Simulation   │ │ │
+│  │  │Manager      │  │ Manager     │  │Tracking       │  │ Framework    │ │ │
+│  │  │• Quality    │  │• SQLite     │  │• Performance  │  │• Customer    │ │ │
+│  │  │• Frustration│  │• History    │  │• Metrics      │  │  Simulator   │ │ │
+│  │  │• Routing    │  │• Memory     │  │• Cost Track   │  │• Employee    │ │ │
+│  │  │• Context    │  │• Privacy    │  │• Error Mon    │  │  Simulator   │ │ │
+│  │  └─────────────┘  └─────────────┘  └───────────────┘  └──────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                            INTEGRATIONS                                 │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐ │ │
+│  │  │ LLM         │  │ LangSmith   │  │ Human Agent │  │ Demo            │ │ │
+│  │  │ Providers   │  │ Tracing     │  │ Interface   │  │ Orchestration   │ │ │
+│  │  │• OpenAI     │  │• Monitoring │  │• Workload   │  │• Scenarios      │ │ │
+│  │  │• Anthropic  │  │• Analytics  │  │  Management │  │• Real-time      │ │ │
+│  │  │• Local      │  │• Debugging  │  │• Performance│  │  Interaction    │ │ │
+│  │  │• Fallback   │  │• Quality    │  │• Wellbeing  │  │• Multi-window   │ │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Data Flow Architecture
@@ -115,74 +125,207 @@ User Query → State Initialization → Agent Processing → State Update → Ne
 
 ## Component Deep Dive
 
-### 1. Answer Agent (`src/nodes/answer_agent.py`)
+### 1. Chatbot Agent (`src/nodes/answer_agent.py`)
 
-**Responsibility**: Generate intelligent AI responses to user queries
+**Responsibility**: Generate customer service-focused AI responses with enhanced empathy and service orientation
 
 **Key Features**:
+- Customer service-focused response generation with emotional intelligence
+- Real-time customer state analysis (urgency, frustration, politeness detection)
+- Context-aware personalization based on customer history
 - Multi-LLM provider support with automatic fallback
-- Context-aware response generation using conversation history
-- Performance tracking and token usage monitoring
-- Error handling with graceful degradation
+- Response enhancement for customer service standards
 
-**Dependencies**:
-- `LLMProviderFactory`: For model access
-- `AgentConfigManager`: For agent-specific configuration and prompts
-- `ContextProvider`: For conversation history
+**Customer Analysis**:
+- **Sentiment Detection**: Urgency, frustration, politeness indicators
+- **Communication Style**: Matching customer tone appropriately
+- **Service Scoring**: Automated assessment of response quality
+- **Empathy Integration**: Adding appropriate emotional responses
 
 **State Flow**:
 ```
 Input: {query, user_id, session_id}
-Process: Context retrieval → LLM generation → Context saving
-Output: {ai_response, initial_assessment, messages}
+Process: Customer analysis → Context building → Service-focused generation → Enhancement
+Output: {ai_response, customer_analysis, response_metadata, next_action: "quality_check"}
 ```
 
-### 2. Evaluator Agent (`src/nodes/evaluator_agent.py`)
+### 2. Quality Agent (`src/nodes/quality_agent.py`)
 
-**Responsibility**: Assess response quality and determine escalation needs
+**Responsibility**: Review all chatbot responses and decide if adequate, needs adjustment, or requires human intervention
 
 **Key Features**:
-- Multi-dimensional quality scoring (accuracy, completeness, clarity)
-- Context-aware evaluation considering user history
-- Configurable escalation thresholds
-- Pattern detection (repeated queries, user frustration)
+- Comprehensive response quality assessment using LLM and rule-based methods
+- Response improvement and adjustment capabilities
+- Context-aware evaluation considering customer history and patterns
+- Configurable quality thresholds for different scenarios
+- Automatic escalation triggers for low-quality responses
 
-**Evaluation Metrics**:
-- **Accuracy**: Factual correctness of the response
-- **Completeness**: How fully the query was addressed
-- **Clarity**: Understandability and structure
-- **User Satisfaction**: Predicted user satisfaction score
+**Quality Assessment Dimensions**:
+- **Accuracy**: Factual correctness and information reliability
+- **Completeness**: How fully the customer's needs are addressed
+- **Clarity**: Understandability and communication effectiveness
+- **Customer Service Standards**: Professional tone and helpfulness
+- **Contextual Appropriateness**: Matching customer state and history
+
+**Decision Framework**:
+```python
+def assess_quality(query, response, context):
+    score = llm_assessment + rule_based_assessment + context_adjustment
+    if score >= adequate_threshold: return "ADEQUATE"
+    elif score >= adjustment_threshold: return "NEEDS_ADJUSTMENT"
+    else: return "HUMAN_INTERVENTION"
+```
 
 **State Flow**:
 ```
-Input: {query, ai_response, user_history}
-Process: Quality analysis → Context factors → Escalation decision
-Output: {evaluation_result, escalation_decision, escalation_reason}
+Input: {query, ai_response, customer_context}
+Process: Quality assessment → Decision making → Response adjustment (if needed)
+Output: {quality_assessment, next_action, adjusted_response (optional)}
 ```
 
-### 3. Escalation Router (`src/nodes/escalation_router.py`)
+### 3. Frustration Agent (`src/nodes/frustration_agent.py`)
 
-**Responsibility**: Route escalations to appropriate human experts
+**Responsibility**: Analyze customer communications to detect frustration levels and trigger appropriate interventions
 
 **Key Features**:
-- Expertise matching based on query analysis
-- Priority calculation considering urgency and context
-- Human agent availability management
-- Estimated resolution time calculation
+- Real-time sentiment analysis with pattern detection over interaction history
+- Escalating frustration trend identification
+- Employee protection through intelligent workload distribution
+- Configurable intervention thresholds
+- Cultural and linguistic sensitivity in emotion detection
 
-**Routing Logic**:
-```python
-def route_escalation(query, evaluation):
-    expertise = identify_expertise(query)  # technical, billing, general
-    priority = calculate_priority(evaluation.score, query_urgency)
-    agent = find_best_agent(expertise, priority, availability)
-    return escalation_data
+**Frustration Detection Methods**:
+- **Keyword Analysis**: Extensive frustration indicator database
+- **Pattern Recognition**: Escalation trends over multiple interactions
+- **Behavioral Signals**: Caps usage, punctuation patterns, urgency indicators
+- **LLM Analysis**: Sophisticated sentiment evaluation
+- **Context Integration**: Previous escalations and interaction frequency
+
+**Employee Protection Features**:
+- **Consecutive Case Limits**: Prevents agent burnout from difficult customers
+- **Cooldown Periods**: Ensures breaks between frustrated customer interactions
+- **Tolerance Matching**: Routes based on agent frustration handling capacity
+- **Wellbeing Monitoring**: Tracks agent stress and workload impact
+
+**State Flow**:
+```
+Input: {query, interaction_history, customer_context}
+Process: Frustration analysis → Pattern detection → Intervention decision
+Output: {frustration_analysis, intervention_needed, next_action}
 ```
 
-### 4. Core Infrastructure
+### 4. Routing Agent (`src/nodes/routing_agent.py`)
+
+**Responsibility**: Intelligently route escalations to human agents while optimizing both customer outcomes and employee experience
+
+**Key Features**:
+- Multi-strategy routing (skill-based, workload-balanced, employee wellbeing)
+- Comprehensive skill matching with complexity assessment
+- Real-time workload balancing and capacity management
+- Employee wellbeing protection and burnout prevention
+- Queue management with priority optimization
+
+**Routing Strategies**:
+- **Skill-Based**: Match complex cases to specialized expertise
+- **Workload-Balanced**: Distribute work evenly across available agents
+- **Employee Wellbeing**: Prioritize agent mental health and job satisfaction
+- **Priority-Based**: Route urgent cases to most capable agents
+
+**Employee Wellbeing Considerations**:
+```python
+def select_agent_with_wellbeing(requirements, available_agents):
+    # Filter agents who've had too many difficult cases
+    suitable_agents = filter_by_consecutive_difficult_cases(available_agents)
+    # Consider frustration tolerance for frustrated customers
+    if customer_frustrated: suitable_agents = filter_by_frustration_tolerance(suitable_agents)
+    # Apply cooldown periods for recent difficult interactions
+    suitable_agents = apply_cooldown_filters(suitable_agents)
+    return optimize_selection(suitable_agents, requirements)
+```
+
+**State Flow**:
+```
+Input: {escalation_requirements, available_agents, customer_context}
+Process: Strategy selection → Agent scoring → Wellbeing validation → Assignment
+Output: {routing_decision, assigned_agent, estimated_metrics}
+```
+
+### 5. Context Manager Agent (`src/nodes/context_manager_agent.py`)
+
+**Responsibility**: Gather, analyze, and summarize comprehensive context from multiple sources to support decision-making
+
+**Key Features**:
+- Multi-source context aggregation (SQL database, interaction history, similar cases)
+- Intelligent relevance scoring and prioritization
+- Audience-specific context summarization
+- Privacy-aware cross-user pattern analysis
+- Optional web search integration for external knowledge
+
+**Context Sources**:
+- **Interaction History**: Customer's previous conversations and resolutions
+- **User Profile**: Behavioral patterns, escalation history, preferences
+- **Similar Cases**: Anonymized patterns from other customers with similar issues
+- **Product Context**: Related service areas and known issues
+- **Knowledge Base**: Internal documentation and FAQ matching
+- **System Status**: Current service health and known problems
+
+**Context Analysis Pipeline**:
+```python
+def gather_context(query, user_id, session_id):
+    raw_context = gather_from_all_sources(query, user_id, session_id)
+    relevance_scores = analyze_relevance(query, raw_context)
+    priority_context = filter_by_relevance(raw_context, relevance_scores)
+    return create_audience_summaries(priority_context)
+```
+
+**Audience-Specific Summaries**:
+- **AI Agents**: Structured data for algorithmic processing
+- **Human Agents**: Narrative summaries for quick human comprehension
+- **Quality Assessment**: Risk factors and quality considerations
+- **Routing Decisions**: Complexity and expertise requirements
+
+**State Flow**:
+```
+Input: {query, user_id, session_id, context_requirements}
+Process: Multi-source gathering → Relevance analysis → Audience summarization
+Output: {context_data, context_analysis, context_summaries}
+```
+
+### 6. Simulation Framework (`src/simulation/`)
+
+**Responsibility**: Provide realistic testing and demonstration capabilities for the HITL system
+
+#### Human Customer Simulator (`src/simulation/human_customer_simulator.py`)
+- **Multiple Personalities**: Polite, impatient, technical, frustrated, confused, business
+- **Diverse Scenarios**: Simple questions, technical issues, billing problems, escalation requests
+- **Dynamic Frustration**: Real-time frustration level tracking based on interactions
+- **Realistic Responses**: Context-aware customer responses to chatbot and human agents
+
+#### Employee Simulator (`src/simulation/employee_simulator.py`)
+- **Diverse Employee Roster**: Junior/senior support, specialists, managers with different skills
+- **Personality Traits**: Empathetic, direct, thorough, efficient, patient approaches
+- **Workload Management**: Realistic capacity tracking and availability modeling
+- **Performance Metrics**: Customer satisfaction, resolution times, escalation rates
+
+#### Demo Orchestrator (`src/simulation/demo_orchestrator.py`)
+- **Complete Scenario Management**: End-to-end conversation flow simulation
+- **Predefined Scenarios**: 6 demonstration scenarios covering various outcomes
+- **Real-time Interaction**: Step-by-step progression through HITL workflow
+- **Analytics Integration**: Complete logging and metrics collection
+
+**Demo Scenarios**:
+1. **Happy Path**: Polite customer → Quality response → Direct resolution
+2. **Technical Escalation**: Complex query → Quality assessment → Specialist routing
+3. **Frustrated Customer**: Poor experience → Frustration detection → Empathetic human
+4. **Manager Escalation**: Explicit complaint → Direct management routing
+5. **Quality Adjustment**: Inadequate response → Quality improvement → Re-delivery
+6. **Employee Wellbeing**: Multiple difficult cases → Intelligent rotation
+
+### 7. Core Infrastructure
 
 #### Configuration Management (`src/core/config/`)
 - **Hierarchical Configuration**: Environment → File → Defaults
+- **Agent-Specific Configs**: Individual configurations for each agent type
 - **Type Safety**: Pydantic models for validation
 - **Hot Reloading**: Dynamic configuration updates
 - **Multi-Format Support**: JSON, YAML, environment variables

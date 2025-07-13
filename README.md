@@ -1,19 +1,19 @@
-# Hybrid AI-Human System: LangGraph Multi-Agent Workflow
+# Human-in-the-Loop AI System: Improving Customer AND Employee Experience
 
-A sophisticated AI workflow orchestration platform that combines intelligent agents with human-in-the-loop capabilities. Built with LangGraph, this system demonstrates how to create scalable, maintainable AI applications that seamlessly integrate AI automation with human expertise.
+A sophisticated AI workflow orchestration platform that enhances both customer support quality and employee wellbeing through intelligent human-AI collaboration. The system intercepts all customer-AI interactions to ensure quality, detect frustration, and route escalations while protecting employee mental health and job satisfaction.
 
 ## 🎯 Overview
 
-This system showcases a **Modular LangGraph Hybrid Architecture** where specialized AI agents work together to process user queries, evaluate responses, and escalate to human experts when needed. It's designed as both a production-ready system and an educational resource for learning AI agent development.
+This system implements a **Human-in-the-Loop (HITL) Architecture** that goes beyond simple escalation - it actively improves the entire support experience for customers while protecting employees from burnout and frustration overload. Every AI response is quality-checked, customer frustration is monitored in real-time, and human routing considers both customer needs and employee wellbeing.
 
 ### Key Features
 
-- **🤖 Multi-Agent Workflow**: Specialized agents for answering, evaluation, and escalation
-- **🔄 Human-in-the-Loop**: Seamless handoffs between AI and human agents
-- **📊 Advanced Monitoring**: LangSmith integration for tracing and analytics
-- **⚙️ Agent-Centric Configuration**: Modular configuration with agent isolation and shared resources
-- **🎓 Educational**: Comprehensive tutorial for learning AI agent concepts
-- **🧪 Test-Driven**: >90% test coverage with comprehensive test suite
+- **🛡️ Quality Interception**: All AI responses reviewed before customer delivery
+- **😤 Frustration Detection**: Real-time sentiment analysis with escalation triggers  
+- **👥 Employee Protection**: Workload balancing and burnout prevention
+- **🎯 Intelligent Routing**: Smart assignment considering customer needs and employee wellbeing
+- **📊 Comprehensive Analytics**: Customer satisfaction and employee performance metrics
+- **🎭 Realistic Simulation**: Complete customer/employee interaction simulation for testing and demos
 
 ## 🏗️ Architecture
 
@@ -28,14 +28,20 @@ src/
 │   ├── core/                      # Core system interfaces
 │   ├── nodes/                     # Node behavior contracts
 │   └── workflows/                 # Workflow orchestration interfaces
-├── nodes/                         # LangGraph agent implementations
-│   ├── answer_agent.py            # AI response generation
-│   ├── evaluator_agent.py         # Quality assessment and escalation
-│   └── escalation_router.py       # Human agent routing
+├── nodes/                         # HITL agent implementations
+│   ├── answer_agent.py            # Customer service-focused chatbot
+│   ├── quality_agent.py           # Response quality assessment & improvement
+│   ├── frustration_agent.py       # Customer frustration detection & analysis
+│   ├── routing_agent.py           # Employee wellbeing-aware routing
+│   └── context_manager_agent.py   # Multi-source context aggregation
+├── simulation/                    # Realistic testing framework
+│   ├── human_customer_simulator.py # Customer personality simulation
+│   ├── employee_simulator.py      # Employee response simulation
+│   └── demo_orchestrator.py       # End-to-end scenario management
 ├── integrations/                  # External service integrations
 │   └── llm_providers.py           # Multi-provider LLM abstraction
 └── workflows/                     # Complete workflow orchestration
-    └── hybrid_workflow.py         # Main system orchestration
+    └── hybrid_workflow.py         # HITL system orchestration
 ```
 
 ## 🚀 Quick Start
@@ -98,6 +104,45 @@ make run
 uv run python -m src.main --config-path config/custom_config.json
 ```
 
+### Try the Demo Scenarios
+
+The system includes a comprehensive simulation framework for testing and demonstration:
+
+```python
+from src.simulation.demo_orchestrator import DemoOrchestrator
+
+# Create demo orchestrator
+demo = DemoOrchestrator()
+
+# List available scenarios
+scenarios = demo.list_available_scenarios()
+print("Available scenarios:", [s["name"] for s in scenarios])
+
+# Start a specific demo scenario
+demo_session = demo.start_demo_scenario("Frustrated Customer")
+
+# Step through the interaction
+chatbot_response = demo.simulate_chatbot_response(demo_session["demo_id"])
+quality_check = demo.simulate_quality_assessment(demo_session["demo_id"])
+frustration_analysis = demo.simulate_frustration_analysis(demo_session["demo_id"])
+
+# If escalation needed, route to human
+if frustration_analysis["intervention_needed"]:
+    routing = demo.simulate_routing_decision(demo_session["demo_id"])
+    human_response = demo.simulate_human_agent_response(demo_session["demo_id"])
+
+# Complete the interaction
+resolution = demo.simulate_resolution(demo_session["demo_id"])
+```
+
+**Available Demo Scenarios:**
+1. **Happy Path**: Polite customer → Quality response → Direct resolution
+2. **Technical Escalation**: Complex query → Quality assessment → Specialist routing  
+3. **Frustrated Customer**: Poor experience → Frustration detection → Empathetic human
+4. **Manager Escalation**: Explicit complaint → Direct management routing
+5. **Quality Adjustment**: Inadequate response → Quality improvement → Re-delivery
+6. **Employee Wellbeing**: Multiple difficult cases → Intelligent rotation
+
 ## 🎓 Learning Guide
 
 ### For Beginners: Start with the Tutorial
@@ -123,31 +168,42 @@ jupyter lab notebooks/AI_Agents_Tutorial.ipynb
 3. **Configuration**: Examine `/config/` for agent-centric configuration structure
 4. **Testing**: Review `/tests/` for comprehensive examples
 
-## 🤖 The Four Core Agents
+## 🤖 The Five Core HITL Agents
 
-### 1. Answer Agent (`answer_agent.py`)
-**Purpose**: Generate intelligent responses to user queries
-- Uses multiple LLM providers with automatic fallback
-- Integrates conversation context for personalized responses
-- Tracks performance metrics and token usage
+### 1. Chatbot Agent (`answer_agent.py`)
+**Purpose**: Customer service-focused response generation with emotional intelligence
+- Real-time customer sentiment analysis (urgency, frustration, politeness)
+- Context-aware personalization using conversation history
+- Service-oriented response enhancement with empathy integration
+- Multi-LLM provider support with customer service prompts
 
-### 2. Evaluator Agent (`evaluator_agent.py`)
-**Purpose**: Assess response quality and determine escalation needs
-- Scores responses on accuracy, completeness, and clarity
-- Considers user history and interaction patterns
-- Makes intelligent escalation decisions
+### 2. Quality Agent (`quality_agent.py`)
+**Purpose**: Intercept and review all chatbot responses before customer delivery
+- Comprehensive quality assessment (accuracy, completeness, service standards)
+- Response improvement and adjustment capabilities
+- Context-aware evaluation considering customer history
+- Automatic escalation triggers for inadequate responses
 
-### 3. Escalation Router (`escalation_router.py`)
-**Purpose**: Route complex issues to appropriate human experts
-- Analyzes query complexity and required expertise
-- Assigns priority levels and estimates resolution time
-- Manages human agent availability and workload
+### 3. Frustration Agent (`frustration_agent.py`)
+**Purpose**: Monitor customer emotional state and protect employee wellbeing
+- Real-time frustration detection with escalating pattern analysis
+- Employee protection through intelligent workload distribution
+- Cultural sensitivity in emotion detection
+- Configurable intervention thresholds based on business needs
 
-### 4. Human Interface (planned)
-**Purpose**: Facilitate smooth AI-to-human handoffs
-- Provides context summaries for human agents
-- Manages conversation state during human interactions
-- Captures feedback for system improvement
+### 4. Routing Agent (`routing_agent.py`)
+**Purpose**: Route escalations while optimizing customer outcomes AND employee experience
+- Multi-strategy routing (skill-based, workload-balanced, employee wellbeing)
+- Prevents agent burnout through consecutive difficult case limits
+- Frustration tolerance matching and cooldown period management
+- Real-time capacity management with priority optimization
+
+### 5. Context Manager Agent (`context_manager_agent.py`)
+**Purpose**: Provide comprehensive context to support all decision-making
+- Multi-source context aggregation (SQL database, interaction history, similar cases)
+- Audience-specific summarization (AI agents, human agents, quality assessment)
+- Privacy-aware cross-user pattern analysis
+- Optional web search integration for external knowledge
 
 ## ⚙️ Configuration System
 
@@ -260,31 +316,43 @@ make type-check # Type check with mypy
 - **Contextual Information**: Request IDs, user context, timing
 - **Custom Log Types**: Model calls, escalations, system events
 
-## 🔄 Workflow Example
+## 🔄 HITL Workflow Example
 
 ```python
-# Simplified workflow demonstration
+# Human-in-the-Loop workflow demonstration
 state = {
-    "query": "Help me debug my Python code",
-    "user_id": "user_123",
+    "query": "I'm frustrated! Your API is broken and I can't get help!",
+    "user_id": "user_123", 
     "session_id": "session_456"
 }
 
-# 1. Answer Agent generates response
-state = answer_agent(state)
-# Result: AI provides initial code debugging advice
+# 1. Chatbot Agent generates empathetic response
+state = chatbot_agent(state)
+# Result: Customer service-focused response with sentiment analysis
+# Output: {ai_response, customer_analysis, response_metadata}
 
-# 2. Evaluator assesses quality
-state = evaluator_agent(state)
-# Result: Determines if response meets quality thresholds
+# 2. Quality Agent reviews response before delivery
+state = quality_agent(state)
+# Result: Assesses response quality, may improve or escalate
+# Output: {quality_assessment, next_action, adjusted_response?}
 
-# 3. Router handles escalation (if needed)
-if state["escalation_decision"]:
-    state = escalation_router(state)
-    # Result: Routes to technical support specialist
+# 3. Frustration Agent analyzes customer emotional state
+state = frustration_agent(state)
+# Result: Detects high frustration, triggers intervention
+# Output: {frustration_analysis, intervention_needed: true}
 
-# 4. Final response delivered
-return state["final_response"]
+# 4. Context Manager gathers comprehensive background
+state = context_manager_agent(state)
+# Result: Provides context for human agent
+# Output: {context_summaries, user_history, similar_cases}
+
+# 5. Routing Agent selects appropriate human (protecting employee wellbeing)
+state = routing_agent(state)
+# Result: Routes to available agent with high frustration tolerance
+# Output: {assigned_human_agent, routing_strategy, employee_protection_applied}
+
+# 6. Human agent handles with full context
+# Result: Empathetic resolution with employee wellbeing maintained
 ```
 
 ## 🛠️ Development
@@ -359,11 +427,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Use Cases
 
-This system architecture is suitable for:
-- **Customer Support**: Automated assistance with expert escalation
-- **Technical Documentation**: AI-powered help with human validation
-- **Educational Platforms**: Tutoring systems with teacher oversight
-- **Content Moderation**: AI screening with human review
-- **Code Review**: Automated analysis with developer consultation
+This Human-in-the-Loop system architecture is ideal for:
+
+### Customer Support Excellence
+- **Quality-First Support**: Every AI response quality-checked before delivery
+- **Frustrated Customer Recovery**: Real-time frustration detection and empathetic routing
+- **Employee Burnout Prevention**: Workload balancing and stress management
+- **Performance Analytics**: Customer satisfaction and employee wellbeing metrics
+
+### Beyond Customer Support
+- **Technical Documentation**: AI-powered help with expert validation and context
+- **Educational Platforms**: Tutoring systems with teacher oversight and student frustration monitoring
+- **Content Moderation**: AI screening with human review and moderator wellbeing protection  
+- **Code Review**: Automated analysis with developer consultation and workload distribution
+- **Healthcare Support**: Patient interaction with medical professional oversight
+- **Financial Advisory**: AI guidance with human expert validation and compliance
+
+### Key Benefits
+- **Improved Customer Experience**: Higher quality responses, faster frustration resolution
+- **Enhanced Employee Experience**: Better workload distribution, burnout prevention, job satisfaction
+- **Operational Excellence**: Comprehensive analytics, quality metrics, performance optimization
+- **Scalable Growth**: AI handles routine cases, humans focus on complex and high-value interactions
 
 Built with ❤️ using [LangGraph](https://langchain-ai.github.io/langgraph/), [LangChain](https://langchain.com/), and [LangSmith](https://smith.langchain.com/).

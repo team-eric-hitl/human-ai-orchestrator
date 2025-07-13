@@ -1,6 +1,6 @@
 # Documentation Index
 
-Welcome to the comprehensive documentation for the Hybrid AI-Human System. This directory contains detailed documentation for developers, operators, and AI systems working with this codebase.
+Welcome to the comprehensive documentation for the Human-in-the-Loop (HITL) AI System. This directory contains detailed documentation for developers, operators, and AI systems working with this codebase.
 
 ## 📚 Documentation Overview
 
@@ -9,6 +9,7 @@ Welcome to the comprehensive documentation for the Hybrid AI-Human System. This 
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | Technical Teams | System architecture, component design, and technical deep dive |
+| **[HITL_SYSTEM_GUIDE.md](HITL_SYSTEM_GUIDE.md)** | All Users | Comprehensive guide to Human-in-the-Loop features and configuration |
 | **[API_REFERENCE.md](API_REFERENCE.md)** | Developers | Complete API documentation with examples and usage patterns |
 | **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** | Developers | Development workflow, coding standards, and best practices |
 | **[CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md)** | DevOps/Developers | Configuration management, environment setup, and customization |
@@ -24,9 +25,10 @@ Welcome to the comprehensive documentation for the Hybrid AI-Human System. This 
 
 ### For Beginners
 1. **Start Here**: [Main README](../README.md) - Project overview and quick start
-2. **Setup**: [SETUP.md](../SETUP.md) - Step-by-step setup with dev containers
-3. **Tutorial**: [AI Agents Tutorial](../notebooks/AI_Agents_Tutorial.ipynb) - Interactive learning
-4. **Configuration**: [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) - Basic configuration
+2. **HITL Overview**: [HITL_SYSTEM_GUIDE.md](HITL_SYSTEM_GUIDE.md) - Understanding the Human-in-the-Loop approach
+3. **Setup**: [SETUP.md](../SETUP.md) - Step-by-step setup with dev containers
+4. **Tutorial**: [AI Agents Tutorial](../notebooks/AI_Agents_Tutorial.ipynb) - Interactive learning
+5. **Configuration**: [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) - Basic configuration
 
 ### For Developers
 1. **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) - Understand the system design

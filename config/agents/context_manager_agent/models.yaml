@@ -1,0 +1,40 @@
+primary_model: "openai_general_budget"
+
+model_preferences:
+  context_summarization:
+    primary: "anthropic_general_standard"
+    fallback: ["openai_general_standard", "local_general_premium"]
+    
+  relevance_analysis:
+    primary: "openai_general_budget"
+    fallback: ["anthropic_general_budget", "local_general_standard"]
+    
+  similarity_detection:
+    primary: "openai_general_budget"
+    fallback: ["anthropic_general_budget", "local_general_budget"]
+    
+  recommendation_generation:
+    primary: "anthropic_general_standard"
+    fallback: ["openai_general_standard", "local_general_premium"]
+
+model_overrides:
+  temperature: 0.3
+  max_tokens: 1000
+  
+  # Task-specific overrides
+  per_model:
+    context_summarization:
+      temperature: 0.4
+      max_tokens: 800
+      
+    relevance_analysis:
+      temperature: 0.2
+      max_tokens: 400
+      
+    similarity_detection:
+      temperature: 0.1
+      max_tokens: 300
+      
+    recommendation_generation:
+      temperature: 0.5
+      max_tokens: 600

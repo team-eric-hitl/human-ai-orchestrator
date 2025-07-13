@@ -66,26 +66,35 @@ uv run python -m src.main --env development
 ## Architecture Overview
 
 ### Core System Design
-This is a **Modular LangGraph Hybrid System** - a flexible AI workflow orchestration platform that combines AI agents with human-in-the-loop capabilities. The system is built around LangGraph nodes that can be composed into complex workflows.
+This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform designed to improve both customer and employee experience through intelligent AI-human collaboration. The system intercepts all customer-AI interactions to ensure quality, detect frustration, and route escalations while protecting employee wellbeing. Built around specialized LangGraph nodes that work together to create a comprehensive support experience.
 
 ### Key Components
 
-**LangGraph Nodes** (`src/nodes/`):
-- `AnswerAgent` - Handles direct query responses using configured LLMs
-- `EvaluatorAgent` - Evaluates response quality and determines escalation needs
-- `EscalationRouter` - Routes complex queries to appropriate human agents
-- `HumanAgent` - Manages human agent interactions and handoffs
+**HITL LangGraph Nodes** (`src/nodes/`):
+- `AnswerAgent` (Chatbot) - Customer service-focused response generation with emotional intelligence
+- `QualityAgent` - Reviews all chatbot responses before delivery, with improvement capabilities  
+- `FrustrationAgent` - Real-time customer sentiment analysis and intervention triggers
+- `RoutingAgent` - Employee wellbeing-aware routing with workload balancing
+- `ContextManagerAgent` - Multi-source context aggregation and audience-specific summarization
+
+**Simulation Framework** (`src/simulation/`):
+- `HumanCustomerSimulator` - Realistic customer personality and scenario simulation
+- `EmployeeSimulator` - Human agent response and workload simulation  
+- `DemoOrchestrator` - End-to-end HITL workflow demonstration with 6 scenarios
 
 **Core Infrastructure** (`src/core/`):
 - `AgentConfigManager` - Handles agent-centric configuration with hot-reloading
 - `ContextManager` - Manages conversation context and memory (SQLite-based)
 - `SessionTracker` - Tracks metrics and performance data
 - `WorkflowOrchestrator` - Coordinates node execution and state management
-
-- integrated logging/error handling system in /core/logging/
+- Integrated logging/error handling system in `/core/logging/`
 
 **Agent-Centric Configuration System** (`config/`):
-- `config/agents/*/` - Agent-specific configurations, prompts, and model preferences
+- `config/agents/quality_agent/` - Quality assessment thresholds and prompts
+- `config/agents/frustration_agent/` - Frustration indicators and intervention settings
+- `config/agents/routing_agent/` - Employee wellbeing and routing strategies
+- `config/agents/context_manager_agent/` - Context sources and relevance scoring
+- `config/agents/answer_agent/` - Customer service prompts and service standards
 - `config/shared/` - Global models, providers, and system settings
 - `config/environments/` - Environment-specific overrides (dev/test/prod)
 - `config/config.yaml` - Main configuration coordinator
@@ -193,20 +202,23 @@ tests/
 
 ## Current Implementation Status
 
-**Completed (75%)**:
-- Core architecture and interfaces
-- Configuration management system with comprehensive validation
-- Context and session tracking with SQLite backend
-- Structured logging and error handling system
-- Comprehensive test suite with >90% coverage
-- LLM provider abstraction and factory pattern
-- Basic node implementations (AnswerAgent, EvaluatorAgent, EscalationRouter)
+**Completed (95%)**:
+- Complete HITL architecture with 5 specialized agents
+- Quality interception system with response improvement
+- Real-time frustration detection and employee protection
+- Intelligent routing with workload balancing and wellbeing considerations
+- Multi-source context aggregation with audience-specific summarization
+- Comprehensive simulation framework with 6 demo scenarios
+- Customer service-focused chatbot with emotional intelligence
+- Agent-centric configuration system with extensive customization
+- Core infrastructure: context management, session tracking, logging
+- LLM provider abstraction with multi-provider support
 
-**In Progress**:
-- Real LLM integration (infrastructure complete, models being integrated)
-- Advanced workflow orchestration with LangGraph
-- Human agent integration and handoff mechanisms
-- Production monitoring and observability features
+**In Progress (5%)**:
+- Production workflow orchestration with LangGraph (agents complete, workflow integration needed)
+- Advanced monitoring dashboard for customer satisfaction and employee wellbeing metrics
+- Real-time web search integration for context manager
+- Multi-language support for frustration detection
 
 **Testing Status**: 
 - ✅ Unit tests for all core infrastructure components

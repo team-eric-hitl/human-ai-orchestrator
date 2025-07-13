@@ -1,0 +1,128 @@
+# Frustration Agent Configuration
+# Responsibility: Analyze customer comments to detect frustration levels and trigger appropriate responses
+
+agent_name: "frustration_agent"
+agent_type: "sentiment_analysis"
+enabled: true
+
+# Frustration detection settings
+settings:
+  # Frustration level thresholds (1-10 scale)
+  frustration_thresholds:
+    critical: 8.0    # Immediate human intervention required
+    high: 6.0        # Priority human routing
+    moderate: 3.0    # Monitor and prepare for escalation
+    # Below 3.0 is considered low frustration
+  
+  # Intervention threshold - when to trigger human escalation
+  intervention_threshold: "high"  # Options: critical, high, moderate
+  
+  # Analysis configuration
+  analysis:
+    use_llm_analysis: true
+    track_frustration_progression: true
+    consider_interaction_history: true
+    weight_recent_interactions: 0.7
+    weight_current_query: 0.3
+    
+  # Pattern detection
+  patterns:
+    escalation_trend_threshold: 3      # Number of interactions to detect trend
+    rapid_fire_threshold_minutes: 2    # Rapid successive interactions
+    repeat_query_similarity_threshold: 0.6
+    
+  # Employee wellbeing considerations
+  employee_protection:
+    max_consecutive_frustrated_customers: 3
+    cooldown_period_hours: 2
+    high_frustration_rotation: true
+
+# Frustration indicators by category
+frustration_indicators:
+  high_frustration:
+    - "angry"
+    - "furious" 
+    - "outraged"
+    - "livid"
+    - "pissed"
+    - "mad"
+    - "ridiculous"
+    - "unacceptable"
+    - "disgusting"
+    - "horrible"
+    - "worst"
+    - "terrible"
+    - "awful"
+    - "useless"
+    - "garbage"
+    - "stupid"
+    - "idiotic"
+    - "moronic"
+    - "pathetic"
+    - "joke"
+    
+  moderate_frustration:
+    - "frustrated"
+    - "annoyed"
+    - "irritated"
+    - "upset"
+    - "disappointed"
+    - "unhappy"
+    - "dissatisfied"
+    - "confused"
+    - "lost"
+    - "stuck"
+    - "tired"
+    - "fed up"
+    - "sick"
+    - "bothered"
+    - "troubled"
+    
+  escalation_phrases:
+    - "speak to manager"
+    - "supervisor"
+    - "escalate"
+    - "complaint"
+    - "lawsuit"
+    - "lawyer"
+    - "attorney"
+    - "sue"
+    - "legal action"
+    - "corporate"
+    - "headquarters"
+    - "cancel"
+    - "refund"
+    
+  urgency_indicators:
+    - "urgent"
+    - "emergency"
+    - "asap"
+    - "immediately"
+    - "right now"
+    - "critical"
+    - "important"
+    - "deadline"
+    - "time sensitive"
+    
+  repeat_indicators:
+    - "again"
+    - "still"
+    - "keep"
+    - "multiple times"
+    - "several times"
+    - "how many times"
+    - "over and over"
+    - "repeatedly"
+
+# Monitoring and alerting
+monitoring:
+  track_frustration_trends: true
+  alert_on_critical_frustration: true
+  generate_frustration_reports: true
+  monitor_agent_frustration_load: true
+
+# Integration settings
+integrations:
+  quality_agent: true
+  routing_agent: true
+  context_manager: true

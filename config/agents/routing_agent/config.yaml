@@ -1,0 +1,134 @@
+# Routing Agent Configuration
+# Responsibility: Select the best human agent for escalations, balancing workload and employee experience
+
+agent_name: "routing_agent"
+agent_type: "human_routing"
+enabled: true
+
+# Routing strategy settings
+settings:
+  # Primary routing strategy
+  default_routing_strategy: "employee_wellbeing"  # skill_based, workload_balanced, employee_wellbeing
+  
+  # Strategy selection rules
+  strategy_rules:
+    critical_priority: "skill_based"      # For critical/high priority issues
+    high_complexity: "skill_based"       # For complex technical issues
+    frustrated_customer: "employee_wellbeing"  # For frustrated customers
+    normal_case: "workload_balanced"     # For standard cases
+    
+  # Workload balancing
+  workload:
+    max_concurrent_per_agent: 5
+    preferred_utilization: 0.7           # Target 70% utilization
+    overload_threshold: 0.9              # Alert at 90% utilization
+    
+  # Employee wellbeing protection
+  employee_wellbeing:
+    max_consecutive_difficult_cases: 3
+    frustration_cooldown_hours: 2
+    escalation_rotation: true
+    skill_development_routing: true
+    
+  # Quality and performance factors
+  performance_weights:
+    skill_match: 0.4                     # 40% weight for skill matching
+    availability: 0.3                    # 30% weight for current availability  
+    performance_history: 0.2             # 20% weight for past performance
+    wellbeing_factors: 0.1               # 10% weight for wellbeing considerations
+
+# Skill and expertise domains
+routing:
+  expertise_domains:
+    technical:
+      keywords: ["api", "integration", "code", "bug", "error", "technical", "system", "database", "server", "authentication", "ssl"]
+      complexity_levels: ["junior", "intermediate", "senior"]
+      
+    billing:
+      keywords: ["billing", "invoice", "payment", "charge", "refund", "price", "subscription", "plan", "cost", "fee"]
+      complexity_levels: ["junior", "intermediate", "senior"]
+      
+    account_management:
+      keywords: ["account", "profile", "settings", "permissions", "access", "user", "admin", "organization", "team"]
+      complexity_levels: ["junior", "intermediate", "senior"]
+      
+    product_support:
+      keywords: ["feature", "functionality", "how to", "tutorial", "guide", "documentation", "product", "usage"]
+      complexity_levels: ["junior", "intermediate", "senior"]
+      
+    compliance:
+      keywords: ["privacy", "gdpr", "security", "compliance", "audit", "regulation", "legal", "policy"]
+      complexity_levels: ["intermediate", "senior"]
+      
+    general:
+      keywords: ["help", "question", "issue", "problem", "support"]
+      complexity_levels: ["junior", "intermediate", "senior"]
+
+# Priority calculation factors
+priority_factors:
+  frustration_multiplier:
+    critical: 4
+    high: 3
+    moderate: 2
+    low: 1
+    
+  complexity_multiplier:
+    high: 2.0
+    medium: 1.5
+    low: 1.0
+    
+  escalation_history_bonus: 1.0          # Added per previous escalation
+  repeat_issue_bonus: 1.5                # For repeat issues
+  vip_customer_bonus: 2.0                # For VIP customers
+
+# Agent matching criteria
+agent_matching:
+  skill_requirements:
+    exact_match_bonus: 10
+    partial_match_bonus: 5
+    experience_level_bonus: 3
+    
+  availability_scoring:
+    available_bonus: 10
+    low_workload_bonus: 5                # Bonus for agents with low current workload
+    capacity_penalty: -15                # Penalty for agents near capacity
+    
+  performance_scoring:
+    high_satisfaction_bonus: 5           # Customer satisfaction > 4.5
+    low_escalation_bonus: 3              # Escalation rate < 0.15
+    fast_resolution_bonus: 2             # Below average resolution time
+
+# Queue management
+queue_management:
+  priority_queue: true
+  max_queue_wait_time: 30                # minutes
+  queue_position_updates: true
+  estimated_wait_time: true
+  
+  queue_prioritization:
+    - "critical_priority"
+    - "high_frustration"
+    - "vip_customers"
+    - "repeat_escalations"
+    - "standard_queue"
+
+# Monitoring and analytics
+monitoring:
+  track_routing_decisions: true
+  measure_routing_effectiveness: true
+  monitor_agent_workload: true
+  track_customer_satisfaction: true
+  generate_routing_reports: true
+  
+  alerts:
+    long_queue_wait: 15                  # Alert if queue wait > 15 minutes
+    agent_overload: true                 # Alert when agents overloaded
+    low_routing_confidence: 0.6          # Alert if routing confidence < 60%
+
+# Integration settings
+integrations:
+  frustration_agent: true
+  quality_agent: true
+  context_manager: true
+  hr_system: false                       # Enable when HR integration available
+  calendar_system: false                 # Enable for agent schedule integration
