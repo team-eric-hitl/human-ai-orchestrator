@@ -6,7 +6,7 @@ Coordinates simulation of customer/chatbot/employee interactions for demonstrati
 import asyncio
 import random
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 from .human_customer_simulator import HumanCustomerSimulator, CustomerPersonality, CustomerScenario
@@ -592,3 +592,39 @@ class DemoOrchestrator:
             del self.active_demonstrations[demo_id]
         
         return len(completed_demos)
+
+
+async def main():
+    """Main function to demonstrate the orchestrator"""
+    orchestrator = DemoOrchestrator()
+    
+    print("Available demo scenarios:")
+    scenarios = orchestrator.list_available_scenarios()
+    for i, scenario in enumerate(scenarios, 1):
+        print(f"{i}. {scenario['name']}: {scenario['description']}")
+    
+    # Run a sample scenario
+    print("\nStarting 'Happy Path - Simple Question' scenario...")
+    demo_result = orchestrator.start_demo_scenario("Happy Path - Simple Question")
+    print(f"Demo started with ID: {demo_result['demo_id']}")
+    print(f"Customer query: {demo_result['customer_query']}")
+    
+    # Simulate chatbot response
+    print("\nSimulating chatbot response...")
+    chatbot_result = orchestrator.simulate_chatbot_response(demo_result['demo_id'])
+    print(f"Chatbot response: {chatbot_result['chatbot_response']}")
+    
+    # Simulate quality assessment
+    print("\nSimulating quality assessment...")
+    quality_result = orchestrator.simulate_quality_assessment(demo_result['demo_id'])
+    print(f"Quality assessment: {quality_result['quality_assessment']['decision']}")
+    
+    # Get demo log
+    print("\nGetting complete demo log...")
+    log = orchestrator.get_demo_log(demo_result['demo_id'])
+    print(f"Demo duration: {log['duration_seconds']:.2f} seconds")
+    print(f"Current stage: {log['current_stage']}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
