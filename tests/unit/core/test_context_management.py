@@ -235,7 +235,7 @@ class TestSQLiteContextProvider:
 
     def test_initialization_with_invalid_path(self):
         """Test initialization with invalid database path"""
-        with pytest.raises(ConfigurationError):
+        with pytest.raises(sqlite3.OperationalError):
             SQLiteContextProvider("/invalid/path/that/does/not/exist.db")
 
     def test_save_context_entry(self, context_provider, sample_context_entries):
@@ -327,7 +327,7 @@ class TestSQLiteContextProvider:
         assert len(limited_context) == 1
 
         # Should return most recent entry
-        assert limited_context[0].query_id == "query2"
+        assert limited_context[0].metadata["query_id"] == "query2"
 
     def test_get_context_with_date_range(
         self, context_provider, sample_context_entries
@@ -341,7 +341,7 @@ class TestSQLiteContextProvider:
         recent_context = context_provider.get_context(user_id="user1", since=since_time)
 
         assert len(recent_context) == 1
-        assert recent_context[0].query_id == "query2"
+        assert recent_context[0].metadata["query_id"] == "query2"
 
     def test_get_context_ordering(self, context_provider, sample_context_entries):
         """Test that context is returned in correct order (most recent first)"""
@@ -351,8 +351,8 @@ class TestSQLiteContextProvider:
         user1_context = context_provider.get_context(user_id="user1")
 
         # Should be ordered by timestamp descending
-        assert user1_context[0].query_id == "query2"  # More recent
-        assert user1_context[1].query_id == "query1"  # Older
+        assert user1_context[0].metadata["query_id"] == "query2"  # More recent
+        assert user1_context[1].metadata["query_id"] == "query1"  # Older
 
     def test_get_session_summary(self, context_provider, sample_context_entries):
         """Test session summary generation"""
@@ -390,7 +390,7 @@ class TestSQLiteContextProvider:
         old_entries = []
         for i, entry in enumerate(sample_context_entries):
             entry.timestamp = datetime.now() - timedelta(days=35)  # Older than 30 days
-            entry.query_id = f"old_query_{i}"
+            entry.metadata["query_id"] = f"old_query_{i}"
             old_entries.append(entry)
 
         # Save old entries
@@ -449,9 +449,9 @@ class TestSQLiteContextProvider:
 
         def save_entries():
             for entry in sample_context_entries:
-                entry.query_id = f"{entry.query_id}_{threading.current_thread().ident}"
+                entry.metadata["query_id"] = f"{entry.metadata['query_id']}_{threading.current_thread().ident}"
                 context_provider.save_context_entry(entry)
-                results.append(entry.query_id)
+                results.append(entry.metadata["query_id"])
                 time.sleep(0.001)  # Small delay to encourage race conditions
 
         # Start multiple threads
@@ -516,7 +516,7 @@ class TestSQLiteContextProvider:
         # Verify update
         retrieved_entries = context_provider.get_context(user_id=entry.user_id)
         updated_entry = next(
-            e for e in retrieved_entries if e.query_id == entry.query_id
+            e for e in retrieved_entries if e.metadata["query_id"] == entry.metadata["query_id"]
         )
 
         assert updated_entry.response == "Updated response"
@@ -562,7 +562,7 @@ class TestSQLiteContextProvider:
 
         assert len(page1) == 10
         assert len(page2) > 0
-        assert page1[0].query_id != page2[0].query_id
+        assert page1[0].metadata["query_id"] != page2[0].metadata["query_id"]
 
     def test_database_schema_migration(self, temp_db_path):
         """Test database schema migration handling"""

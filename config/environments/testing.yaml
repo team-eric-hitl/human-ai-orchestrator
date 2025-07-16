@@ -26,7 +26,8 @@ models:
 # Testing providers
 providers:
   context:
-    db_path: ":memory:"  # In-memory database for tests
+    storage_directory: ":memory:"  # In-memory database for tests
+    db_name: ":memory:"
     backup_enabled: false
     
   # Mock all external services

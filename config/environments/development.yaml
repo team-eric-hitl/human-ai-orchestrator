@@ -27,7 +27,8 @@ models:
 # Development providers
 providers:
   context:
-    db_path: "dev_hybrid_system.db"
+    storage_directory: "data/dev"
+    db_name: "hybrid_system.db"
     backup_enabled: false
     
   # Mock external services for development

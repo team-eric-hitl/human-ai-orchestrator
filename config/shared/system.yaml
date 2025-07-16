@@ -22,7 +22,8 @@ providers:
     
   context:
     type: "sqlite"
-    db_path: "hybrid_system.db"
+    storage_directory: "data"
+    db_name: "hybrid_system.db"
     backup_enabled: true
     backup_interval: 3600  # 1 hour
     

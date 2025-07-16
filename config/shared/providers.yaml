@@ -55,7 +55,9 @@ external_services:
     
   database:
     type: "sqlite"
-    connection_string: "sqlite:///hybrid_system.db"
+    storage_directory: "data"
+    db_name: "hybrid_system.db"
+    connection_string: "sqlite:///data/hybrid_system.db"
     pool_size: 10
     max_overflow: 20
     

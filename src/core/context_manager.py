@@ -5,18 +5,42 @@ Context management for storing and retrieving conversation context
 import json
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional
 
 from ..core.logging import get_logger
 from ..interfaces.core.context import ContextEntry, ContextProvider
+from .database_config import DatabaseConfig
 
 
 class SQLiteContextProvider(ContextProvider):
     """SQLite-based context provider"""
 
-    def __init__(self, db_path: str = "hybrid_system.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None, config_manager=None):
+        """
+        Initialize SQLite context provider
+        
+        Args:
+            db_path: Optional explicit database path (overrides configuration)
+            config_manager: Configuration manager for centralized database settings
+        """
+        self.config_manager = config_manager
+        self.db_config = DatabaseConfig(config_manager)
+        
+        # Use explicit path or get from configuration
+        if db_path is not None:
+            self.db_path = db_path
+        else:
+            self.db_path = self.db_config.get_db_path()
+            
         self.logger = get_logger(__name__)
+        self.logger.info(
+            "SQLite context provider initialized",
+            extra={
+                "db_path": self.db_path,
+                "using_config": config_manager is not None,
+                "operation": "__init__"
+            }
+        )
         self._init_database()
 
     def _init_database(self):
@@ -139,6 +163,87 @@ class SQLiteContextProvider(ContextProvider):
                 "last_activity": None,
             }
 
+    def get_context(
+        self,
+        user_id: str = None,
+        session_id: str = None,
+        limit: int = None,
+        offset: int = 0,
+        since: datetime = None
+    ) -> list[ContextEntry]:
+        """Get context entries with flexible filtering"""
+        try:
+            where_conditions = []
+            params = []
+            
+            if user_id:
+                where_conditions.append("user_id = ?")
+                params.append(user_id)
+            
+            if session_id:
+                where_conditions.append("session_id = ?")
+                params.append(session_id)
+            
+            if since:
+                where_conditions.append("timestamp >= ?")
+                params.append(since.isoformat())
+            
+            where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
+            
+            query = f"""
+                SELECT entry_id, user_id, session_id, timestamp, entry_type, content, metadata
+                FROM context_entries
+                WHERE {where_clause}
+                ORDER BY timestamp DESC
+            """
+            
+            if limit:
+                query += " LIMIT ?"
+                params.append(limit)
+                if offset:
+                    query += " OFFSET ?"
+                    params.append(offset)
+            
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.execute(query, params)
+                
+                entries = []
+                for row in cursor.fetchall():
+                    entry = ContextEntry(
+                        entry_id=row[0],
+                        user_id=row[1],
+                        session_id=row[2],
+                        timestamp=datetime.fromisoformat(row[3]),
+                        entry_type=row[4],
+                        content=row[5],
+                        metadata=json.loads(row[6]) if row[6] else {},
+                    )
+                    entries.append(entry)
+                
+                self.logger.debug(
+                    "Context entries retrieved",
+                    extra={
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "count": len(entries),
+                        "operation": "get_context"
+                    }
+                )
+                
+                return entries
+                
+        except Exception as e:
+            self.logger.error(
+                "Failed to retrieve context entries",
+                extra={
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "error": str(e),
+                    "operation": "get_context"
+                }
+            )
+            return []
+
     def get_recent_context(
         self, user_id: str, session_id: str, limit: int = 10
     ) -> list[ContextEntry]:
@@ -244,3 +349,75 @@ class SQLiteContextProvider(ContextProvider):
                     "operation": "cleanup_old_entries",
                 },
             )
+
+    def get_context_metrics(self) -> dict[str, Any]:
+        """Get context metrics and statistics"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                # Total queries
+                cursor.execute("SELECT COUNT(*) FROM context_entries WHERE entry_type = 'query'")
+                total_queries = cursor.fetchone()[0]
+                
+                # Total users
+                cursor.execute("SELECT COUNT(DISTINCT user_id) FROM context_entries")
+                total_users = cursor.fetchone()[0]
+                
+                # Total sessions
+                cursor.execute("SELECT COUNT(DISTINCT session_id) FROM context_entries")
+                total_sessions = cursor.fetchone()[0]
+                
+                # Escalated queries
+                cursor.execute("""
+                    SELECT COUNT(*) FROM context_entries 
+                    WHERE entry_type = 'query' AND json_extract(metadata, '$.escalated') = 1
+                """)
+                escalated_queries = cursor.fetchone()[0]
+                
+                # Average response time
+                cursor.execute("""
+                    SELECT AVG(CAST(json_extract(metadata, '$.response_time') AS REAL))
+                    FROM context_entries 
+                    WHERE entry_type = 'query' AND json_extract(metadata, '$.response_time') IS NOT NULL
+                """)
+                avg_response_time_result = cursor.fetchone()[0]
+                avg_response_time = avg_response_time_result if avg_response_time_result else 0.0
+                
+                escalation_rate = escalated_queries / total_queries if total_queries > 0 else 0.0
+                
+                metrics = {
+                    "total_queries": total_queries,
+                    "total_users": total_users,
+                    "total_sessions": total_sessions,
+                    "escalation_rate": escalation_rate,
+                    "avg_response_time": avg_response_time,
+                    "escalated_queries": escalated_queries
+                }
+                
+                self.logger.debug(
+                    "Context metrics calculated",
+                    extra={
+                        "metrics": metrics,
+                        "operation": "get_context_metrics"
+                    }
+                )
+                
+                return metrics
+                
+        except Exception as e:
+            self.logger.error(
+                "Failed to calculate context metrics",
+                extra={
+                    "error": str(e),
+                    "operation": "get_context_metrics"
+                }
+            )
+            return {
+                "total_queries": 0,
+                "total_users": 0,
+                "total_sessions": 0,
+                "escalation_rate": 0.0,
+                "avg_response_time": 0.0,
+                "escalated_queries": 0
+            }

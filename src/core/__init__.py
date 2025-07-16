@@ -9,6 +9,7 @@ This package contains the foundational components:
 """
 
 from .context_manager import SQLiteContextProvider
+from .database_config import DatabaseConfig
 from ..interfaces.core.context import ContextEntry, ContextProvider
 from ..interfaces.core.state_schema import EscalationData, EvaluationResult, HybridSystemState
 
@@ -19,4 +20,5 @@ __all__ = [
     "ContextProvider",
     "ContextEntry",
     "SQLiteContextProvider",
+    "DatabaseConfig",
 ]

@@ -85,6 +85,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 **Core Infrastructure** (`src/core/`):
 - `AgentConfigManager` - Handles agent-centric configuration with hot-reloading
 - `ContextManager` - Manages conversation context and memory (SQLite-based)
+- `DatabaseConfig` - Centralized database path management and migration utilities
 - `SessionTracker` - Tracks metrics and performance data
 - `WorkflowOrchestrator` - Coordinates node execution and state management
 - Integrated logging/error handling system in `/core/logging/`
@@ -151,6 +152,22 @@ config/
 - **Human agent routing** based on complexity and domain
 - **Seamless handoff** between AI and human agents
 - **Context preservation** across agent transitions
+
+### Database Management
+The system uses a **centralized database configuration approach** for consistent data storage:
+
+**Database Organization** (`data/`):
+- All database files centralized in `data/` directory
+- Context storage: `data/hybrid_system.db` (SQLite)
+- Backup storage: `data/backups/` with automated migration backups
+- Environment-specific databases: `data/dev/`, `data/test/`, `data/prod/`
+
+**Database Configuration** (`src/core/database_config.py`):
+- `DatabaseConfig` class provides centralized path management
+- Automatic database migration from legacy locations
+- Configurable storage directories per environment
+- Backup and cleanup utilities for database maintenance
+- Integration with agent configuration system for dynamic paths
 
 ## Testing Structure
 

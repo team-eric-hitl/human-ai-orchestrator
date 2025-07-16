@@ -26,7 +26,8 @@ models:
 # Production providers
 providers:
   context:
-    db_path: "prod_hybrid_system.db"
+    storage_directory: "data/prod"
+    db_name: "hybrid_system.db"
     backup_enabled: true
     backup_interval: 1800  # 30 minutes
     
