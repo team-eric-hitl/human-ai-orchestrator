@@ -21,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.core.config import ConfigManager, AgentConfig
+from src.core.config.agent_config_manager import AgentConfigManager
 from src.nodes.answer_agent import AnswerAgentNode
 from src.nodes.evaluator_agent import EvaluatorAgentNode
 from src.nodes.escalation_router import EscalationRouterNode
@@ -38,9 +39,13 @@ def demo_configuration_overview():
     
     summary = config_manager.get_summary()
     print(f"   Environment: {summary['environment']}")
+    print(f"   System version: {summary['system_version']}")
+    print(f"   Schema version: {summary['config_schema_version']}")
     print(f"   Agents loaded: {summary['agents_loaded']}")
     print(f"   Agent names: {summary['agent_names']}")
+    print(f"   Agent versions: {summary['agent_versions']}")
     print(f"   Models configured: {summary['models_configured']}")
+    print(f"   Versioning enabled: {summary['versioning_enabled']}")
     
     print("\n" + "=" * 50)
 

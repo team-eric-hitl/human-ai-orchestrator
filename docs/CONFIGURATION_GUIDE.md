@@ -255,7 +255,21 @@ Global system configuration:
 system:
   name: "Modular LangGraph Hybrid System"
   version: "1.0.0"
+  config_schema_version: "1.0.0"
   description: "Agent-centric AI workflow orchestration platform"
+
+# Version management
+versioning:
+  enabled: true
+  schema_version: "1.0.0"
+  agent_version_required: true
+  strict_validation: true
+  
+  # Version compatibility rules
+  compatibility:
+    min_agent_version: "1.0.0"
+    max_agent_version: "2.0.0"
+    breaking_changes_allowed: false
 
 # Performance and behavior thresholds
 thresholds:
@@ -298,9 +312,12 @@ Example for `answer_agent`:
 
 ```yaml
 agent:
-  name: "Answer Agent"
+  name: "answer_agent"
+  version: "1.0.0"
   description: "Handles direct query responses using configured LLMs"
   type: "llm_agent"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
   enabled: true
 
 # Agent behavior settings
@@ -555,12 +572,45 @@ uv run python -m src.core.config.agent_config_manager --summary
 uv run python -m src.core.config.agent_config_manager --agent answer_agent
 ```
 
+## Agent Versioning
+
+The system supports semantic versioning for all agents to track evolution and ensure compatibility:
+
+### Version Format
+All agents use semantic versioning: `MAJOR.MINOR.PATCH`
+- **MAJOR**: Breaking changes to agent interface or behavior
+- **MINOR**: New features, backward compatible
+- **PATCH**: Bug fixes, backward compatible
+
+### Version Management
+```yaml
+# Required fields in agent config
+agent:
+  name: "agent_name"
+  version: "1.2.3"              # Semantic version
+  created: "2025-01-17"         # Creation date
+  last_modified: "2025-01-17"   # Last update date
+```
+
+### Version Validation
+- Automatic validation on config load
+- Ensures proper semantic version format
+- Tracks version compatibility across system
+- Enables version-specific features and migrations
+
+### Benefits
+- **Evolution Tracking**: Monitor agent development over time
+- **Compatibility Management**: Ensure system compatibility
+- **Rollback Support**: Revert to previous working versions
+- **A/B Testing**: Run different agent versions simultaneously
+
 ## Migration from Legacy Configuration
 
 If migrating from the old configuration system:
 
 1. **Move model definitions** from `models.json` to `shared/models.yaml`
 2. **Split agent settings** into individual agent directories
-3. **Create environment overrides** for dev/test/prod differences
-4. **Update import statements** to use `AgentConfigManager`
-5. **Test thoroughly** to ensure all functionality is preserved
+3. **Add version fields** to all agent configurations
+4. **Create environment overrides** for dev/test/prod differences
+5. **Update import statements** to use `AgentConfigManager`
+6. **Test thoroughly** to ensure all functionality is preserved

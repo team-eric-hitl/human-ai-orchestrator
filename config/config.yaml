@@ -1,6 +1,22 @@
 # Main configuration file for the Modular LangGraph Hybrid System
 # This file coordinates the new agent-centric configuration structure
 
+# System versioning
+versioning:
+  system_version: "1.0.0"
+  config_schema_version: "1.0.0"
+  enabled: true
+  
+  # Version validation settings
+  validation:
+    enforce_version_compatibility: true
+    require_agent_versions: true
+    
+  # Default version for new agents
+  defaults:
+    agent_version: "1.0.0"
+    config_format: "yaml-v1"
+
 # Configuration loading strategy
 config_loader:
   # Base configuration directory
@@ -80,6 +96,7 @@ validation_schema:
     required_fields:
       - "agent.name"
       - "agent.type"
+      - "agent.version"
       - "models.preferred"
       - "settings.temperature"
       - "settings.max_tokens"
@@ -90,16 +107,13 @@ validation_schema:
       - "system.version"
       - "thresholds.escalation_score"
 
-# Backward compatibility
-compatibility:
-  # Support for old configuration files
-  legacy_support: true
+# Development mode settings (no backward compatibility needed)
+development:
+  # Skip legacy support since system is in development
+  enforce_latest_versions: true
   
-  # Migration warnings
-  warn_deprecated: true
-  
-  # Automatic migration
-  auto_migrate: false
+  # Fail fast on version mismatches
+  strict_version_validation: true
 
 # Configuration documentation
 documentation:

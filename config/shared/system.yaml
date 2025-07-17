@@ -2,7 +2,21 @@
 system:
   name: "Modular LangGraph Hybrid System"
   version: "1.0.0"
+  config_schema_version: "1.0.0"
   description: "A flexible AI workflow orchestration platform with human-in-the-loop capabilities"
+
+# Version management
+versioning:
+  enabled: true
+  schema_version: "1.0.0"
+  agent_version_required: true
+  strict_validation: true
+  
+  # Version compatibility rules
+  compatibility:
+    min_agent_version: "1.0.0"
+    max_agent_version: "2.0.0"
+    breaking_changes_allowed: false
 
 # Global thresholds and limits
 thresholds:

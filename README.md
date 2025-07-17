@@ -207,7 +207,35 @@ jupyter lab notebooks/AI_Agents_Tutorial.ipynb
 
 ## ⚙️ Configuration System
 
-The system uses a hierarchical configuration approach:
+The system uses an **agent-centric configuration approach** with comprehensive versioning support:
+
+### Agent Versioning
+All agents use semantic versioning (MAJOR.MINOR.PATCH) for evolution tracking:
+- **Version validation** on config load
+- **Compatibility management** across system updates
+- **Rollback support** for stable deployments
+- **A/B testing** capabilities for agent improvements
+
+### Configuration Structure
+```
+config/
+├── agents/                    # Agent-specific configurations
+│   ├── answer_agent/
+│   │   ├── config.yaml       # Agent settings & version info
+│   │   ├── prompts.yaml      # Agent prompts & templates
+│   │   └── models.yaml       # Agent model preferences
+│   └── ...
+├── shared/                    # Global configurations
+│   ├── models.yaml           # Master model definitions
+│   ├── system.yaml           # System-wide settings & versioning
+│   └── providers.yaml        # Provider configurations
+└── environments/             # Environment-specific overrides
+    ├── development.yaml
+    ├── testing.yaml
+    └── production.yaml
+```
+
+### Hierarchical Configuration Loading:
 
 ### Model Configuration (`config/shared/models.yaml`)
 ```yaml

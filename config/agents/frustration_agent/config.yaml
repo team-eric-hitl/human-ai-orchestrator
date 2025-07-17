@@ -1,9 +1,14 @@
 # Frustration Agent Configuration
 # Responsibility: Analyze customer comments to detect frustration levels and trigger appropriate responses
 
-agent_name: "frustration_agent"
-agent_type: "sentiment_analysis"
-enabled: true
+agent:
+  name: "frustration_agent"
+  version: "1.0.0"
+  type: "sentiment_analysis"
+  description: "Analyze customer comments to detect frustration levels and trigger appropriate responses"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
+  enabled: true
 
 # Frustration detection settings
 settings:

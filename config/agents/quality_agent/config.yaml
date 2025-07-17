@@ -1,9 +1,14 @@
 # Quality Agent Configuration
 # Responsibility: Review chatbot answers and decide if adequate, needs adjustment, or requires human intervention
 
-agent_name: "quality_agent"
-agent_type: "quality_assessment"
-enabled: true
+agent:
+  name: "quality_agent"
+  version: "1.0.0"
+  type: "quality_assessment"
+  description: "Review chatbot answers and decide if adequate, needs adjustment, or requires human intervention"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
+  enabled: true
 
 # Quality assessment settings
 settings:

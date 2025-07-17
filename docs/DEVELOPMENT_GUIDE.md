@@ -392,9 +392,12 @@ mkdir -p config/agents/sentiment_agent
 ```yaml
 # config/agents/sentiment_agent/config.yaml
 agent:
-  name: "Sentiment Agent"
+  name: "sentiment_agent"
+  version: "1.0.0"
   description: "Analyzes sentiment of user queries"
   type: "analysis_agent"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
   enabled: true
 
 settings:

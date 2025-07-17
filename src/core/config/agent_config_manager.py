@@ -26,6 +26,9 @@ class AgentConfig:
     name: str
     description: str
     type: str
+    version: str = "1.0.0"
+    created: str = ""
+    last_modified: str = ""
     models: dict[str, Any] = field(default_factory=dict)
     settings: dict[str, Any] = field(default_factory=dict)
     prompts: dict[str, Any] = field(default_factory=dict)
@@ -98,12 +101,14 @@ class SystemConfig:
     """Global system configuration"""
     name: str = "Modular LangGraph Hybrid System"
     version: str = "1.0.0"
+    config_schema_version: str = "1.0.0"
     environment: str = "development"
     thresholds: dict[str, Any] = field(default_factory=dict)
     providers: dict[str, Any] = field(default_factory=dict)
     monitoring: dict[str, Any] = field(default_factory=dict)
     security: dict[str, Any] = field(default_factory=dict)
     performance: dict[str, Any] = field(default_factory=dict)
+    versioning: dict[str, Any] = field(default_factory=dict)
 
 
 class AgentConfigManager:
@@ -116,14 +121,16 @@ class AgentConfigManager:
     - config/environments/ - Environment-specific overrides
     """
 
-    def __init__(self, config_dir: str | Path, environment: str | None = None):
+    def __init__(self, config_dir: str | Path, environment: str | None = None, validate_versions: bool = True):
         self.config_dir = Path(config_dir)
         self.environment = environment or os.getenv('HYBRID_SYSTEM_ENV', 'development')
+        self.validate_versions = validate_versions
         self._agents: dict[str, AgentConfig] = {}
         self._system_config: SystemConfig | None = None
         self._models_config: dict[str, Any] = {}
         self._providers_config: dict[str, Any] = {}
         self._model_aliases: dict[str, str] = {}
+        self._versioning_config: dict[str, Any] = {}
         self._lock = Lock()
 
         self.logger = logging.getLogger(__name__)
@@ -232,10 +239,14 @@ class AgentConfigManager:
             merged_models.update(models_data)
             
             # Create agent config
+            agent_section = config_data.get('agent', {})
             agent_config = AgentConfig(
-                name=config_data.get('agent', {}).get('name', agent_name),
-                description=config_data.get('agent', {}).get('description', ''),
-                type=config_data.get('agent', {}).get('type', 'agent'),
+                name=agent_section.get('name', agent_name),
+                description=agent_section.get('description', ''),
+                type=agent_section.get('type', 'agent'),
+                version=agent_section.get('version', '1.0.0'),
+                created=agent_section.get('created', ''),
+                last_modified=agent_section.get('last_modified', ''),
                 models=merged_models,
                 settings=config_data.get('settings', {}),
                 prompts=prompts_data,
@@ -244,13 +255,29 @@ class AgentConfigManager:
                 evaluation=config_data.get('evaluation', {}),
                 routing=config_data.get('routing', {})
             )
+            
+            # Validate agent version if enabled
+            if self.validate_versions:
+                self._validate_agent_version(agent_config)
 
             self._agents[agent_name] = agent_config
-            self.logger.debug(f"Loaded configuration for agent: {agent_name}")
+            self.logger.debug(f"Loaded configuration for agent: {agent_name} (v{agent_config.version})")
 
         except Exception as e:
             self.logger.error(f"Failed to load agent config for {agent_name}: {e}")
             raise ConfigLoadError(f"Failed to load agent config for {agent_name}: {e}") from e
+
+    def _validate_agent_version(self, agent_config: AgentConfig) -> None:
+        """Validate agent version against system requirements"""
+        if not agent_config.version:
+            raise ConfigLoadError(f"Agent {agent_config.name} missing version field")
+        
+        # Validate version format (basic semantic versioning check)
+        version_parts = agent_config.version.split('.')
+        if len(version_parts) != 3 or not all(part.isdigit() for part in version_parts):
+            raise ConfigLoadError(f"Agent {agent_config.name} has invalid version format: {agent_config.version}")
+        
+        self.logger.debug(f"Agent {agent_config.name} version {agent_config.version} validated")
 
     def _apply_environment_overrides(self) -> None:
         """Apply environment-specific configuration overrides"""
@@ -362,6 +389,24 @@ class AgentConfigManager:
             self._load_all_configs()
             self.logger.info("Configuration reloaded successfully")
 
+    def get_agent_version(self, agent_name: str) -> str | None:
+        """Get version of a specific agent"""
+        agent = self.get_agent_config(agent_name)
+        return agent.version if agent else None
+
+    def get_agent_versions(self) -> dict[str, str]:
+        """Get versions of all loaded agents"""
+        return {name: agent.version for name, agent in self._agents.items()}
+
+    def validate_all_agent_versions(self) -> bool:
+        """Validate versions for all loaded agents"""
+        try:
+            for agent in self._agents.values():
+                self._validate_agent_version(agent)
+            return True
+        except ConfigLoadError:
+            return False
+
     def get_summary(self) -> dict[str, Any]:
         """Get a comprehensive summary of the configuration"""
         return {
@@ -369,11 +414,14 @@ class AgentConfigManager:
             "environment": self.environment,
             "system_name": self._system_config.name if self._system_config else "Unknown",
             "system_version": self._system_config.version if self._system_config else "Unknown",
+            "config_schema_version": self._system_config.config_schema_version if self._system_config else "Unknown",
             "agents_loaded": len(self._agents),
             "agent_names": list(self._agents.keys()),
+            "agent_versions": {name: agent.version for name, agent in self._agents.items()},
             "models_configured": len(self._models_config.get('models', {})),
             "providers_configured": len(self._providers_config.get('llm_providers', {})),
             "thresholds": self._system_config.thresholds if self._system_config else {},
+            "versioning_enabled": self.validate_versions,
             "config_files_structure": {
                 "shared": (self.config_dir / "shared").exists(),
                 "agents": (self.config_dir / "agents").exists(),

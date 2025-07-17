@@ -68,8 +68,11 @@ class TestAgentConfigManager:
             answer_agent_config = {
                 "agent": {
                     "name": "answer_agent",
+                    "version": "1.0.0",
                     "description": "Test answer agent",
-                    "type": "llm_agent"
+                    "type": "llm_agent",
+                    "created": "2025-01-17",
+                    "last_modified": "2025-01-17"
                 },
                 "settings": {
                     "temperature": 0.7,
@@ -92,8 +95,11 @@ class TestAgentConfigManager:
             evaluator_agent_config = {
                 "agent": {
                     "name": "evaluator_agent",
+                    "version": "1.0.0",
                     "description": "Test evaluator agent",
-                    "type": "evaluation_agent"
+                    "type": "evaluation_agent",
+                    "created": "2025-01-17",
+                    "last_modified": "2025-01-17"
                 },
                 "settings": {
                     "temperature": 0.3,
@@ -382,5 +388,103 @@ class TestSystemConfig:
         
         assert config.name == "Modular LangGraph Hybrid System"
         assert config.version == "1.0.0"
+        assert config.config_schema_version == "1.0.0"
         assert config.environment == "development"
         assert isinstance(config.thresholds, dict)
+
+
+class TestVersioning:
+    """Test suite for versioning functionality"""
+    
+    @pytest.fixture
+    def temp_config_dir_with_versions(self):
+        """Create a temporary directory with versioned agent configs"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_dir = Path(temp_dir)
+            
+            # Create directory structure
+            (config_dir / "agents" / "test_agent").mkdir(parents=True)
+            (config_dir / "shared").mkdir(parents=True)
+
+            # Create agent config with version
+            agent_config = {
+                "agent": {
+                    "name": "test_agent",
+                    "version": "1.2.3",
+                    "description": "Test agent with version",
+                    "type": "test_agent",
+                    "created": "2025-01-17",
+                    "last_modified": "2025-01-17"
+                },
+                "settings": {
+                    "temperature": 0.7,
+                    "max_tokens": 2000
+                }
+            }
+            
+            # Create system config with versioning
+            system_config = {
+                "system": {
+                    "name": "Test System",
+                    "version": "1.0.0",
+                    "config_schema_version": "1.0.0"
+                },
+                "versioning": {
+                    "enabled": True,
+                    "schema_version": "1.0.0",
+                    "agent_version_required": True
+                }
+            }
+
+            # Write config files
+            with open(config_dir / "agents" / "test_agent" / "config.yaml", "w") as f:
+                yaml.dump(agent_config, f)
+            with open(config_dir / "shared" / "system.yaml", "w") as f:
+                yaml.dump(system_config, f)
+
+            yield config_dir
+
+    def test_agent_version_validation(self, temp_config_dir_with_versions):
+        """Test agent version validation"""
+        config_manager = ConfigManager(str(temp_config_dir_with_versions))
+        
+        # Test getting agent versions
+        versions = config_manager.get_agent_versions()
+        assert "test_agent" in versions
+        assert versions["test_agent"] == "1.2.3"
+        
+        # Test individual agent version
+        assert config_manager.get_agent_version("test_agent") == "1.2.3"
+        assert config_manager.get_agent_version("nonexistent") is None
+        
+        # Test version validation
+        assert config_manager.validate_all_agent_versions() is True
+        
+        # Test agent config contains version info
+        agent_config = config_manager.get_agent_config("test_agent")
+        assert agent_config.version == "1.2.3"
+        assert agent_config.created == "2025-01-17"
+        assert agent_config.last_modified == "2025-01-17"
+
+    def test_invalid_version_format(self, temp_config_dir_with_versions):
+        """Test validation with invalid version format"""
+        config_dir = temp_config_dir_with_versions
+        
+        # Create agent with invalid version
+        invalid_agent_config = {
+            "agent": {
+                "name": "invalid_agent",
+                "version": "invalid.version.format",
+                "description": "Agent with invalid version",
+                "type": "test_agent"
+            }
+        }
+        
+        (config_dir / "agents" / "invalid_agent").mkdir()
+        with open(config_dir / "agents" / "invalid_agent" / "config.yaml", "w") as f:
+            yaml.dump(invalid_agent_config, f)
+        
+        # Should raise ConfigLoadError due to invalid version
+        from src.core.config.agent_config_manager import ConfigLoadError
+        with pytest.raises(ConfigLoadError, match="invalid version format"):
+            ConfigManager(str(config_dir))

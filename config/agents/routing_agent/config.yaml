@@ -1,9 +1,14 @@
 # Routing Agent Configuration
 # Responsibility: Select the best human agent for escalations, balancing workload and employee experience
 
-agent_name: "routing_agent"
-agent_type: "human_routing"
-enabled: true
+agent:
+  name: "routing_agent"
+  version: "1.0.0"
+  type: "human_routing"
+  description: "Select the best human agent for escalations, balancing workload and employee experience"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
+  enabled: true
 
 # Routing strategy settings
 settings:

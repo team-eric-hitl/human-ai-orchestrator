@@ -47,6 +47,7 @@ def display_agent_settings(agent_config):
     
     # Agent info
     print(f"Agent Name: {agent_config.name}")
+    print(f"Version: {agent_config.version}")
     print(f"Description: {agent_config.description}")
     print(f"Type: {agent_config.type}")
     
