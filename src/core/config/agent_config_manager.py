@@ -87,13 +87,14 @@ class AgentConfig:
 
         return value
 
-    def get_prompt(self, prompt_type: str) -> str:
+    def get_prompt(self, prompt_type: str, default: str = None) -> str:
         """Get a prompt template for this agent"""
         if prompt_type == 'system':
             return self.prompts.get('system_prompt', f'You are a {self.name} assistant.')
 
         templates = self.prompts.get('templates', {})
-        return templates.get(prompt_type, f'Default {prompt_type} prompt for {self.name}')
+        fallback_default = default if default is not None else f'Default {prompt_type} prompt for {self.name}'
+        return templates.get(prompt_type, fallback_default)
 
 
 @dataclass

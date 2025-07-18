@@ -13,7 +13,7 @@ tests/
 │   │   ├── test_context_management.py # Context storage and retrieval
 │   │   └── test_session_tracking.py   # Session metrics and lifecycle
 │   ├── nodes/                      # LangGraph node tests
-│   │   ├── test_answer_agent.py    # Answer generation logic
+│   │   ├── test_chatbot_agent.py   # Chatbot generation logic
 │   │   ├── test_evaluator_agent.py # Response evaluation
 │   │   └── test_escalation_router.py # Human agent routing
 │   ├── integrations/               # Integration component tests

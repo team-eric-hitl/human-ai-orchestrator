@@ -9,7 +9,7 @@ from typing import Any
 from ..core.config import ConfigManager
 from ..core.context_manager import SQLiteContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
-from ..nodes.answer_agent import AnswerAgentNode
+from ..nodes.chatbot_agent import ChatbotAgentNode
 from ..nodes.escalation_router import EscalationRouterNode
 from ..nodes.evaluator_agent import EvaluatorAgentNode
 
@@ -25,7 +25,7 @@ class HybridSystemWorkflow:
         self.context_provider = SQLiteContextProvider(context_db)
 
         # Initialize nodes
-        self.answer_agent = AnswerAgentNode(self.config_provider, self.context_provider)
+        self.answer_agent = ChatbotAgentNode(self.config_provider, self.context_provider)
         self.evaluator_agent = EvaluatorAgentNode(
             self.config_provider, self.context_provider
         )

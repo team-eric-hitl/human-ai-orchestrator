@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+* Always review src/interfaces before making changes to the code.
+
 ## Development Commands
 
 ### Setup and Installation
@@ -71,7 +73,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 ### Key Components
 
 **HITL LangGraph Nodes** (`src/nodes/`):
-- `AnswerAgent` (Chatbot) - Customer service-focused response generation with emotional intelligence
+- `ChatbotAgent` (Chatbot) - Customer service-focused response generation with emotional intelligence
 - `QualityAgent` - Reviews all chatbot responses before delivery, with improvement capabilities  
 - `FrustrationAgent` - Real-time customer sentiment analysis and intervention triggers
 - `RoutingAgent` - Employee wellbeing-aware routing with workload balancing
@@ -95,7 +97,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 - `config/agents/frustration_agent/` - Frustration indicators and intervention settings
 - `config/agents/routing_agent/` - Employee wellbeing and routing strategies
 - `config/agents/context_manager_agent/` - Context sources and relevance scoring
-- `config/agents/answer_agent/` - Customer service prompts and service standards
+- `config/agents/chatbot_agent/` - Customer service prompts and service standards
 - `config/shared/` - Global models, providers, and system settings
 - `config/environments/` - Environment-specific overrides (dev/test/prod)
 - `config/config.yaml` - Main configuration coordinator
@@ -121,7 +123,7 @@ The system uses an **agent-centric configuration approach** that provides maximu
 ```
 config/
 ├── agents/                          # Agent-specific configurations
-│   ├── answer_agent/
+│   ├── chatbot_agent/
 │   │   ├── config.yaml             # Agent settings & behavior
 │   │   ├── prompts.yaml            # Agent prompts & templates
 │   │   └── models.yaml             # Agent model preferences
@@ -183,7 +185,7 @@ tests/
 │   │   ├── test_context_management.py # Context storage & retrieval
 │   │   └── test_session_tracking.py   # Session metrics & lifecycle
 │   ├── nodes/                      # LangGraph node tests
-│   │   ├── test_answer_agent.py    # Answer generation logic
+│   │   ├── test_chatbot_agent.py   # Chatbot generation logic
 │   │   ├── test_evaluator_agent.py # Response evaluation
 │   │   └── test_escalation_router.py # Human agent routing
 │   ├── integrations/               # Integration component tests

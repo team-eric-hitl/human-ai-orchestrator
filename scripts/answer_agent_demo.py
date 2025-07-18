@@ -20,7 +20,7 @@ sys.path.insert(0, project_root)
 
 from src.core.config.agent_config_manager import AgentConfigManager
 from src.core.context_manager import SQLiteContextProvider
-from src.nodes.answer_agent import AnswerAgentNode
+from src.nodes.chatbot_agent import ChatbotAgentNode
 from src.interfaces.core.state_schema import HybridSystemState
 
 
@@ -91,7 +91,7 @@ def main():
         
         # Create answer agent
         print("Creating Answer Agent...")
-        answer_agent = AnswerAgentNode(config_manager, context_manager)
+        answer_agent = ChatbotAgentNode(config_manager, context_manager)
         
         # Display agent configuration
         display_agent_settings(answer_agent.agent_config)

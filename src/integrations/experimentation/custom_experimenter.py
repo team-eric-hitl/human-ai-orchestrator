@@ -24,7 +24,7 @@ from ...interfaces.experimentation import (
     PromptVariant,
     ThresholdExperiment,
 )
-from ...nodes.answer_agent import AnswerAgentNode
+from ...nodes.chatbot_agent import ChatbotAgentNode
 from ...nodes.evaluator_agent import EvaluatorAgentNode
 
 
@@ -905,7 +905,7 @@ class CustomExperimenter(ExperimentationInterface):
     def _create_agent(self, agent_type: str, config: Any, llm_provider: Any = None):
         """Create an agent instance for testing"""
         if agent_type == "answer_agent":
-            return AnswerAgentNode(
+            return ChatbotAgentNode(
                 config or self.config_manager,
                 None,  # context_provider - simplified for experimentation
                 llm_provider or self.llm_factory.create_auto_provider()

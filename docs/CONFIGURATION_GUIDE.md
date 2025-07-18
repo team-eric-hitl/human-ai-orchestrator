@@ -11,7 +11,7 @@ The system uses a three-tier configuration structure:
 ```
 config/
 ├── agents/                          # Agent-specific configurations
-│   ├── answer_agent/
+│   ├── chatbot_agent/
 │   │   ├── config.yaml             # Agent settings & behavior
 │   │   ├── prompts.yaml            # Agent prompts & templates
 │   │   └── models.yaml             # Agent model preferences
@@ -308,11 +308,11 @@ Each agent has its own configuration directory with three files:
 
 ### agents/{agent_name}/config.yaml - Agent Settings
 
-Example for `answer_agent`:
+Example for `chatbot_agent`:
 
 ```yaml
 agent:
-  name: "answer_agent"
+  name: "chatbot_agent"
   version: "1.0.0"
   description: "Handles direct query responses using configured LLMs"
   type: "llm_agent"
@@ -448,7 +448,7 @@ monitoring:
 
 # Agent overrides for development
 agents:
-  answer_agent:
+  chatbot_agent:
     behavior:
       enable_reasoning: true
       max_thinking_time: 60  # More time for debugging
@@ -569,7 +569,7 @@ uv run python -m src.core.config.agent_config_manager --validate
 uv run python -m src.core.config.agent_config_manager --summary
 
 # Test specific agent configuration
-uv run python -m src.core.config.agent_config_manager --agent answer_agent
+uv run python -m src.core.config.agent_config_manager --agent chatbot_agent
 ```
 
 ## Agent Versioning

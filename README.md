@@ -29,7 +29,7 @@ src/
 │   ├── nodes/                     # Node behavior contracts
 │   └── workflows/                 # Workflow orchestration interfaces
 ├── nodes/                         # HITL agent implementations
-│   ├── answer_agent.py            # Customer service-focused chatbot
+│   ├── chatbot_agent.py           # Customer service-focused chatbot
 │   ├── quality_agent.py           # Response quality assessment & improvement
 │   ├── frustration_agent.py       # Customer frustration detection & analysis
 │   ├── routing_agent.py           # Employee wellbeing-aware routing
@@ -170,7 +170,7 @@ jupyter lab notebooks/AI_Agents_Tutorial.ipynb
 
 ## 🤖 The Five Core HITL Agents
 
-### 1. Chatbot Agent (`answer_agent.py`)
+### 1. Chatbot Agent (`chatbot_agent.py`)
 **Purpose**: Customer service-focused response generation with emotional intelligence
 - Real-time customer sentiment analysis (urgency, frustration, politeness)
 - Context-aware personalization using conversation history
@@ -220,7 +220,7 @@ All agents use semantic versioning (MAJOR.MINOR.PATCH) for evolution tracking:
 ```
 config/
 ├── agents/                    # Agent-specific configurations
-│   ├── answer_agent/
+│   ├── chatbot_agent/
 │   │   ├── config.yaml       # Agent settings & version info
 │   │   ├── prompts.yaml      # Agent prompts & templates
 │   │   └── models.yaml       # Agent model preferences
@@ -291,7 +291,7 @@ use_cases:
 ### Prompts Configuration (`config/prompts.json`)
 ```json
 {
-  "answer_agent": {
+  "chatbot_agent": {
     "system_prompt": "You are a helpful AI assistant...",
     "context_integration": "Use previous conversation context..."
   },

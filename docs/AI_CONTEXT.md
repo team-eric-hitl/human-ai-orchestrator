@@ -31,7 +31,7 @@ Think of this as a **smart customer service department**:
 
 ### Component Relationships
 ```
-User Query → Answer Agent → Evaluator Agent → [Decision Point]
+User Query → Chatbot Agent → Evaluator Agent → [Decision Point]
                                                ↓
                                     [Good Enough] → Return Response
                                                ↓
@@ -111,7 +111,7 @@ total_cost_usd: float               # Cost tracking
     "timestamp": "2024-01-01T10:00:00Z"
 }
 
-# After Answer Agent
+# After Chatbot Agent
 {
     # ... previous state ...
     "ai_response": "Here are common Python debugging steps...",
@@ -144,7 +144,7 @@ total_cost_usd: float               # Cost tracking
 
 ## 🤖 Agent Design Patterns
 
-### 1. Answer Agent Pattern
+### 1. Chatbot Agent Pattern
 **Purpose**: Generate intelligent responses using LLMs
 **Key Responsibilities**:
 - Context integration (use conversation history)
@@ -218,7 +218,7 @@ fallback_models: ["gpt-4", "claude-3-sonnet"]
 #### prompts.json - Agent Instructions
 ```json
 {
-  "answer_agent": {
+  "chatbot_agent": {
     "system_prompt": "You are a helpful AI assistant...",
     "context_integration": "Use conversation history to provide personalized responses"
   },
@@ -258,7 +258,7 @@ class MyCustomAgent(NodeInterface):
 ### 2. Dependency Injection Pattern
 Components receive their dependencies, don't create them:
 ```python
-class AnswerAgentNode:
+class ChatbotAgentNode:
     def __init__(
         self, 
         config_provider: ConfigProvider,  # Injected
@@ -309,10 +309,10 @@ self.logger.info(
 ```python
 # Mock LLM responses for consistent testing
 @patch('src.integrations.llm_providers.ChatOpenAI')
-def test_answer_agent_with_mock(mock_openai):
+def test_chatbot_agent_with_mock(mock_openai):
     mock_openai.return_value.invoke.return_value.content = "Test response"
     
-    agent = AnswerAgentNode(mock_config, mock_context)
+    agent = ChatbotAgentNode(mock_config, mock_context)
     result = agent(test_state)
     
     assert result["ai_response"] == "Test response"

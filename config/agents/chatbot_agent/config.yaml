@@ -1,5 +1,5 @@
 agent:
-  name: "answer_agent"
+  name: "chatbot_agent"
   version: "1.0.0"
   description: "Primary response generation agent that provides direct answers to user queries"
   type: "llm_agent"

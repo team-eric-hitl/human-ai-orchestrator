@@ -47,7 +47,7 @@ agents:
   
   # Agent loading order (for dependency resolution)
   load_order:
-    - "answer_agent"
+    - "chatbot_agent"
     - "evaluator_agent"
     - "escalation_router"
     - "human_interface"

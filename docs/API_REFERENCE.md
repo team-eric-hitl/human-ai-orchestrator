@@ -139,12 +139,12 @@ class EscalationData:
 
 ## Agent APIs
 
-### Answer Agent (`src/nodes/answer_agent.py`)
+### Chatbot Agent (`src/nodes/chatbot_agent.py`)
 
 Generates AI responses to user queries.
 
 ```python
-class AnswerAgentNode:
+class ChatbotAgentNode:
     def __init__(
         self,
         config_provider: ConfigProvider,
@@ -285,7 +285,7 @@ class ConfigProvider(Protocol):
 model_config = config_provider.models.get_model("gpt-4")
 
 # Access prompts
-system_prompt = config_provider.prompts.answer_agent["system_prompt"]
+system_prompt = config_provider.prompts.chatbot_agent["system_prompt"]
 
 # Access thresholds
 escalation_threshold = config_provider.thresholds.escalation_score

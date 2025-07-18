@@ -164,7 +164,7 @@ uv run python -m pytest tests/unit/core/ -v
 uv run python -m pytest tests/unit/nodes/ -v
 
 # Test with your configuration
-uv run python scripts/answer_agent_demo.py
+uv run python scripts/chatbot_agent_demo.py
 
 # Test notebook environment
 jupyter lab notebooks/agent_tester.ipynb
@@ -309,7 +309,7 @@ uv run python -m pytest tests/unit/nodes/ -v
 uv run python -m pytest tests/integration/ -v
 
 # Running specific scripts
-uv run python scripts/answer_agent_demo.py
+uv run python scripts/chatbot_agent_demo.py
 uv run python -m src.main --config-path config/custom_config.json
 ```
 

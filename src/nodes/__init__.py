@@ -10,8 +10,8 @@ Each module is implemented as a separate, testable LangGraph node:
 - Quality Monitor: Monitor system quality
 """
 
-from .answer_agent import AnswerAgentNode
+from .chatbot_agent import ChatbotAgentNode
 from .escalation_router import EscalationRouterNode
 from .evaluator_agent import EvaluatorAgentNode
 
-__all__ = ["AnswerAgentNode", "EvaluatorAgentNode", "EscalationRouterNode"]
+__all__ = ["ChatbotAgentNode", "EvaluatorAgentNode", "EscalationRouterNode"]

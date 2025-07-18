@@ -14,12 +14,12 @@ from ..interfaces.core.state_schema import HybridSystemState
 from ..core.config import ConfigManager
 
 
-class AnswerAgentNode:
+class ChatbotAgentNode:
     """LangGraph node for generating customer service-focused chatbot responses"""
 
     def __init__(self, config_manager: ConfigManager, context_provider: ContextProvider):
         self.config_manager = config_manager
-        self.agent_config = config_manager.get_agent_config("answer_agent")
+        self.agent_config = config_manager.get_agent_config("chatbot_agent")
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()

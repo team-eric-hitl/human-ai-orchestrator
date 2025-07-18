@@ -35,7 +35,7 @@ The Human-in-the-Loop (HITL) AI System is a modular LangGraph-based workflow orc
 │                                                                             │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
 │  │  Chatbot Agent  │    │  Quality Agent  │    │  Frustration Agent      │  │
-│  │  (Answer Agent) │    │                 │    │                         │  │
+│  │                 │    │                 │    │                         │  │
 │  │ • Customer      │    │ • Response      │    │ • Sentiment Analysis    │  │
 │  │   Service Focus │────│   Review        │────│ • Pattern Detection     │  │
 │  │ • Empathy       │    │ • Improvement   │    │ • Escalation Triggers   │  │
@@ -125,7 +125,7 @@ User Query → State Initialization → Agent Processing → State Update → Ne
 
 ## Component Deep Dive
 
-### 1. Chatbot Agent (`src/nodes/answer_agent.py`)
+### 1. Chatbot Agent (`src/nodes/chatbot_agent.py`)
 
 **Responsibility**: Generate customer service-focused AI responses with enhanced empathy and service orientation
 

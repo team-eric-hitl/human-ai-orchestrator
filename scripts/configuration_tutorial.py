@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.core.config import ConfigManager, AgentConfig
 from src.core.config.agent_config_manager import AgentConfigManager
-from src.nodes.answer_agent import AnswerAgentNode
+from src.nodes.chatbot_agent import ChatbotAgentNode
 from src.nodes.evaluator_agent import EvaluatorAgentNode
 from src.nodes.escalation_router import EscalationRouterNode
 

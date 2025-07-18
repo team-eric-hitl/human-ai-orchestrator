@@ -94,7 +94,7 @@ src/
 │   ├── nodes/             # Node behavior contracts
 │   └── workflows/         # Workflow interfaces
 ├── nodes/                 # LangGraph agent implementations
-│   ├── answer_agent.py    # AI response generation
+│   ├── chatbot_agent.py   # AI response generation
 │   ├── evaluator_agent.py # Quality assessment
 │   └── escalation_router.py # Human routing
 ├── integrations/          # External service integrations
@@ -107,7 +107,7 @@ src/
 ```
 config/
 ├── agents/                          # Agent-specific configurations
-│   ├── answer_agent/
+│   ├── chatbot_agent/
 │   │   ├── config.yaml             # Agent settings & behavior
 │   │   ├── prompts.yaml            # Agent prompts & templates
 │   │   └── models.yaml             # Agent model preferences
@@ -191,9 +191,9 @@ make test-performance
 #### 1. Unit Tests (`tests/unit/`)
 Test individual components in isolation:
 ```python
-def test_answer_agent_generates_response():
+def test_chatbot_agent_generates_response():
     # Arrange
-    agent = AnswerAgentNode(mock_config, mock_context)
+    agent = ChatbotAgentNode(mock_config, mock_context)
     state = create_test_state(query="Hello")
     
     # Act
@@ -246,7 +246,7 @@ make test
 make coverage
 
 # Run specific test file
-uv run pytest tests/unit/nodes/test_answer_agent.py -v
+uv run pytest tests/unit/nodes/test_chatbot_agent.py -v
 
 # Run with specific markers
 uv run pytest -m "not slow" -v
@@ -429,7 +429,7 @@ fallback:
 ```python
 # src/workflows/hybrid_workflow.py
 workflow.add_node("sentiment_agent", SentimentAgentNode(config, context))
-workflow.add_edge("sentiment_agent", "answer_agent")
+workflow.add_edge("sentiment_agent", "chatbot_agent")
 ```
 
 #### Step 4: Add Tests
@@ -525,9 +525,9 @@ new_feature:
 ```
 
 ```yaml
-# config/agents/answer_agent/config.yaml - for agent-specific settings
+# config/agents/chatbot_agent/config.yaml - for agent-specific settings
 agent:
-  name: "Answer Agent"
+  name: "Chatbot Agent"
   type: "llm_agent"
 
 settings:
@@ -546,7 +546,7 @@ system_config = config_manager.get_system_config()
 new_feature_settings = system_config.new_feature
 
 # Access agent-specific configuration
-agent_config = config_manager.get_agent_config("answer_agent")
+agent_config = config_manager.get_agent_config("chatbot_agent")
 threshold = agent_config.get_setting("custom_threshold", 0.5)
 ```
 
@@ -658,19 +658,19 @@ export LANGCHAIN_API_KEY=your_key
 ### 3. Test Debugging
 ```bash
 # Run single test with verbose output
-uv run pytest tests/unit/nodes/test_answer_agent.py::test_specific_function -v -s
+uv run pytest tests/unit/nodes/test_chatbot_agent.py::test_specific_function -v -s
 
 # Debug test with pdb
-uv run pytest --pdb tests/unit/nodes/test_answer_agent.py
+uv run pytest --pdb tests/unit/nodes/test_chatbot_agent.py
 ```
 
 ### 4. Component Isolation
 ```python
 # Test components in isolation
-def debug_answer_agent():
+def debug_chatbot_agent():
     config = create_test_config()
     context = create_test_context()
-    agent = AnswerAgentNode(config, context)
+    agent = ChatbotAgentNode(config, context)
     
     state = create_test_state(query="Debug query")
     result = agent(state)
@@ -685,7 +685,7 @@ def debug_answer_agent():
 tail -f logs/app.log
 
 # Filter specific components
-grep "AnswerAgent" logs/app.log
+grep "ChatbotAgent" logs/app.log
 
 # View structured logs
 cat logs/app.log | jq '.message'
