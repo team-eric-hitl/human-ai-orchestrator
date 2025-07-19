@@ -1,69 +1,77 @@
 # Development environment configuration overrides
+# This file contains settings that override the default configuration when developing/testing
+#
+# BEGINNER'S GUIDE:
+# This file makes the system easier to develop with: more debugging, relaxed limits, local models.
+# It automatically applies when HYBRID_SYSTEM_ENV=development (which is the default)
+# Key changes: debug mode ON, local models preferred, relaxed timeouts
+
 environment: "development"
 
-# Development-specific system settings
+# Development-specific system settings - more debugging and logging
 system:
-  debug_mode: true
-  verbose_logging: true
-  log_level: "DEBUG"
+  debug_mode: true           # Enable detailed debugging information
+  verbose_logging: true      # Log more detailed information
+  log_level: "DEBUG"         # Show all log messages (DEBUG, INFO, WARN, ERROR)
   
-# Relaxed thresholds for development
+# Relaxed thresholds for development - make testing easier
 thresholds:
-  escalation_score: 5.0  # Lower threshold for testing
-  confidence_threshold: 0.6
-  response_time_limit: 60  # More generous timeout
-  max_retries: 5
+  escalation_score: 5.0      # Lower threshold for testing escalation (vs 6.0 in production)
+  confidence_threshold: 0.6   # Lower confidence requirement (vs 0.7 in production)
+  response_time_limit: 60     # More generous timeout for debugging (vs 30s in production)
+  max_retries: 5             # More retry attempts for testing (vs 3 in production)
 
-# Development model preferences
+# Development model preferences - favor local models to save API costs
 models:
-  default_model: "llama-7b"  # Use local models for development
-  enable_fallback: true
+  default_model: "llama-7b"  # Use local models for development (no API costs)
+  enable_fallback: true      # Allow fallback to cloud models if local fails
   
-  # Development-specific overrides
+  # Development-specific overrides - different settings for testing
   overrides:
-    temperature: 0.8  # More creative responses for testing
-    max_tokens: 3000  # Longer responses for development
+    temperature: 0.8         # More creative responses for testing variety
+    max_tokens: 3000         # Longer responses for development testing
     
-# Development providers
+# Development providers - data storage optimized for development
 providers:
+  # Use separate development database
   context:
-    storage_directory: "data/dev"
-    db_name: "hybrid_system.db"
-    backup_enabled: false
+    storage_directory: "data/dev"    # Separate dev data from production
+    db_name: "hybrid_system.db"      # Database filename
+    backup_enabled: false            # No backups needed in development
     
-  # Mock external services for development
+  # Mock external services for development - simulate production services
   mock_services:
-    enabled: true
-    human_agents: true
-    webhooks: true
+    enabled: true       # Enable mock services for testing
+    human_agents: true  # Mock human agent responses
+    webhooks: true      # Mock webhook calls
 
-# Development monitoring
+# Development monitoring - track performance during development
 monitoring:
-  metrics_collection: true
-  performance_tracking: true
+  metrics_collection: true       # Collect metrics for debugging
+  performance_tracking: true     # Track response times
   langsmith:
-    enabled: true
-    project_name: "hybrid-ai-system-dev"
-    tags: ["development", "testing"]
+    enabled: true                           # Enable LangSmith tracing
+    project_name: "hybrid-ai-system-dev"   # Separate dev project
+    tags: ["development", "testing"]        # Tag traces as development
 
-# Development security (relaxed)
+# Development security (relaxed) - easier development, less secure
 security:
-  api_key_rotation: false
-  session_encryption: false
-  audit_logging: false
+  api_key_rotation: false    # Don't rotate keys during development
+  session_encryption: false # Disable encryption for easier debugging
+  audit_logging: false      # Disable audit logs (reduces noise)
   rate_limiting:
-    enabled: false
+    enabled: false           # No rate limiting during development
 
-# Development performance
+# Development performance - optimize for debugging over speed
 performance:
-  model_caching: true
-  cache_size: 1  # Smaller cache for development
-  preload_models: false
-  parallel_processing: false  # Easier debugging
+  model_caching: true        # Still cache models for speed
+  cache_size: 1             # Smaller cache to save memory
+  preload_models: false     # Don't preload models at startup
+  parallel_processing: false # Disable parallel processing (easier debugging)
 
-# Development error handling
+# Development error handling - more forgiving error handling
 error_handling:
-  retry_strategy: "immediate"
-  max_retry_attempts: 5
+  retry_strategy: "immediate"     # Retry immediately (no backoff delay)
+  max_retry_attempts: 5           # More retry attempts than production
   circuit_breaker:
-    enabled: false  # Disable for easier debugging
+    enabled: false                # Disable circuit breaker (easier debugging)
