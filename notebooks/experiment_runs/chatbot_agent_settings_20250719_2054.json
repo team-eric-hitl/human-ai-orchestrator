@@ -1,10 +1,11 @@
 {
   "experiment_info": {
-    "timestamp": "20250718_1258",
-    "agent_type": "answer_agent",
+    "timestamp": "20250719_2054",
+    "agent_type": "chatbot_agent",
+    "experiment_type": "full_conversation_simulation",
     "total_questions": 20,
-    "total_interactions": 20,
-    "follow_up_count": 0
+    "completed_conversations": 20,
+    "input_file": "test_questions_20250718_1744.json"
   },
   "model_settings": {
     "preferred_model": "anthropic_general_budget",
@@ -33,9 +34,9 @@
       "repeat_query"
     ]
   },
-  "generation_settings": {
-    "input_method": "generate",
-    "generation_prompt": "20 chatbot questions from users contacting their insurance company about their coverage. Some users are belligerent, some are confused and need simple explanations, some need information immediately about claims, some are asking about policy changes. Mix of simple and complex questions.",
-    "generation_model": "anthropic_general_standard"
+  "conversation_settings": {
+    "max_conversation_turns": 8,
+    "customer_ai_enabled": true,
+    "realistic_simulation": true
   }
 }

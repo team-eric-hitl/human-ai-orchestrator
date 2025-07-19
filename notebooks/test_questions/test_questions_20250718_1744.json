@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "generation_timestamp": "20250718_1744",
+    "generation_model": "anthropic_general_standard",
+    "question_count": 20,
+    "scenario_prompt": "Generate chatbot questions from users contacting their insurance company about their coverage. \nInclude these customer types:\n- Frustrated customers (angry about rates, claim denials, poor service)\n- Confused customers (need simple explanations, don't understand terms)\n- Urgent customers (immediate needs like accidents, claims, proof of insurance)\n- Normal customers (routine inquiries, policy changes, general questions)\n\nInclude these complexity levels:\n- Simple: Basic questions that can be answered directly\n- Medium: Questions requiring some explanation or context\n- Complex: Multi-part questions or situations requiring detailed responses\n\nMake the questions realistic and diverse.",
+    "distribution": {
+      "customer_types": {
+        "frustrated": 5,
+        "urgent": 5,
+        "confused": 5,
+        "normal": 5
+      },
+      "complexities": {
+        "medium": 7,
+        "simple": 7,
+        "complex": 6
+      }
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "question": "Why did my premium increase by $200? This is ridiculous - I haven't had any claims!",
+      "customer_type": "frustrated",
+      "complexity": "medium"
+    },
+    {
+      "id": 2,
+      "question": "I just had a car accident. What do I need to do right now?",
+      "customer_type": "urgent",
+      "complexity": "simple"
+    },
+    {
+      "id": 3,
+      "question": "Can someone explain what a deductible is? I keep seeing this word but don't understand.",
+      "customer_type": "confused",
+      "complexity": "simple"
+    },
+    {
+      "id": 4,
+      "question": "How do I add my teenage daughter to my auto policy?",
+      "customer_type": "normal",
+      "complexity": "simple"
+    },
+    {
+      "id": 5,
+      "question": "I've been a customer for 15 years and you denied my claim? I want to speak to a supervisor immediately!",
+      "customer_type": "frustrated",
+      "complexity": "complex"
+    },
+    {
+      "id": 6,
+      "question": "What's the difference between comprehensive and collision coverage? I'm trying to decide what I need.",
+      "customer_type": "confused",
+      "complexity": "medium"
+    },
+    {
+      "id": 7,
+      "question": "My house just flooded - I need emergency assistance. Does my policy cover temporary housing?",
+      "customer_type": "urgent",
+      "complexity": "complex"
+    },
+    {
+      "id": 8,
+      "question": "Can I get proof of insurance sent to my phone? I got pulled over and need it ASAP.",
+      "customer_type": "urgent",
+      "complexity": "simple"
+    },
+    {
+      "id": 9,
+      "question": "How do I update my billing information?",
+      "customer_type": "normal",
+      "complexity": "simple"
+    },
+    {
+      "id": 10,
+      "question": "What exactly is an 'act of God' and why isn't my damage covered under it?",
+      "customer_type": "confused",
+      "complexity": "medium"
+    },
+    {
+      "id": 11,
+      "question": "I've been on hold for 45 minutes and keep getting disconnected. Fix this or I'm switching companies!",
+      "customer_type": "frustrated",
+      "complexity": "medium"
+    },
+    {
+      "id": 12,
+      "question": "My neighbor's tree fell on my garage during the storm. Which insurance handles this - mine or theirs?",
+      "customer_type": "confused",
+      "complexity": "complex"
+    },
+    {
+      "id": 13,
+      "question": "Can I schedule a review of my current coverage? I think I might be paying for things I don't need.",
+      "customer_type": "normal",
+      "complexity": "medium"
+    },
+    {
+      "id": 14,
+      "question": "Someone broke into my car last night. I need to file a claim and get a rental car - how do I do this?",
+      "customer_type": "urgent",
+      "complexity": "complex"
+    },
+    {
+      "id": 15,
+      "question": "Why am I paying more than my friend for the same coverage? We have identical cars!",
+      "customer_type": "frustrated",
+      "complexity": "medium"
+    },
+    {
+      "id": 16,
+      "question": "What documents do I need to submit for my water damage claim?",
+      "customer_type": "normal",
+      "complexity": "simple"
+    },
+    {
+      "id": 17,
+      "question": "I don't understand all these terms in my policy renewal - can you explain them in simple English?",
+      "customer_type": "confused",
+      "complexity": "complex"
+    },
+    {
+      "id": 18,
+      "question": "My windshield cracked on the highway. Is this covered and how quickly can it be fixed?",
+      "customer_type": "urgent",
+      "complexity": "medium"
+    },
+    {
+      "id": 19,
+      "question": "I've been trying to file a claim online for hours but keep getting errors. This is unacceptable!",
+      "customer_type": "frustrated",
+      "complexity": "complex"
+    },
+    {
+      "id": 20,
+      "question": "When does my policy expire and how do I renew it?",
+      "customer_type": "normal",
+      "complexity": "simple"
+    }
+  ]
+}
