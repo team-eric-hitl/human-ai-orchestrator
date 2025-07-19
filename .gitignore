@@ -240,6 +240,7 @@ models/
 
 # Log files
 logs/
+notebooks/logs/
 *.log
 
 # Database files (should be backed up separately)
