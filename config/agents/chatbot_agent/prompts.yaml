@@ -76,3 +76,107 @@ templates:
     
   follow_up: >
     Is there anything else I can help you with today? I want to make sure all your questions are answered.
+
+# Context building templates
+context_templates:
+  new_customer_note: "New customer - no previous interaction history."
+  
+  customer_context_header: "CUSTOMER CONTEXT:"
+  
+  interaction_history: "- Customer has had {count} previous interactions"
+  
+  escalation_warning: "- Previous escalations: {count} (handle with extra care)"
+  
+  recent_topics: "- Recent topics: {topics}"
+  
+  frequent_customer: "- Frequent customer - provide detailed, comprehensive assistance"
+  
+  new_customer_guidance: "- New customer - be welcoming and thorough in explanations"
+  
+  service_guidance_header: "CUSTOMER SERVICE GUIDANCE:"
+  
+  service_guidelines:
+    - "- Prioritize customer satisfaction and helpfulness"
+    - "- Be empathetic and understanding"  
+    - "- Provide clear, actionable solutions"
+    - "- Extra attention needed due to previous escalations"
+
+# Response building templates  
+response_templates:
+  tone_analysis_header: "CUSTOMER TONE ANALYSIS:"
+  
+  tone_detected: "- Detected tone: {tone}"
+  
+  urgency_guidance: "- URGENT request detected - prioritize quick, direct response"
+  
+  frustration_guidance: "- Customer frustration detected - be extra empathetic and helpful"
+  
+  politeness_guidance: "- Polite customer - match their courteous tone"
+  
+  query_header: "CUSTOMER QUERY: {query}"
+  
+  response_requirements_header: "RESPONSE REQUIREMENTS:"
+  
+  response_guidelines:
+    - "- Be helpful, professional, and customer-focused"
+    - "- Provide clear, actionable solutions when possible" 
+    - "- Show empathy and understanding"
+    - "- Be concise but thorough"
+
+# Error handling templates
+error_templates:
+  technical_difficulties: >
+    I apologize, but I'm currently experiencing technical difficulties. Please try again in a moment, 
+    or if this issue persists, I'll connect you with one of our human agents who can assist you immediately.
+    
+  service_failure: >
+    I sincerely apologize, but I'm experiencing technical difficulties at the moment. To ensure you receive 
+    the best possible assistance, I'm going to connect you with one of our human agents who can help resolve 
+    your question immediately.
+
+# Customer sentiment analysis configuration
+sentiment_analysis:
+  urgency_keywords:
+    - "urgent"
+    - "asap"
+    - "immediately"
+    - "emergency"
+    - "critical"
+    - "help"
+    
+  frustration_keywords:
+    - "frustrated"
+    - "angry"
+    - "upset"
+    - "disappointed"
+    - "problem"
+    
+  politeness_keywords:
+    - "please"
+    - "thank you"
+    - "thanks"
+    - "appreciate"
+    
+  empathy_phrases:
+    - "sorry"
+    - "apologize"
+    - "understand"
+
+# Response quality scoring configuration
+quality_scoring:
+  base_confidence: 0.85
+  base_service_score: 8.0
+  
+  confidence_adjustments:
+    short_response_penalty: -0.1  # For responses < 20 characters
+    short_response_threshold: 20
+    question_bonus: 0.05  # For responses containing "?"
+    
+  service_score_adjustments:
+    substantial_response_bonus: 0.5  # For responses > 50 characters
+    substantial_response_threshold: 50
+    frustrated_empathy_bonus: 1.0  # When empathy phrases are used with frustrated customers
+    
+  tone_thresholds:
+    caps_ratio_emphatic: 0.3  # Caps ratio > 30% = emphatic
+    exclamation_emphatic: 2   # > 2 exclamation marks = emphatic

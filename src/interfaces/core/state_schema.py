@@ -94,6 +94,8 @@ class HybridSystemState(TypedDict):
     # Node outputs
     initial_assessment: NotRequired[dict[str, Any]]
     ai_response: NotRequired[str]
+    response_metadata: NotRequired[dict[str, Any]]
+    customer_analysis: NotRequired[dict[str, Any]]
     evaluation_result: NotRequired[EvaluationResult]
     escalation_decision: NotRequired[bool]
     escalation_data: NotRequired[EscalationData]
