@@ -124,14 +124,14 @@ The system uses an **agent-centric configuration approach** that provides maximu
 config/
 ├── agents/                          # Agent-specific configurations
 │   ├── chatbot_agent/
-│   │   ├── config.yaml             # Agent settings & behavior
+│   │   ├── config.yaml             # Agent settings & behavior (NO model config)
 │   │   ├── prompts.yaml            # Agent prompts & templates
-│   │   └── models.yaml             # Agent model preferences
+│   │   └── models.yaml             # Agent model preferences (SINGLE SOURCE)
 │   ├── evaluator_agent/
 │   ├── escalation_router/
 │   └── human_interface/
 ├── shared/                          # Global configurations
-│   ├── models.yaml                 # Master model definitions
+│   ├── models.yaml                 # Master model definitions & aliases
 │   ├── system.yaml                 # System-wide settings
 │   └── providers.yaml              # Provider configurations
 ├── environments/                    # Environment-specific overrides
@@ -140,6 +140,13 @@ config/
 │   └── production.yaml
 └── config.yaml                     # Main configuration coordinator
 ```
+
+### Model Configuration Consolidation
+**IMPORTANT**: As of the latest update, model configuration has been consolidated:
+- **models.yaml is the SINGLE SOURCE** for all model preferences per agent
+- **config.yaml files NO LONGER contain model sections** - these have been removed
+- **Standardized structure** uses `primary_model` and `model_preferences` in models.yaml
+- **No duplication** - eliminates conflicts between config.yaml and models.yaml model settings
 
 ### Benefits of Agent-Centric Configuration
 - **Developer Isolation**: Each agent has its own configuration namespace
@@ -260,13 +267,18 @@ tests/
 
 ### Agent-Centric Structure
 - `config/config.yaml` - Main configuration coordinator and loading strategy
-- `config/agents/*/config.yaml` - Agent-specific settings and behavior
+- `config/agents/*/config.yaml` - Agent-specific settings and behavior (**NO model config**)
 - `config/agents/*/prompts.yaml` - Agent prompts and templates
-- `config/agents/*/models.yaml` - Agent model preferences
-- `config/shared/models.yaml` - Global model definitions
+- `config/agents/*/models.yaml` - **SINGLE SOURCE** for agent model preferences
+- `config/shared/models.yaml` - Global model definitions and aliases
 - `config/shared/system.yaml` - System-wide settings
 - `config/shared/providers.yaml` - Provider configurations
 - `config/environments/*.yaml` - Environment-specific overrides
+
+### Model Configuration Changes (Latest Update)
+- **CONSOLIDATED**: All model configuration moved to `models.yaml` files only
+- **REMOVED**: Model sections from all `config.yaml` files to eliminate duplication
+- **STANDARDIZED**: Consistent `primary_model` + `model_preferences` structure across all agents
 
 ### Development Files
 - `pyproject.toml` - Project dependencies and tool configuration

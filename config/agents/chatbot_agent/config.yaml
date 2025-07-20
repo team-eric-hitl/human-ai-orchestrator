@@ -13,13 +13,8 @@ agent:
   created: "2025-01-17"                  # Creation date
   last_modified: "2025-01-17"            # Last modification date
 
-# Model selection - which AI models this agent uses
-models:
-  preferred: "anthropic_general_budget"              # First choice (Claude Haiku - fast & cheap)
-  fallback: ["local_general_budget", "local_general_standard"]  # Backup models if preferred fails
-  use_case: "general"                               # Model category from shared/models.yaml
-
 # Basic AI settings - control how the AI behaves
+# NOTE: Model selection moved to models.yaml for consistency
 settings:
   temperature: 0.7           # Creativity level (0=robotic, 1=creative)
   max_tokens: 2000          # Maximum response length

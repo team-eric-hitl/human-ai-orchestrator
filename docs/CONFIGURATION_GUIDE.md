@@ -12,14 +12,14 @@ The system uses a three-tier configuration structure:
 config/
 ├── agents/                          # Agent-specific configurations
 │   ├── chatbot_agent/
-│   │   ├── config.yaml             # Agent settings & behavior
+│   │   ├── config.yaml             # Agent settings & behavior (NO model config)
 │   │   ├── prompts.yaml            # Agent prompts & templates
-│   │   └── models.yaml             # Agent model preferences
+│   │   └── models.yaml             # Agent model preferences (SINGLE SOURCE)
 │   ├── evaluator_agent/
 │   ├── escalation_router/
 │   └── human_interface/
 ├── shared/                          # Global configurations
-│   ├── models.yaml                 # Master model definitions
+│   ├── models.yaml                 # Master model definitions & aliases
 │   ├── system.yaml                 # System-wide settings
 │   └── providers.yaml              # Provider configurations
 ├── environments/                    # Environment-specific overrides
@@ -28,6 +28,15 @@ config/
 │   └── production.yaml
 └── config.yaml                     # Main configuration coordinator
 ```
+
+## 🔄 Model Configuration Consolidation (Latest Update)
+
+**IMPORTANT**: The model configuration system has been consolidated to eliminate duplication:
+
+- **✅ SINGLE SOURCE**: Model preferences are now ONLY in `models.yaml` files
+- **❌ REMOVED**: All model sections from `config.yaml` files to prevent conflicts
+- **🔧 STANDARDIZED**: Consistent `primary_model` + `model_preferences` structure across agents
+- **🚫 NO DUPLICATION**: Clear separation between behavioral config (config.yaml) and model config (models.yaml)
 
 ## Configuration Loading Priority
 

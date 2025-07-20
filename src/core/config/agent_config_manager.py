@@ -39,12 +39,22 @@ class AgentConfig:
 
     def get_preferred_model(self, model_aliases: dict[str, str] = None) -> str:
         """Get the preferred model for this agent, resolving aliases if needed"""
-        preferred = self.models.get('preferred', 'local_general_standard')
+        # Try primary_model first (standardized), then fall back to preferred (legacy)
+        preferred = self.models.get('primary_model') or self.models.get('preferred', 'local_general_standard')
         return self._resolve_model_alias(preferred, model_aliases)
 
     def get_fallback_models(self, model_aliases: dict[str, str] = None) -> list[str]:
         """Get fallback models for this agent, resolving aliases if needed"""
-        fallbacks = self.models.get('fallback', [])
+        # Try to get fallback from model_preferences general task, or legacy fallback field
+        fallbacks = []
+        model_preferences = self.models.get('model_preferences', {})
+        if model_preferences:
+            # Use first available task preferences as default fallback
+            first_task = next(iter(model_preferences.values()), {})
+            fallbacks = first_task.get('fallback', [])
+        else:
+            # Legacy fallback
+            fallbacks = self.models.get('fallback', [])
         return [self._resolve_model_alias(model, model_aliases) for model in fallbacks]
     
     def _resolve_model_alias(self, model_name: str, model_aliases: dict[str, str] = None) -> str:
@@ -234,10 +244,8 @@ class AgentConfigManager:
                 with open(models_file) as f:
                     models_data = yaml.safe_load(f) or {}
 
-            # Merge models from both config.yaml and models.yaml
-            merged_models = {}
-            merged_models.update(config_data.get('models', {}))
-            merged_models.update(models_data)
+            # Use only models.yaml for model configuration (config.yaml models section removed)
+            merged_models = models_data
             
             # Create agent config
             agent_section = config_data.get('agent', {})

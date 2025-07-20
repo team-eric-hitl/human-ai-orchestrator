@@ -8,6 +8,7 @@ This tutorial demonstrates:
 3. Environment-specific configuration overrides
 4. Best practices for configuration management
 5. Model and prompt management per agent
+6. **NEW**: Model configuration consolidation (models.yaml only)
 
 Usage:
     python scripts/configuration_tutorial.py
@@ -57,7 +58,7 @@ def demo_agent_specific_configuration():
     config_manager = ConfigManager("config")
     
     # Access agent-specific configurations
-    agents = ["answer_agent", "evaluator_agent", "escalation_router"]
+    agents = ["chatbot_agent", "evaluator_agent", "escalation_router"]
     
     for agent_name in agents:
         agent_config = config_manager.get_agent_config(agent_name)
@@ -277,15 +278,15 @@ def demo_configuration_structure():
     print("📋 Agent-Centric Configuration Structure:")
     print("config/")
     print("├── agents/                    # Agent-specific configurations")
-    print("│   ├── answer_agent/")
-    print("│   │   ├── config.yaml        # Agent settings & behavior")
+    print("│   ├── chatbot_agent/")
+    print("│   │   ├── config.yaml        # Agent settings & behavior (NO model config)")
     print("│   │   ├── prompts.yaml       # Agent prompts & templates")
-    print("│   │   └── models.yaml        # Agent model preferences")
+    print("│   │   └── models.yaml        # Agent model preferences (SINGLE SOURCE)")
     print("│   ├── evaluator_agent/")
     print("│   ├── escalation_router/")
     print("│   └── human_interface/")
     print("├── shared/                    # Global configurations")
-    print("│   ├── models.yaml            # Master model definitions")
+    print("│   ├── models.yaml            # Master model definitions & aliases")
     print("│   ├── system.yaml            # System-wide settings")
     print("│   └── providers.yaml         # Provider configurations")
     print("├── environments/              # Environment-specific overrides")
@@ -293,6 +294,12 @@ def demo_configuration_structure():
     print("│   ├── testing.yaml")
     print("│   └── production.yaml")
     print("└── config.yaml                # Main configuration coordinator")
+    
+    print("\n🔄 MODEL CONFIGURATION CONSOLIDATION (Latest Update):")
+    print("   ✅ SINGLE SOURCE: All model preferences in models.yaml files only")
+    print("   ❌ REMOVED: Model sections from config.yaml files")
+    print("   🔧 STANDARDIZED: primary_model + model_preferences structure")
+    print("   🚫 NO CONFLICTS: Clear separation of concerns")
     
     print("\n✅ Benefits of this structure:")
     print("   - Agent isolation and modularity")

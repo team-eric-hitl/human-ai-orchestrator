@@ -221,12 +221,12 @@ All agents use semantic versioning (MAJOR.MINOR.PATCH) for evolution tracking:
 config/
 ├── agents/                    # Agent-specific configurations
 │   ├── chatbot_agent/
-│   │   ├── config.yaml       # Agent settings & version info
+│   │   ├── config.yaml       # Agent settings & version info (NO model config)
 │   │   ├── prompts.yaml      # Agent prompts & templates
-│   │   └── models.yaml       # Agent model preferences
+│   │   └── models.yaml       # Agent model preferences (SINGLE SOURCE)
 │   └── ...
 ├── shared/                    # Global configurations
-│   ├── models.yaml           # Master model definitions
+│   ├── models.yaml           # Master model definitions & aliases
 │   ├── system.yaml           # System-wide settings & versioning
 │   └── providers.yaml        # Provider configurations
 └── environments/             # Environment-specific overrides
@@ -234,6 +234,13 @@ config/
     ├── testing.yaml
     └── production.yaml
 ```
+
+### 🔄 Model Configuration Consolidation (Latest Update)
+**IMPORTANT CHANGE**: Model configuration has been consolidated for clarity and consistency:
+- **✅ SINGLE SOURCE**: All model preferences now in `models.yaml` files only
+- **❌ REMOVED**: Model sections from all `config.yaml` files (eliminated duplication)
+- **🔧 STANDARDIZED**: Consistent `primary_model` + `model_preferences` structure
+- **🚫 NO CONFLICTS**: No more confusion between config.yaml and models.yaml model settings
 
 ### Hierarchical Configuration Loading:
 

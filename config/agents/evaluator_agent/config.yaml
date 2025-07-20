@@ -6,10 +6,7 @@ agent:
   created: "2025-01-17"
   last_modified: "2025-01-17"
 
-models:
-  preferred: "anthropic_reasoning_premium"
-  fallback: ["openai_general_standard", "local_general_budget"]
-  use_case: "high_quality"
+# NOTE: Model selection moved to models.yaml for consistency
 
 settings:
   temperature: 0.3
