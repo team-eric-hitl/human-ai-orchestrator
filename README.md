@@ -147,19 +147,29 @@ resolution = demo.simulate_resolution(demo_session["demo_id"])
 
 ### For Beginners: Start with the Tutorial
 
-We've created a comprehensive Jupyter notebook that explains AI agents from the ground up:
+We've created comprehensive Jupyter notebooks for different learning paths:
 
 ```bash
-# Launch Jupyter to access the tutorial
-jupyter lab notebooks/AI_Agents_Tutorial.ipynb
+# Launch Jupyter to access the notebooks
+jupyter lab
 ```
 
+### 📚 AI Agents Tutorial (`notebooks/AI_Agents_Tutorial.ipynb`)
 **The tutorial covers:**
 - What are AI agents? (with real-world analogies)
 - How do they work together?
 - Hands-on examples with working code
 - Build your own simple agent
 - Understanding the real system architecture
+
+### 🧪 Chatbot Agent Tester (`notebooks/chatbot_tester.ipynb`)
+Interactive notebook for testing and optimizing the Chatbot Agent:
+- **Configuration Editor**: Edit agent settings, prompts, and model preferences
+- **Internal Logic Explanation**: Understand how configuration changes affect chatbot behavior
+- **Question Testing**: Load test questions and process them through the agent
+- **Full Conversations**: Simulate realistic customer-AI interactions until resolution
+- **Performance Analysis**: Export results and analyze conversation patterns
+- **Optimization Guidelines**: Learn how to tune settings for different use cases
 
 ### For Developers: Explore the Implementation
 
@@ -449,7 +459,8 @@ docker run -v $(pwd)/.env:/app/.env hybrid-ai-system
 
 ## 📚 Additional Resources
 
-- **[Tutorial Notebook](notebooks/AI_Agents_Tutorial.ipynb)**: Complete beginner's guide
+- **[Tutorial Notebook](notebooks/AI_Agents_Tutorial.ipynb)**: Complete beginner's guide to AI agents
+- **[Chatbot Tester](notebooks/chatbot_tester.ipynb)**: Interactive testing and optimization tool
 - **[API Documentation](docs/)**: Detailed interface documentation
 - **[Test Examples](tests/)**: Comprehensive usage examples
 - **[Configuration Guide](config/)**: System setup and customization
