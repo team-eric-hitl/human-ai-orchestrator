@@ -1,133 +1,108 @@
-# Global model definitions for all agents
-# This file contains the master model configurations that agents can reference
-#
-# BEGINNER'S GUIDE:
-# This file defines which AI models are available and how to use them.
-# Key sections: 'model_aliases' (easy names), 'models' (detailed configs), 'use_cases' (recommendations)
-# To add a new model: 1) Add to 'models' section, 2) Add alias to 'model_aliases', 3) Update 'use_cases'
-
-# Semantic model aliases - easy-to-remember names for models
-# Update these when new models are released to change model mappings in one place
 model_aliases:
-  # Anthropic models - organized by use case and performance tier
-  anthropic_general_budget: "claude-3-5-haiku-20241022"      # Fastest, cheapest
-  anthropic_general_standard: "claude-3-5-sonnet-20241022"   # Balanced speed/quality
-  anthropic_reasoning_premium: "claude-3-5-sonnet-20241022"  # Best for complex reasoning
-  anthropic_coding_premium: "claude-3-5-sonnet-20241022"     # Best for code generation
-  anthropic_flagship: "claude-3-5-sonnet-20241022"           # Best overall model
-  
-  # OpenAI models - cloud-based, require API key
-  openai_general_standard: "gpt-4"        # High quality, expensive
-  openai_general_budget: "gpt-3.5-turbo"  # Good quality, cheaper
-  openai_coding_standard: "gpt-4"         # Good for code
-  
-  # Local models - run on your computer, no API key needed
-  local_general_standard: "llama-7b"      # Good balance for local use
-  local_general_premium: "llama-13b"      # Higher quality, needs more RAM
-  local_coding_standard: "codellama-7b"   # Optimized for code
-  local_general_budget: "mistral-7b"      # Fastest local option
-
+  anthropic_general_budget: claude-3-5-haiku-20241022
+  anthropic_general_standard: claude-3-5-sonnet-20241022
+  anthropic_reasoning_premium: claude-3-5-sonnet-20241022
+  anthropic_coding_premium: claude-3-5-sonnet-20241022
+  anthropic_flagship: claude-3-5-sonnet-20241022
+  openai_general_standard: gpt-4
+  openai_general_budget: gpt-3.5-turbo
+  openai_coding_standard: gpt-4
+  local_general_standard: llama-7b
+  local_general_premium: llama-13b
+  local_coding_standard: codellama-7b
+  local_general_budget: mistral-7b
 models:
-  # Local Llama models - run on your computer, require model files
   llama-7b:
-    path: "models/llama-7b.gguf"     # Path to model file (download required)
-    type: "llama"                    # Model type for loading
-    context_length: 2048             # Max input length in tokens
-    gpu_layers: 40                   # Layers to run on GPU (0 = CPU only)
-    temperature: 0.7                 # Creativity level (0=deterministic, 1=creative)
-    max_tokens: 2000                 # Max response length
-    description: "Llama 7B model - good balance of speed and quality"
-    
-  llama-13b:
-    path: "models/llama-13b.gguf"    # Larger model, needs more RAM/VRAM
-    type: "llama"
-    context_length: 4096             # Longer context than 7B model
-    gpu_layers: 40
-    temperature: 0.7
-    max_tokens: 2000
-    description: "Llama 13B model - higher quality, slower inference"
-    
-  # Local Mistral models - fast and efficient
-  mistral-7b:
-    path: "models/mistral-7b.gguf"
-    type: "mistral"
-    context_length: 4096             # Good context length
-    gpu_layers: 40
-    temperature: 0.7
-    max_tokens: 2000
-    description: "Mistral 7B Instruct - excellent instruction following"
-    
-  # Code-focused models - optimized for programming tasks
-  codellama-7b:
-    path: "models/codellama-7b.gguf"
-    type: "llama"
+    path: models/llama-7b.gguf
+    type: llama
     context_length: 2048
-    gpu_layers: 40
-    temperature: 0.2                 # Lower temperature for more precise code
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
     max_tokens: 2000
-    description: "CodeLlama 7B - optimized for code generation"
-    
-  # OpenAI models (cloud) - require OPENAI_API_KEY environment variable
+    verbose: true
+    description: Llama 7B model - good balance of speed and quality
+  llama-13b:
+    path: models/llama-13b.gguf
+    type: llama
+    context_length: 4096
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
+    max_tokens: 2000
+    description: Llama 13B model - higher quality, slower inference
+  mistral-7b:
+    path: models/mistral-7b.gguf
+    type: mistral
+    context_length: 4096
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
+    max_tokens: 2000
+    description: Mistral 7B Instruct - excellent instruction following
+  codellama-7b:
+    path: models/codellama-7b.gguf
+    type: llama
+    context_length: 2048
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.2
+    max_tokens: 2000
+    description: CodeLlama 7B - optimized for code generation
   gpt-4:
-    type: "openai"                   # Uses OpenAI API
-    model_name: "gpt-4"              # Actual model name for API calls
+    type: openai
+    model_name: gpt-4
     temperature: 0.7
     max_tokens: 2000
-    description: "OpenAI GPT-4 - highest quality, requires API key"
-    
+    description: OpenAI GPT-4 - highest quality, requires API key
   gpt-3.5-turbo:
-    type: "openai"
-    model_name: "gpt-3.5-turbo"     # Cheaper alternative to GPT-4
+    type: openai
+    model_name: gpt-3.5-turbo
     temperature: 0.7
     max_tokens: 2000
-    description: "OpenAI GPT-3.5 Turbo - fast and cost-effective"
-    
-  # Anthropic models (cloud) - require ANTHROPIC_API_KEY environment variable
+    description: OpenAI GPT-3.5 Turbo - fast and cost-effective
   claude-3-5-sonnet-20241022:
-    type: "anthropic"                        # Uses Anthropic API
-    model_name: "claude-3-5-sonnet-20241022" # Actual model name for API calls
+    type: anthropic
+    model_name: claude-3-5-sonnet-20241022
     temperature: 0.7
     max_tokens: 2000
-    description: "Anthropic Claude 3.5 Sonnet - balanced performance and reasoning"
-    
+    description: Anthropic Claude 3.5 Sonnet - balanced performance and reasoning
   claude-3-5-haiku-20241022:
-    type: "anthropic"
-    model_name: "claude-3-5-haiku-20241022"  # Fastest Claude model
+    type: anthropic
+    model_name: claude-3-5-haiku-20241022
     temperature: 0.7
     max_tokens: 2000
-    description: "Anthropic Claude 3.5 Haiku - fast and efficient"
-
-# Global model categories for different use cases
-# This helps agents choose the right model for their task
+    description: Anthropic Claude 3.5 Haiku - fast and efficient
 use_cases:
-  # General purpose tasks - balanced quality and speed
   general:
-    recommended: "local_general_standard"    # Start with local model (no API cost)
-    alternatives: ["local_general_budget", "anthropic_general_standard", "openai_general_standard"]
-    
-  # Code generation and programming tasks
+    recommended: local_general_standard
+    alternatives:
+    - local_general_budget
+    - anthropic_general_standard
+    - openai_general_standard
   code:
-    recommended: "local_coding_standard"     # CodeLlama is good for code
-    alternatives: ["anthropic_coding_premium", "openai_coding_standard", "local_general_budget"]
-    
-  # Fast response needed - prioritize speed over quality
+    recommended: local_coding_standard
+    alternatives:
+    - anthropic_coding_premium
+    - openai_coding_standard
+    - local_general_budget
   fast:
-    recommended: "anthropic_general_budget"  # Claude Haiku is very fast
-    alternatives: ["openai_general_budget", "local_general_standard"]
-    
-  # High quality needed - prioritize quality over speed/cost
+    recommended: anthropic_general_budget
+    alternatives:
+    - openai_general_budget
+    - local_general_standard
   high_quality:
-    recommended: "openai_general_standard"   # GPT-4 for highest quality
-    alternatives: ["anthropic_reasoning_premium", "anthropic_general_standard", "local_general_budget", "local_general_premium"]
-
-# Global fallback strategy - what to do if preferred model fails
+    recommended: openai_general_standard
+    alternatives:
+    - anthropic_reasoning_premium
+    - anthropic_general_standard
+    - local_general_budget
+    - local_general_premium
 fallback_strategy:
-  enabled: true          # Enable automatic fallback
-  max_retries: 3         # Try up to 3 different models
-  retry_delay: 5         # Wait 5 seconds between attempts
-  
-  # Global fallback chain - order of models to try if primary fails
+  enabled: true
+  max_retries: 3
+  retry_delay: 5
   default_fallback:
-    - "local_general_budget"      # Always try local first (no API cost)
-    - "anthropic_general_budget"  # Only if ANTHROPIC_API_KEY is set
-    - "gpt-3.5-turbo"            # Only if OPENAI_API_KEY is set
+  - local_general_budget
+  - anthropic_general_budget
+  - gpt-3.5-turbo

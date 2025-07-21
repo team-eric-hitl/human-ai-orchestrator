@@ -1,0 +1,79 @@
+# GPU-enabled Docker image for AI chatbot system
+# Base image with CUDA support for GPU acceleration
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    JUPYTER_ALLOW_INSECURE_WRITES=1 \
+    JUPYTER_TOKEN=devtoken \
+    CUDA_VISIBLE_DEVICES=all
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-dev \
+    python3.11-distutils \
+    python3-pip \
+    build-essential \
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symlinks for python
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 && \
+    ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# Install uv (fast Python package manager)
+RUN pip3 install --no-cache-dir uv
+
+# Install Claude Code CLI from Anthropic
+RUN npm install -g @anthropic-ai/claude-code
+
+# Set workdir
+WORKDIR /workspace
+
+# Copy dependency files for caching
+COPY pyproject.toml uv.lock README.md ./
+
+# Install Python dependencies (excluding GPU packages to avoid conflicts)
+RUN uv sync --dev
+
+# Install GPU-specific packages with CUDA support using pip in uv environment
+RUN uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 --force-reinstall --no-cache-dir
+RUN uv pip install transformers>=4.30.0 accelerate>=0.20.0 bitsandbytes>=0.39.0
+RUN uv pip install llama-cpp-python[cuda] --force-reinstall --no-cache-dir
+
+# Reinstall Jupyter ecosystem to ensure compatibility after GPU libraries
+RUN uv pip install --force-reinstall jupyterlab jupyter notebook ipykernel ipywidgets
+
+# Copy source code
+COPY src/ ./src/
+COPY config/ ./config/
+COPY notebooks/ ./notebooks/
+COPY scripts/ ./scripts/
+COPY data/ ./data/
+COPY Makefile ./
+
+# Create models directory for local model files
+RUN mkdir -p models
+
+# Set up GPU detection script
+COPY scripts/gpu_detect.py ./scripts/
+
+# Expose Jupyter port
+EXPOSE 8888
+
+# Health check to verify GPU availability
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python3 -c "import torch; print('CUDA available:', torch.cuda.is_available()); exit(0 if torch.cuda.is_available() else 1)" || \
+        echo "GPU not available, running in CPU mode"
+
+# Default command with GPU detection
+CMD python3 scripts/gpu_detect.py && \
+    jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
+    --NotebookApp.token=devtoken --NotebookApp.notebook_dir=/workspace

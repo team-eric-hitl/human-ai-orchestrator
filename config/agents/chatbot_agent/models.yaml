@@ -1,8 +1,8 @@
-primary_model: "anthropic_general_budget"
+primary_model: "local_general_standard"
 
 model_preferences:
   general_queries:
-    primary: "anthropic_general_budget"
+    primary: "local_general_standard"
     fallback: ["local_general_budget", "local_general_standard"]
     
   code_queries:
@@ -20,9 +20,5 @@ model_overrides:
   # Model-specific overrides
   per_model:
     codellama-7b:
-      temperature: 0.2
       max_tokens: 3000
       
-    gpt-4:
-      temperature: 0.6
-      max_tokens: 2500

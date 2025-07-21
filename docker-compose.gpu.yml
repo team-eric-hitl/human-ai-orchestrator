@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  ai-chatbot-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    image: ai-chatbot:gpu
+    container_name: ai-chatbot-gpu
+    
+    # GPU configuration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # Environment variables
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JUPYTER_ALLOW_INSECURE_WRITES=1
+      - JUPYTER_TOKEN=devtoken
+      - CUDA_VISIBLE_DEVICES=all
+      # Add your API keys here or use .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+    
+    # Volume mounts
+    volumes:
+      # Mount project code for development
+      - .:/workspace
+      # Mount models directory for persistent model storage
+      - ./models:/workspace/models
+      # Mount data directory for persistent databases
+      - ./data:/workspace/data
+      # Mount experiment results
+      - ./notebooks/experiment_runs:/workspace/notebooks/experiment_runs
+      # Optional: Mount local model cache
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+    
+    # Port mapping
+    ports:
+      - "8888:8888"  # Jupyter Lab
+      - "8000:8000"  # Optional: API server
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import torch; print('CUDA:', torch.cuda.is_available())"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # CPU-only fallback service
+  ai-chatbot-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ai-chatbot:cpu
+    container_name: ai-chatbot-cpu
+    profiles: ["cpu-only"]
+    
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JUPYTER_ALLOW_INSECURE_WRITES=1
+      - JUPYTER_TOKEN=devtoken
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+    
+    volumes:
+      - .:/workspace
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+      - ./notebooks/experiment_runs:/workspace/notebooks/experiment_runs
+    
+    ports:
+      - "8888:8888"
+      - "8000:8000"
+    
+    restart: unless-stopped
+
+# Networks
+networks:
+  default:
+    name: ai-chatbot-network

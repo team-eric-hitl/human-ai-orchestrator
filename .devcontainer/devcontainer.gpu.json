@@ -1,13 +1,14 @@
 {
-    "name": "Team Eric HITL",
+    "name": "Team Eric HITL (GPU)",
     "dockerFile": "../Dockerfile.gpu",
     "context": "..",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
     "workspaceFolder": "/workspace",
-    "forwardPorts": [
-        8888
-    ],
     "runArgs": ["--gpus", "all"],
+    "forwardPorts": [
+        8888,
+        8000
+    ],
     "postCreateCommand": "rm -rf .venv && uv sync",
     "customizations": {
         "vscode": {
@@ -51,7 +52,8 @@
                 },
                 "terminal.integrated.env.linux": {
                     "VIRTUAL_ENV": "/workspace/.venv",
-                    "PATH": "/workspace/.venv/bin:${env:PATH}"
+                    "PATH": "/workspace/.venv/bin:${env:PATH}",
+                    "CUDA_VISIBLE_DEVICES": "all"
                 }
             }
         }
