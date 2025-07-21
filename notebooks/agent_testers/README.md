@@ -36,6 +36,24 @@ This directory contains a comprehensive testing suite for the Human-in-the-Loop 
     ▼               ▼
 quality_results   frustration_results
    .json             .json
+
+                ALTERNATIVE WORKFLOW:
+
+┌─────────────────────┐
+│  live_chat_tester   │ ──→ real-time human interaction
+│     .ipynb          │     with instant AI scoring
+└─────────────────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Interactive UI    │ ──→ chat + live quality/frustration
+│   with Real-time    │     assessments displayed
+│   AI Assessment     │     beneath each turn
+└─────────────────────┘
+           │
+           ▼
+    live_chat_results
+        .json
 ```
 
 ## 📓 Notebook Descriptions
@@ -118,6 +136,30 @@ quality_results   frustration_results
 - `frustration_agent_config_[timestamp].json` - Configuration used
 - `frustration_summary_[timestamp].csv` - Analysis summary
 - `frustration_report_[timestamp].txt` - Management report with employee wellbeing recommendations
+
+---
+
+### 5. 💬 live_chat_tester.ipynb
+**Purpose**: Interactive live chat testing with real-time AI agent scoring
+
+**Features**:
+- Interactive chat window for real human-chatbot conversations
+- Real-time quality scoring after each chatbot response
+- Real-time frustration detection after each user message
+- Live display of agent assessments and scores beneath each interaction
+- Conversation trends and analysis dashboard
+- Export complete conversation with all scoring data
+
+**Use Cases**:
+- **Stakeholder Demos**: Show live AI quality control and frustration detection
+- **System Validation**: Test with real human interactions vs. simulated customers
+- **Configuration Tuning**: See immediate impact of agent settings changes
+- **Training Data**: Generate high-quality human-validated conversation examples
+
+**Outputs**:
+- `live_chat_results_[timestamp].json` - Complete conversation with real-time assessments
+- `live_chat_summary_[timestamp].csv` - Turn-by-turn analysis data
+- `live_chat_report_[timestamp].txt` - Session insights and recommendations
 
 ## 🔧 Configuration Management
 
@@ -252,6 +294,7 @@ notebooks/agent_testers/
 ├── chatbot_tester.ipynb          # Test chatbot responses
 ├── quality_agent_tester.ipynb    # Analyze response quality
 ├── frustration_agent_tester.ipynb # Detect customer frustration
+├── live_chat_tester.ipynb        # Interactive live chat with real-time scoring
 │
 ├── question_exports/              # Generated questions
 │   ├── questions_20240115_143022.json
@@ -268,11 +311,16 @@ notebooks/agent_testers/
 │   ├── quality_summary_20240115_152000.csv
 │   └── quality_report_20240115_152000.txt
 │
-└── frustration_analysis_exports/ # Frustration analysis results
-    ├── frustration_analysis_results_20240115_153000.json
-    ├── frustration_agent_config_20240115_153000.json
-    ├── frustration_summary_20240115_153000.csv
-    └── frustration_report_20240115_153000.txt
+├── frustration_analysis_exports/ # Frustration analysis results
+│   ├── frustration_analysis_results_20240115_153000.json
+│   ├── frustration_agent_config_20240115_153000.json
+│   ├── frustration_summary_20240115_153000.csv
+│   └── frustration_report_20240115_153000.txt
+│
+└── live_chat_exports/            # Live chat session results
+    ├── live_chat_results_20240115_154000.json
+    ├── live_chat_summary_20240115_154000.csv
+    └── live_chat_report_20240115_154000.txt
 ```
 
 ## 🎯 Testing Scenarios
@@ -294,6 +342,12 @@ notebooks/agent_testers/
 2. Compare different AI models
 3. Optimize quality/frustration thresholds
 4. Measure impact on customer satisfaction
+
+### Live Chat Validation
+1. Test with real human interactions using `live_chat_tester.ipynb`
+2. Validate AI scoring accuracy against human judgment
+3. Demo system capabilities to stakeholders
+4. Generate high-quality training conversations
 
 ### Stress Testing
 1. Generate high-volume question sets
