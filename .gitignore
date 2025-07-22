@@ -337,3 +337,6 @@ playground/
 # Generated files from scripts
 generated/
 output/
+
+# Quality assessment exports from notebook testing
+quality_assessment_exports/
