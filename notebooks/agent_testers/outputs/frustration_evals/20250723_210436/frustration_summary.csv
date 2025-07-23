@@ -1,0 +1,72 @@
+conversation_id,turn_number,customer_type,complexity,frustration_score,frustration_level,frustration_confidence,frustration_intervention_needed,escalation_trend,contributing_factors,current_query_score,pattern_score,customer_query
+1,1,frustrated,medium,2.8,low,0.6,False,none,strong_negative_sentiment,4.0,0.0,Why did my premium increase by $200? This is ridiculous - I haven't had any claims!
+1,2,frustrated,medium,4.375,moderate,0.6,False,none,high_frustration_language; strong_negative_sentiment,6.25,0.0,"""I can't believe you are giving me this runaround! I demand to know why my premium increased by $200 when I haven't had any claims. This is ridiculous and unacceptable - GIVE ME A GOOD EXPLANATION RIGHT NOW!"""
+1,3,frustrated,medium,1.75,low,0.5,False,none,,2.5,0.0,This isn't working. I need to speak to someone who can actually help me!
+2,1,urgent,simple,1.575,low,0.6,False,none,,2.25,0.0,I just had a car accident. What do I need to do right now?
+2,2,urgent,simple,1.75,low,0.5,False,none,,2.5,0.0,"- Shows appreciation for the chatbot's response
+
+""Thank you so much for your help! I really appreciate it. Can you tell me more about what I need to do next? Do I need to fill out any forms or provide any documentation?"""
+2,3,urgent,simple,2.275,low,0.6,False,none,,3.25,0.0,"Oh, great! So I should just call the police right away? What else do I need to do? This is a huge hassle and I want to get it taken care of ASAP."
+3,1,confused,simple,2.625,low,0.6,False,none,,3.75,0.0,Can someone explain what a deductible is? I keep seeing this word but don't understand.
+3,2,confused,simple,1.75,low,0.5,False,none,,2.5,0.0,"Oh, okay. So a deductible is like a savings account for insurance? Like I have to put money aside before my insurance covers anything? That makes sense, right?"
+3,3,confused,simple,2.4499999999999997,low,0.6,False,none,,3.5,0.0,"Oh, okay! So... when I get sick or injured, I have to pay for the first part of the medical bill myself? And then my insurance covers the rest? 
+(Polite tone) Do you have any examples of how much a deductible can be? And how does it work in real-life situations?"
+3,4,confused,simple,1.9249999999999998,low,0.6,False,none,,2.75,0.0,I'm still not clear on this. I think I need to talk to someone in person.
+3,5,confused,simple,2.625,low,0.6,False,none,,3.75,0.0,I'm still not clear on this. I think I need to talk to someone in person.
+3,6,confused,simple,2.625,low,0.6,False,none,,3.75,0.0,I'm still not clear on this. I think I need to talk to someone in person.
+3,7,confused,simple,2.625,low,0.6,False,none,,3.75,0.0,I'm still not clear on this. I think I need to talk to someone in person.
+3,8,confused,simple,1.9249999999999998,low,0.6,False,none,,2.75,0.0,I'm still not clear on this. I think I need to talk to someone in person.
+4,1,normal,simple,0.35,low,0.5,False,none,,0.5,0.0,How do I add my teenage daughter to my auto policy?
+4,2,normal,simple,0.35,low,0.5,False,none,,0.5,0.0,"Oh, okay! So I just need to add her as a driver on my policy? Is that correct? And how do I go about doing that?"
+4,3,normal,simple,1.75,low,0.5,False,none,,2.5,0.0,"Oh, great! So I just need to add her to my policy? Is that correct? Can you walk me through the process step-by-step?"
+5,1,frustrated,complex,3.675,moderate,0.6,False,none,escalation_language,5.25,0.0,I've been a customer for 15 years and you denied my claim? I want to speak to a supervisor immediately!
+6,1,confused,medium,0.35,low,0.5,False,none,,0.5,0.0,What's the difference between comprehensive and collision coverage? I'm trying to decide what I need.
+6,2,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,"""Okay, so let me make sure I understand. So comprehensive coverage is for things like theft or a tree falling on my car, but collision coverage is only for accidents with another vehicle? That makes sense, but how do I know what level of coverage I need? Can you give me some examples?"""
+6,3,confused,medium,2.625,low,0.6,False,none,,3.75,0.0,"""I see, so comprehensive coverage protects against non-collision events and collision coverage covers accidents involving another vehicle. But what about if I get into an accident with a deer? Would that be covered under collision or comprehensive?"""
+7,1,urgent,complex,2.275,low,0.6,False,none,,3.25,0.0,My house just flooded - I need emergency assistance. Does my policy cover temporary housing?
+7,2,urgent,complex,0.35,low,0.5,False,none,,0.5,0.0,"Excellent, that answers my question. Much appreciated."
+7,3,urgent,complex,1.75,low,0.5,False,none,,2.5,0.0,"Oh no, I'm so sorry to hear that! Can you please clarify what is covered under temporary housing? Are there any specific requirements for the temporary housing arrangement that I need to be aware of? And will my policy cover any additional living expenses during this time?"
+7,4,urgent,complex,2.275,low,0.6,False,none,,3.25,0.0,This is urgent - please connect me with someone who can resolve this now.
+7,5,urgent,complex,0.35,low,0.5,False,none,,0.5,0.0,"Great, I'll do that right away. Thanks for the quick help!"
+7,6,urgent,complex,0.35,low,0.5,False,none,,0.5,0.0,"Perfect, that's exactly what I needed to know. Thank you!"
+8,1,urgent,simple,2.275,low,0.6,False,none,,3.25,0.0,Can I get proof of insurance sent to my phone? I got pulled over and need it ASAP.
+8,2,urgent,simple,0.35,low,0.5,False,none,,0.5,0.0,"Oh wow, thank you so much! I really appreciate it. Can I get a copy of the proof of insurance sent to my email as well? I need it for the police report. And by the way, do you happen to know how long it will take for me to get a ticket?"
+8,3,urgent,simple,3.3249999999999997,moderate,0.6,False,none,strong_negative_sentiment,4.75,0.0,"Oh no, I see! So it could take a few days to get the proof of insurance? That's unacceptable, I need it ASAP. Can you please just fax me the document right away?"
+9,1,normal,simple,1.75,low,0.5,False,none,,2.5,0.0,How do I update my billing information?
+9,2,normal,simple,1.75,low,0.5,False,none,,2.5,0.0,"Oh, sure thing! *pauses* How do I find my account details? Is there a specific document or page I need to look for?"
+9,3,normal,simple,1.75,low,0.5,False,none,,2.5,0.0,"Oh, okay! I'm not sure how to log in to my account online though. Can you walk me through that process?"
+10,1,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,What exactly is an 'act of God' and why isn't my damage covered under it?
+10,2,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,"Oh, okay. So... what exactly constitutes an 'act of God' then? Is it like a tornado or something? And how do you determine whether the damage was caused by one or not? That makes no sense to me!"
+10,3,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,"Oh, I see! So you're saying that the damage to my house wasn't caused by a tornado or hurricane? But why not? That makes no sense! Can you explain it in simpler terms?"
+10,4,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,"Oh, I see. So if it's not an 'act of God,' then what is covered under my policy? Can you give me some examples? It seems like there are a lot of exclusions and limitations that apply to my claim."
+10,5,confused,medium,1.75,low,0.5,False,none,,2.5,0.0,I don't think I'm understanding this correctly. Can I speak with someone who can explain this more simply?
+11,1,frustrated,medium,2.625,low,0.6,False,none,,3.75,0.0,I've been on hold for 45 minutes and keep getting disconnected. Fix this or I'm switching companies!
+11,2,frustrated,medium,3.15,moderate,0.6,False,none,escalation_language,4.5,0.0,"- Reiterates frustration with hold time and disconnections
+- Provides more details about account, including policy number
+- Threatens to switch companies if issue isn't resolved quickly"
+12,1,confused,complex,1.75,low,0.5,False,none,,2.5,0.0,My neighbor's tree fell on my garage during the storm. Which insurance handles this - mine or theirs?
+12,2,confused,complex,0.35,low,0.5,False,none,,0.5,0.0,Thank you! That explanation really helped me understand.
+13,1,normal,medium,0.35,low,0.5,False,none,,0.5,0.0,Can I schedule a review of my current coverage? I think I might be paying for things I don't need.
+13,2,normal,medium,0.35,low,0.5,False,none,,0.5,0.0,"That's great! Can you help me identify which coverage options I can drop? Also, what kind of savings can I expect by reviewing my policy? Are there any discounts available for bundling policies?"
+14,1,urgent,complex,1.75,low,0.5,False,none,,2.5,0.0,Someone broke into my car last night. I need to file a claim and get a rental car - how do I do this?
+14,2,urgent,complex,1.75,low,0.5,False,none,,2.5,0.0,"""Okay, thank you for letting me know. How do I file a claim for the damages to my car? What information will I need to provide in order to get a rental car?"""
+14,3,urgent,complex,2.8,low,0.6,False,none,,4.0,0.0,"""Okay, I understand. But I need this done asap! Can you provide me with a rental car immediately? And how will you handle the repairs for my car since it was broken into?"""
+15,1,frustrated,medium,1.75,low,0.5,False,none,,2.5,0.0,Why am I paying more than my friend for the same coverage? We have identical cars!
+15,2,frustrated,medium,2.9749999999999996,low,0.6,False,none,,4.25,0.0,"Oh, great! So now you want me to provide more details? I'm already paying too much for coverage and my friend is getting it cheaper for the same thing! This isn't right. Why should I have to pay more just because I'm the one who's frustrated about this?!"
+15,3,frustrated,medium,1.75,low,0.5,False,none,,2.5,0.0,This isn't working. I need to speak to someone who can actually help me!
+16,1,normal,simple,0.35,low,0.5,False,none,,0.5,0.0,What documents do I need to submit for my water damage claim?
+17,1,confused,complex,1.75,low,0.5,False,none,,2.5,0.0,I don't understand all these terms in my policy renewal - can you explain them in simple English?
+17,2,confused,complex,2.625,low,0.6,False,none,,3.75,0.0,"Oh, I see. So... the policy renewal terms include... um... what does ""deductible"" mean again? And what about ""co-insurance""? Can you explain how that works?"
+17,3,confused,complex,0.35,low,0.5,False,none,,0.5,0.0,Oh I see! That makes much more sense now. Thank you for explaining it so clearly.
+17,4,confused,complex,0.35,low,0.5,False,none,,0.5,0.0,"Oh, I see! So, the term ""deductible"" refers to the amount I have to pay out of pocket before my insurance coverage kicks in? And ""coinsurance"" is the percentage of medical costs I'm responsible for after the deductible is met? That makes sense. But what about ""copayment""? Is that a separate amount I have to pay each time I visit the doctor, or is it rolled into my monthly premiums?"
+17,5,confused,complex,1.75,low,0.5,False,none,,2.5,0.0,I don't think I'm understanding this correctly. Can I speak with someone who can explain this more simply?
+17,6,confused,complex,3.3249999999999997,moderate,0.6,False,none,,4.75,0.0,I'm still really confused. Could you please connect me with someone who can walk me through this step by step?
+17,7,confused,complex,1.75,low,0.5,False,none,,2.5,0.0,I don't think I'm understanding this correctly. Can I speak with someone who can explain this more simply?
+18,1,urgent,medium,1.75,low,0.5,False,none,,2.5,0.0,My windshield cracked on the highway. Is this covered and how quickly can it be fixed?
+18,2,urgent,medium,1.75,low,0.5,False,none,,2.5,0.0,"""Oh, great! Can I get an estimate on how long it will take to fix? And do you have any shops in my area that can do the repairs?"""
+18,3,urgent,medium,1.75,low,0.5,False,none,,2.5,0.0,"""Okay, great. So my windshield cracked on the highway and I'm hoping to get it fixed as soon as possible. Can you tell me how long this process typically takes?"""
+19,1,frustrated,complex,3.675,moderate,0.6,False,none,strong_negative_sentiment,5.25,0.0,I've been trying to file a claim online for hours but keep getting errors. This is unacceptable!
+19,2,frustrated,complex,2.275,low,0.6,False,none,,3.25,0.0,"""Of course! The error message says 'Invalid policy number' even though I know it's correct. Can you explain why this is happening and how to fix it?!!"""
+20,1,normal,simple,0.35,low,0.5,False,none,,0.5,0.0,When does my policy expire and how do I renew it?
+20,2,normal,simple,0.35,low,0.5,False,none,,0.5,0.0,"Oh, great! Can you please provide me with the exact expiration date so I can mark it on my calendar? Also, how far in advance should I renew it to ensure smooth coverage?"
+20,3,normal,simple,2.625,low,0.7,False,none,escalation_language,3.75,0.0,"Oh, okay! *glances at receipt* Yeah, I think I've got it. But what if I miss the renewal date? Can I still renew it late without any issues?"
