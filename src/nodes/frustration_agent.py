@@ -250,7 +250,16 @@ class FrustrationAgentNode:
         try:
             lines = llm_response.strip().split('\n')
             score_line = next((line for line in lines if 'score:' in line.lower()), "score: 5.0")
-            score = float(score_line.split(':')[1].strip())
+            
+            # Extract score - handle both "5.0" and "9/10" formats
+            score_text = score_line.split(':')[1].strip()
+            if '/' in score_text:
+                # Handle "9/10" format
+                numerator, denominator = score_text.split('/')
+                score = (float(numerator.strip()) / float(denominator.strip())) * 10.0
+            else:
+                # Handle "5.0" format
+                score = float(score_text)
 
             confidence_line = next((line for line in lines if 'confidence:' in line.lower()), "confidence: 0.7")
             confidence = float(confidence_line.split(':')[1].strip())
