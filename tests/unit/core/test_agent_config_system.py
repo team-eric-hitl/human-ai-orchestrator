@@ -3,18 +3,14 @@ Tests for the agent-centric configuration management system.
 Tests AgentConfigManager and agent configuration loading.
 """
 
-import json
-import os
 import tempfile
-import yaml
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
+import yaml
 
 from src.core.config import ConfigManager
 from src.core.config.agent_config_manager import AgentConfig, SystemConfig
-from src.core.logging.exceptions import ConfigurationError
 
 
 class TestAgentConfigManager:
@@ -25,7 +21,7 @@ class TestAgentConfigManager:
         """Create a temporary directory with agent-centric config structure"""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_dir = Path(temp_dir)
-            
+
             # Create directory structure
             (config_dir / "agents" / "answer_agent").mkdir(parents=True)
             (config_dir / "agents" / "evaluator_agent").mkdir(parents=True)
@@ -52,7 +48,7 @@ class TestAgentConfigManager:
                     }
                 }
             }
-            
+
             shared_system = {
                 "system": {
                     "name": "Test System",
@@ -79,12 +75,12 @@ class TestAgentConfigManager:
                     "max_tokens": 2000
                 }
             }
-            
+
             answer_agent_models = {
                 "preferred": "llama-7b",
                 "fallback": ["gpt-4"]
             }
-            
+
             answer_agent_prompts = {
                 "system_prompt": "You are a helpful assistant.",
                 "templates": {
@@ -106,7 +102,7 @@ class TestAgentConfigManager:
                     "max_tokens": 1500
                 }
             }
-            
+
             evaluator_agent_models = {
                 "preferred": "gpt-4",
                 "fallback": ["llama-7b"]
@@ -117,14 +113,14 @@ class TestAgentConfigManager:
                 yaml.dump(shared_models, f)
             with open(config_dir / "shared" / "system.yaml", "w") as f:
                 yaml.dump(shared_system, f)
-            
+
             with open(config_dir / "agents" / "answer_agent" / "config.yaml", "w") as f:
                 yaml.dump(answer_agent_config, f)
             with open(config_dir / "agents" / "answer_agent" / "prompts.yaml", "w") as f:
                 yaml.dump(answer_agent_prompts, f)
             with open(config_dir / "agents" / "answer_agent" / "models.yaml", "w") as f:
                 yaml.dump(answer_agent_models, f)
-            
+
             with open(config_dir / "agents" / "evaluator_agent" / "config.yaml", "w") as f:
                 yaml.dump(evaluator_agent_config, f)
             with open(config_dir / "agents" / "evaluator_agent" / "models.yaml", "w") as f:
@@ -141,7 +137,7 @@ class TestAgentConfigManager:
         """Test successful ConfigManager initialization"""
         assert config_manager is not None
         assert config_manager.config_dir is not None
-        
+
         # Check that agents are loaded
         available_agents = config_manager.get_available_agents()
         assert len(available_agents) == 2
@@ -165,7 +161,7 @@ class TestAgentConfigManager:
         assert answer_config.type == "llm_agent"
         assert answer_config.get_preferred_model() == "llama-7b"
         assert answer_config.get_fallback_models() == ["gpt-4"]
-        
+
         # Test evaluator agent
         evaluator_config = config_manager.get_agent_config("evaluator_agent")
         assert evaluator_config is not None
@@ -175,12 +171,12 @@ class TestAgentConfigManager:
     def test_agent_config_methods(self, config_manager):
         """Test agent configuration methods"""
         answer_config = config_manager.get_agent_config("answer_agent")
-        
+
         # Test get_setting
         assert answer_config.get_setting("temperature") == 0.7
         assert answer_config.get_setting("max_tokens") == 2000
         assert answer_config.get_setting("nonexistent", "default") == "default"
-        
+
         # Test get_prompt
         assert answer_config.get_prompt("system") == "You are a helpful assistant."
         assert answer_config.get_prompt("greeting") == "Hello! How can I help you?"
@@ -205,10 +201,10 @@ class TestAgentConfigManager:
         """Test primary model selection for agents"""
         answer_model = config_manager.get_primary_model_for_agent("answer_agent")
         assert answer_model == "llama-7b"
-        
+
         evaluator_model = config_manager.get_primary_model_for_agent("evaluator_agent")
         assert evaluator_model == "gpt-4"
-        
+
         # Test fallback for non-existent agent
         fallback_model = config_manager.get_primary_model_for_agent("nonexistent")
         assert fallback_model == "llama-7b"  # Should use global default
@@ -217,10 +213,10 @@ class TestAgentConfigManager:
         """Test threshold value access"""
         escalation_score = config_manager.get_threshold("escalation_score")
         assert escalation_score == 6.0
-        
+
         confidence_threshold = config_manager.get_threshold("confidence_threshold")
         assert confidence_threshold == 0.7
-        
+
         # Test default value
         nonexistent = config_manager.get_threshold("nonexistent", 5.0)
         assert nonexistent == 5.0
@@ -228,14 +224,14 @@ class TestAgentConfigManager:
     def test_configuration_summary(self, config_manager):
         """Test configuration summary generation"""
         summary = config_manager.get_summary()
-        
+
         assert "config_directory" in summary
         assert "environment" in summary
         assert "system_name" in summary
         assert "agents_loaded" in summary
         assert "agent_names" in summary
         assert "models_configured" in summary
-        
+
         assert summary["agents_loaded"] == 2
         assert "answer_agent" in summary["agent_names"]
         assert "evaluator_agent" in summary["agent_names"]
@@ -250,13 +246,13 @@ class TestAgentConfigManager:
                 "escalation_score": 5.0  # Override from 6.0
             }
         }
-        
+
         with open(temp_config_dir / "environments" / "development.yaml", "w") as f:
             yaml.dump(dev_config, f)
-        
+
         # Test with development environment
         config_manager = ConfigManager(str(temp_config_dir), environment="development")
-        
+
         # Should use overridden value
         escalation_score = config_manager.get_threshold("escalation_score")
         assert escalation_score == 5.0
@@ -271,7 +267,7 @@ class TestAgentConfigManager:
         # Initial state
         initial_summary = config_manager.get_summary()
         assert initial_summary["agents_loaded"] == 2
-        
+
         # Add a new agent
         new_agent_config = {
             "agent": {
@@ -280,27 +276,27 @@ class TestAgentConfigManager:
                 "type": "test_agent"
             }
         }
-        
+
         new_agent_models = {
             "preferred": "llama-7b"
         }
-        
+
         new_agent_dir = temp_config_dir / "agents" / "new_agent"
         new_agent_dir.mkdir()
-        
+
         with open(new_agent_dir / "config.yaml", "w") as f:
             yaml.dump(new_agent_config, f)
         with open(new_agent_dir / "models.yaml", "w") as f:
             yaml.dump(new_agent_models, f)
-        
+
         # Reload configuration
         config_manager.reload()
-        
+
         # Should reflect changes
         updated_summary = config_manager.get_summary()
         assert updated_summary["agents_loaded"] == 3
         assert "new_agent" in updated_summary["agent_names"]
-        
+
         # Should be able to access new agent
         new_agent = config_manager.get_agent_config("new_agent")
         assert new_agent is not None
@@ -322,7 +318,7 @@ class TestAgentConfig:
             behavior={"style": "friendly"},
             escalation={"threshold": 0.9}
         )
-        
+
         assert config.name == "test_agent"
         assert config.description == "Test agent"
         assert config.type == "test_type"
@@ -338,7 +334,7 @@ class TestAgentConfig:
             description="Minimal agent",
             type="minimal_type"
         )
-        
+
         assert config.name == "minimal_agent"
         assert config.get_preferred_model() == "local_general_standard"  # Default
         assert config.get_fallback_models() == []
@@ -358,7 +354,7 @@ class TestAgentConfig:
                 }
             }
         )
-        
+
         assert config.get_setting("nested.deep.value") == 42
         assert config.get_setting("nested.deep.nonexistent", "default") == "default"
 
@@ -376,7 +372,7 @@ class TestSystemConfig:
             providers={"test_provider": "config"},
             monitoring={"enabled": True}
         )
-        
+
         assert config.name == "Test System"
         assert config.version == "2.0.0"
         assert config.environment == "test"
@@ -385,7 +381,7 @@ class TestSystemConfig:
     def test_system_config_defaults(self):
         """Test SystemConfig with default values"""
         config = SystemConfig()
-        
+
         assert config.name == "Modular LangGraph Hybrid System"
         assert config.version == "1.0.0"
         assert config.config_schema_version == "1.0.0"
@@ -395,13 +391,13 @@ class TestSystemConfig:
 
 class TestVersioning:
     """Test suite for versioning functionality"""
-    
+
     @pytest.fixture
     def temp_config_dir_with_versions(self):
         """Create a temporary directory with versioned agent configs"""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_dir = Path(temp_dir)
-            
+
             # Create directory structure
             (config_dir / "agents" / "test_agent").mkdir(parents=True)
             (config_dir / "shared").mkdir(parents=True)
@@ -421,7 +417,7 @@ class TestVersioning:
                     "max_tokens": 2000
                 }
             }
-            
+
             # Create system config with versioning
             system_config = {
                 "system": {
@@ -447,19 +443,19 @@ class TestVersioning:
     def test_agent_version_validation(self, temp_config_dir_with_versions):
         """Test agent version validation"""
         config_manager = ConfigManager(str(temp_config_dir_with_versions))
-        
+
         # Test getting agent versions
         versions = config_manager.get_agent_versions()
         assert "test_agent" in versions
         assert versions["test_agent"] == "1.2.3"
-        
+
         # Test individual agent version
         assert config_manager.get_agent_version("test_agent") == "1.2.3"
         assert config_manager.get_agent_version("nonexistent") is None
-        
+
         # Test version validation
         assert config_manager.validate_all_agent_versions() is True
-        
+
         # Test agent config contains version info
         agent_config = config_manager.get_agent_config("test_agent")
         assert agent_config.version == "1.2.3"
@@ -469,7 +465,7 @@ class TestVersioning:
     def test_invalid_version_format(self, temp_config_dir_with_versions):
         """Test validation with invalid version format"""
         config_dir = temp_config_dir_with_versions
-        
+
         # Create agent with invalid version
         invalid_agent_config = {
             "agent": {
@@ -479,11 +475,11 @@ class TestVersioning:
                 "type": "test_agent"
             }
         }
-        
+
         (config_dir / "agents" / "invalid_agent").mkdir()
         with open(config_dir / "agents" / "invalid_agent" / "config.yaml", "w") as f:
             yaml.dump(invalid_agent_config, f)
-        
+
         # Should raise ConfigLoadError due to invalid version
         from src.core.config.agent_config_manager import ConfigLoadError
         with pytest.raises(ConfigLoadError, match="invalid version format"):

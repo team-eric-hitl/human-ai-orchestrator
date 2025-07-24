@@ -2,16 +2,14 @@
 Database configuration provider for centralized database management
 """
 
-import os
 from pathlib import Path
-from typing import Optional
 
 from .logging import get_logger
 
 
 class DatabaseConfig:
     """Centralized database configuration management"""
-    
+
     def __init__(self, config_manager=None):
         """
         Initialize database configuration
@@ -22,8 +20,8 @@ class DatabaseConfig:
         self.config_manager = config_manager
         self.logger = get_logger(__name__)
         self._ensure_data_directory()
-    
-    def get_db_path(self, db_name: Optional[str] = None) -> str:
+
+    def get_db_path(self, db_name: str | None = None) -> str:
         """
         Get full database path with centralized storage directory
         
@@ -42,19 +40,19 @@ class DatabaseConfig:
                 # Fallback configuration
                 storage_dir = 'data'
                 default_db_name = 'hybrid_system.db'
-            
+
             db_name = db_name or default_db_name
-            
+
             # Handle special case for in-memory databases
             if db_name == ':memory:':
                 return ':memory:'
-            
+
             # Ensure storage directory exists
             storage_path = Path(storage_dir)
             storage_path.mkdir(parents=True, exist_ok=True)
-            
+
             db_path = storage_path / db_name
-            
+
             self.logger.debug(
                 "Database path resolved",
                 extra={
@@ -64,9 +62,9 @@ class DatabaseConfig:
                     "operation": "get_db_path"
                 }
             )
-            
+
             return str(db_path)
-            
+
         except Exception as e:
             self.logger.error(
                 "Failed to resolve database path",
@@ -78,8 +76,8 @@ class DatabaseConfig:
             )
             # Fallback to simple path
             return db_name or "hybrid_system.db"
-    
-    def get_backup_path(self, db_name: Optional[str] = None) -> str:
+
+    def get_backup_path(self, db_name: str | None = None) -> str:
         """
         Get backup directory path for database
         
@@ -95,12 +93,12 @@ class DatabaseConfig:
                 storage_dir = getattr(config.providers.context, 'storage_directory', 'data')
             else:
                 storage_dir = 'data'
-            
+
             backup_dir = Path(storage_dir) / 'backups'
             backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             return str(backup_dir)
-            
+
         except Exception as e:
             self.logger.error(
                 "Failed to resolve backup path",
@@ -111,7 +109,7 @@ class DatabaseConfig:
                 }
             )
             return "data/backups"
-    
+
     def _ensure_data_directory(self):
         """Ensure the data directory exists"""
         try:
@@ -120,9 +118,9 @@ class DatabaseConfig:
                 storage_dir = getattr(config.providers.context, 'storage_directory', 'data')
             else:
                 storage_dir = 'data'
-            
+
             Path(storage_dir).mkdir(parents=True, exist_ok=True)
-            
+
         except Exception as e:
             self.logger.warning(
                 "Failed to ensure data directory",
@@ -131,8 +129,8 @@ class DatabaseConfig:
                     "operation": "_ensure_data_directory"
                 }
             )
-    
-    def migrate_database(self, old_path: str, new_path: Optional[str] = None) -> bool:
+
+    def migrate_database(self, old_path: str, new_path: str | None = None) -> bool:
         """
         Migrate database from old location to new centralized location
         
@@ -154,12 +152,12 @@ class DatabaseConfig:
                     }
                 )
                 return False
-            
+
             if new_path is None:
                 new_path = self.get_db_path(old_db.name)
-            
+
             new_db = Path(new_path)
-            
+
             # Don't migrate if paths are the same
             if old_db.resolve() == new_db.resolve():
                 self.logger.info(
@@ -170,14 +168,14 @@ class DatabaseConfig:
                     }
                 )
                 return True
-            
+
             # Ensure target directory exists
             new_db.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Copy the database file
             import shutil
             shutil.copy2(old_db, new_db)
-            
+
             self.logger.info(
                 "Database migrated successfully",
                 extra={
@@ -186,9 +184,9 @@ class DatabaseConfig:
                     "operation": "migrate_database"
                 }
             )
-            
+
             return True
-            
+
         except Exception as e:
             self.logger.error(
                 "Failed to migrate database",
@@ -200,7 +198,7 @@ class DatabaseConfig:
                 }
             )
             return False
-    
+
     def cleanup_old_databases(self, old_paths: list[str], keep_backups: bool = True) -> bool:
         """
         Clean up old database files after migration
@@ -217,12 +215,12 @@ class DatabaseConfig:
             if keep_backups:
                 backup_dir = Path(self.get_backup_path()) / 'migration_backups'
                 backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             for old_path in old_paths:
                 old_db = Path(old_path)
                 if not old_db.exists():
                     continue
-                
+
                 if keep_backups:
                     backup_path = backup_dir / old_db.name
                     import shutil
@@ -235,7 +233,7 @@ class DatabaseConfig:
                             "operation": "cleanup_old_databases"
                         }
                     )
-                
+
                 old_db.unlink()
                 self.logger.info(
                     "Old database file removed",
@@ -244,9 +242,9 @@ class DatabaseConfig:
                         "operation": "cleanup_old_databases"
                     }
                 )
-            
+
             return True
-            
+
         except Exception as e:
             self.logger.error(
                 "Failed to cleanup old databases",

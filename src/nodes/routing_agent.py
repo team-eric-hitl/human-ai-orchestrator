@@ -3,17 +3,17 @@ Routing Agent Node
 Responsibility: Select the best human agent for escalations, balancing workload and employee experience
 """
 
-from typing import Dict, Any, List, Optional
-from enum import Enum
 from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 from langsmith import traceable
 
+from ..core.config import ConfigManager
 from ..core.logging import get_logger
 from ..integrations.llm_providers import LLMProviderFactory
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
-from ..core.config import ConfigManager
 
 
 class RoutingStrategy(Enum):
@@ -40,7 +40,7 @@ class RoutingAgentNode:
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
-        
+
         # Load human agent data
         self.human_agents = self._load_human_agents()
         self.routing_history = []  # Track routing decisions
@@ -49,12 +49,12 @@ class RoutingAgentNode:
         """Initialize LLM provider for intelligent routing decisions"""
         try:
             factory = LLMProviderFactory(self.config_manager.config_dir)
-            
+
             preferred_model = self.agent_config.get_preferred_model()
             provider = factory.create_provider_with_fallback(
                 preferred_model=preferred_model
             )
-            
+
             self.logger.info(
                 "Routing Agent LLM provider initialized",
                 extra={
@@ -72,9 +72,9 @@ class RoutingAgentNode:
             )
             return None
 
-    def _load_human_agents(self) -> List[Dict[str, Any]]:
+    def _load_human_agents(self) -> list[dict[str, Any]]:
         """Load human agent data from configuration"""
-        
+
         # This would typically come from a database or HR system
         default_agents = [
             {
@@ -103,7 +103,7 @@ class RoutingAgentNode:
                 "consecutive_difficult_cases": 0,
             },
             {
-                "id": "agent_002", 
+                "id": "agent_002",
                 "name": "Mike Chen",
                 "email": "mike.chen@company.com",
                 "status": AgentStatus.AVAILABLE.value,
@@ -130,7 +130,7 @@ class RoutingAgentNode:
             {
                 "id": "agent_003",
                 "name": "Emily Rodriguez",
-                "email": "emily.rodriguez@company.com", 
+                "email": "emily.rodriguez@company.com",
                 "status": AgentStatus.BUSY.value,
                 "skills": ["technical", "product_support", "integrations"],
                 "skill_level": "senior",
@@ -153,15 +153,15 @@ class RoutingAgentNode:
                 "consecutive_difficult_cases": 0,
             },
         ]
-        
+
         # Load from config or use defaults
         agents = self.agent_config.settings.get("human_agents", default_agents)
-        
+
         # Ensure datetime objects for date fields
         for agent in agents:
             if agent.get("last_frustration_assignment") and isinstance(agent["last_frustration_assignment"], str):
                 agent["last_frustration_assignment"] = datetime.fromisoformat(agent["last_frustration_assignment"])
-        
+
         return agents
 
     @traceable(name="Routing Agent")
@@ -169,35 +169,35 @@ class RoutingAgentNode:
         """
         Main routing function - select best human agent for escalation
         """
-        
+
         # Determine routing requirements
         routing_requirements = self._analyze_routing_requirements(state)
-        
+
         # Get available agents
         available_agents = self._get_available_agents()
-        
+
         if not available_agents:
             return self._handle_no_agents_available(state, routing_requirements)
-        
+
         # Apply routing strategy
         routing_strategy = self._determine_routing_strategy(routing_requirements)
         selected_agent = self._select_agent(
             available_agents, routing_requirements, routing_strategy
         )
-        
+
         # Consider employee wellbeing factors
         final_agent = self._apply_wellbeing_considerations(
             selected_agent, available_agents, routing_requirements
         )
-        
+
         # Update agent workload and routing history
         self._update_agent_assignment(final_agent, routing_requirements)
-        
+
         # Create routing decision record
         routing_decision = self._create_routing_decision(
             state, final_agent, routing_requirements, routing_strategy
         )
-        
+
         # Log routing decision
         self._log_routing_decision(state, routing_decision)
 
@@ -209,28 +209,28 @@ class RoutingAgentNode:
             "next_action": "transfer_to_human",
         }
 
-    def _analyze_routing_requirements(self, state: HybridSystemState) -> Dict[str, Any]:
+    def _analyze_routing_requirements(self, state: HybridSystemState) -> dict[str, Any]:
         """Analyze the escalation to determine routing requirements"""
-        
+
         query = state.get("query", "")
         escalation_reason = state.get("escalation_reason", "")
         frustration_analysis = state.get("frustration_analysis", {})
         quality_assessment = state.get("quality_assessment", {})
-        
+
         # Determine required skills
         required_skills = self._identify_required_skills(query, escalation_reason)
-        
+
         # Determine priority level
         priority = self._calculate_escalation_priority(
             frustration_analysis, quality_assessment, state
         )
-        
+
         # Determine complexity level
         complexity = self._assess_case_complexity(query, state)
-        
+
         # Check for special requirements
         special_requirements = self._identify_special_requirements(query, state)
-        
+
         return {
             "required_skills": required_skills,
             "priority": priority,
@@ -241,11 +241,11 @@ class RoutingAgentNode:
             "escalation_type": self._classify_escalation_type(escalation_reason),
         }
 
-    def _identify_required_skills(self, query: str, escalation_reason: str) -> List[str]:
+    def _identify_required_skills(self, query: str, escalation_reason: str) -> list[str]:
         """Identify what skills are needed for this escalation"""
-        
+
         combined_text = f"{query} {escalation_reason}".lower()
-        
+
         # Skill keyword mapping
         skill_keywords = self.agent_config.settings.get("skill_keywords", {
             "technical": [
@@ -269,27 +269,27 @@ class RoutingAgentNode:
                 "regulation", "legal", "policy"
             ],
         })
-        
+
         required_skills = []
         for skill, keywords in skill_keywords.items():
             if any(keyword in combined_text for keyword in keywords):
                 required_skills.append(skill)
-        
+
         # Default to general if no specific skills identified
         if not required_skills:
             required_skills = ["general"]
-        
+
         return required_skills
 
     def _calculate_escalation_priority(
-        self, frustration_analysis: Dict[str, Any], 
-        quality_assessment: Dict[str, Any], 
+        self, frustration_analysis: dict[str, Any],
+        quality_assessment: dict[str, Any],
         state: HybridSystemState
     ) -> str:
         """Calculate priority level for the escalation"""
-        
+
         priority_score = 0
-        
+
         # Frustration level contribution
         frustration_level = frustration_analysis.get("overall_level", "low")
         frustration_scores = {
@@ -299,29 +299,29 @@ class RoutingAgentNode:
             "low": 1,
         }
         priority_score += frustration_scores.get(frustration_level, 1)
-        
+
         # Quality assessment contribution
         quality_score = quality_assessment.get("overall_score", 7.0)
         if quality_score < 4.0:
             priority_score += 2
         elif quality_score < 6.0:
             priority_score += 1
-        
+
         # Context-based factors
         context_summary = self.context_provider.get_context_summary(
             state["user_id"], state["session_id"]
         )
-        
+
         # Previous escalations increase priority
         escalation_count = context_summary.get("escalation_count", 0)
         if escalation_count > 1:
             priority_score += min(escalation_count, 3)
-        
+
         # Frequent interactions might indicate urgency
         interaction_count = context_summary.get("entries_count", 0)
         if interaction_count > 5:
             priority_score += 1
-        
+
         # Convert score to priority level
         if priority_score >= 7:
             return "critical"
@@ -334,7 +334,7 @@ class RoutingAgentNode:
 
     def _assess_case_complexity(self, query: str, state: HybridSystemState) -> str:
         """Assess the complexity of the case"""
-        
+
         complexity_indicators = {
             "high": [
                 "integration", "api", "enterprise", "custom", "multiple",
@@ -345,62 +345,62 @@ class RoutingAgentNode:
                 "features", "workflow", "reporting"
             ],
         }
-        
+
         query_lower = query.lower()
-        
+
         for level, indicators in complexity_indicators.items():
             if any(indicator in query_lower for indicator in indicators):
                 return level
-        
+
         # Check query length as complexity indicator
         if len(query) > 500:
             return "medium"
-        
+
         return "low"
 
-    def _identify_special_requirements(self, query: str, state: HybridSystemState) -> List[str]:
+    def _identify_special_requirements(self, query: str, state: HybridSystemState) -> list[str]:
         """Identify any special requirements for routing"""
-        
+
         requirements = []
         query_lower = query.lower()
-        
+
         # Language requirements
         language_indicators = {
             "spanish": ["en español", "habla español", "spanish"],
             "french": ["en français", "french", "français"],
             "german": ["auf deutsch", "german", "deutsch"],
         }
-        
+
         for language, indicators in language_indicators.items():
             if any(indicator in query_lower for indicator in indicators):
                 requirements.append(f"language_{language}")
-        
+
         # Time sensitivity
         urgency_indicators = [
             "urgent", "asap", "immediately", "emergency", "critical",
             "deadline", "time sensitive", "right now"
         ]
-        
+
         if any(indicator in query_lower for indicator in urgency_indicators):
             requirements.append("time_sensitive")
-        
+
         # VIP customer (would come from customer data)
         # This is a placeholder - in reality, you'd check customer tier/status
         requirements.append("standard_customer")  # or "vip_customer"
-        
+
         return requirements
 
-    def _estimate_resolution_time(self, complexity: str, skills: List[str]) -> int:
+    def _estimate_resolution_time(self, complexity: str, skills: list[str]) -> int:
         """Estimate resolution time in minutes"""
-        
+
         base_times = {
             "low": 15,
             "medium": 30,
             "high": 60,
         }
-        
+
         base_time = base_times.get(complexity, 30)
-        
+
         # Adjust for skill complexity
         skill_multipliers = {
             "technical": 1.5,
@@ -408,16 +408,16 @@ class RoutingAgentNode:
             "billing": 1.2,
             "general": 1.0,
         }
-        
+
         max_multiplier = max(skill_multipliers.get(skill, 1.0) for skill in skills)
-        
+
         return int(base_time * max_multiplier)
 
     def _classify_escalation_type(self, escalation_reason: str) -> str:
         """Classify the type of escalation"""
-        
+
         reason_lower = escalation_reason.lower()
-        
+
         if "frustration" in reason_lower:
             return "frustration_based"
         elif "quality" in reason_lower or "inadequate" in reason_lower:
@@ -429,53 +429,53 @@ class RoutingAgentNode:
         else:
             return "general_escalation"
 
-    def _get_available_agents(self) -> List[Dict[str, Any]]:
+    def _get_available_agents(self) -> list[dict[str, Any]]:
         """Get list of available human agents"""
-        
+
         available = []
         current_time = datetime.now()
-        
+
         for agent in self.human_agents:
             # Check basic availability
             if agent["status"] != AgentStatus.AVAILABLE.value:
                 continue
-            
+
             # Check workload capacity
             if agent["current_workload"] >= agent["max_concurrent"]:
                 continue
-            
+
             # Check working hours (simplified)
             # In production, this would be more sophisticated
             available.append(agent)
-        
+
         return available
 
-    def _determine_routing_strategy(self, requirements: Dict[str, Any]) -> RoutingStrategy:
+    def _determine_routing_strategy(self, requirements: dict[str, Any]) -> RoutingStrategy:
         """Determine which routing strategy to use"""
-        
+
         priority = requirements["priority"]
         complexity = requirements["complexity"]
         frustration_level = requirements["customer_frustration_level"]
-        
+
         # High priority or critical frustration -> skill-based routing
         if priority in ["critical", "high"] or frustration_level in ["critical", "high"]:
             return RoutingStrategy.SKILL_BASED
-        
+
         # High complexity -> skill-based routing
         if complexity == "high":
             return RoutingStrategy.SKILL_BASED
-        
+
         # Otherwise, balance workload and employee wellbeing
         return RoutingStrategy.EMPLOYEE_WELLBEING
 
     def _select_agent(
-        self, 
-        available_agents: List[Dict[str, Any]], 
-        requirements: Dict[str, Any],
+        self,
+        available_agents: list[dict[str, Any]],
+        requirements: dict[str, Any],
         strategy: RoutingStrategy
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Select best agent based on strategy"""
-        
+
         if strategy == RoutingStrategy.SKILL_BASED:
             return self._skill_based_selection(available_agents, requirements)
         elif strategy == RoutingStrategy.WORKLOAD_BALANCED:
@@ -487,68 +487,68 @@ class RoutingAgentNode:
             return self._skill_based_selection(available_agents, requirements)
 
     def _skill_based_selection(
-        self, agents: List[Dict[str, Any]], requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agents: list[dict[str, Any]], requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Select agent based on skill matching"""
-        
+
         required_skills = requirements["required_skills"]
         complexity = requirements["complexity"]
-        
+
         # Score agents based on skill match
         scored_agents = []
         for agent in agents:
             score = 0
-            
+
             # Skill matching
             agent_skills = agent["skills"]
             skill_matches = len(set(required_skills) & set(agent_skills))
             score += skill_matches * 10
-            
+
             # Skill level bonus for complex cases
             if complexity in ["medium", "high"] and agent["skill_level"] == "senior":
                 score += 5
-            
+
             # Performance metrics
             score += agent["performance_metrics"]["customer_satisfaction"] * 2
             score -= agent["performance_metrics"]["escalation_rate"] * 10
-            
+
             # Availability (lower workload is better)
             workload_ratio = agent["current_workload"] / agent["max_concurrent"]
             score += (1 - workload_ratio) * 5
-            
+
             scored_agents.append((agent, score))
-        
+
         # Return highest scoring agent
         scored_agents.sort(key=lambda x: x[1], reverse=True)
         return scored_agents[0][0] if scored_agents else agents[0]
 
-    def _workload_balanced_selection(self, agents: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _workload_balanced_selection(self, agents: list[dict[str, Any]]) -> dict[str, Any]:
         """Select agent with lowest current workload"""
-        
+
         return min(agents, key=lambda x: x["current_workload"])
 
     def _wellbeing_based_selection(
-        self, agents: List[Dict[str, Any]], requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agents: list[dict[str, Any]], requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Select agent considering employee wellbeing factors"""
-        
+
         frustration_level = requirements["customer_frustration_level"]
-        
+
         # Score agents considering wellbeing
         scored_agents = []
         for agent in agents:
             score = 0
-            
+
             # Basic skill matching
             required_skills = requirements["required_skills"]
             agent_skills = agent["skills"]
             skill_matches = len(set(required_skills) & set(agent_skills))
             score += skill_matches * 5
-            
+
             # Workload consideration
             workload_ratio = agent["current_workload"] / agent["max_concurrent"]
             score += (1 - workload_ratio) * 10
-            
+
             # Frustration tolerance for frustrated customers
             if frustration_level in ["high", "critical"]:
                 if agent["frustration_tolerance"] == "high":
@@ -556,12 +556,12 @@ class RoutingAgentNode:
                 elif agent["frustration_tolerance"] == "medium":
                     score += 3
                 # Low tolerance gets no bonus
-            
+
             # Avoid overloading with difficult cases
             consecutive_difficult = agent.get("consecutive_difficult_cases", 0)
             if consecutive_difficult >= 2:
                 score -= 5
-            
+
             # Time since last frustration case
             last_frustration = agent.get("last_frustration_assignment")
             if last_frustration and frustration_level in ["high", "critical"]:
@@ -570,51 +570,51 @@ class RoutingAgentNode:
                     score -= 3
                 elif hours_since > 4:  # More than 4 hours ago
                     score += 2
-            
+
             scored_agents.append((agent, score))
-        
+
         # Return highest scoring agent
         scored_agents.sort(key=lambda x: x[1], reverse=True)
         return scored_agents[0][0] if scored_agents else agents[0]
 
     def _apply_wellbeing_considerations(
-        self, 
-        selected_agent: Dict[str, Any], 
-        available_agents: List[Dict[str, Any]], 
-        requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self,
+        selected_agent: dict[str, Any],
+        available_agents: list[dict[str, Any]],
+        requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply final wellbeing checks and potentially re-route"""
-        
+
         frustration_level = requirements["customer_frustration_level"]
-        
+
         # Check if selected agent has too many consecutive difficult cases
         consecutive_difficult = selected_agent.get("consecutive_difficult_cases", 0)
-        
+
         if frustration_level in ["high", "critical"] and consecutive_difficult >= 3:
             # Try to find an alternative agent
             alternatives = [
                 agent for agent in available_agents
-                if agent["id"] != selected_agent["id"] 
+                if agent["id"] != selected_agent["id"]
                 and agent.get("consecutive_difficult_cases", 0) < 2
                 and agent["frustration_tolerance"] in ["medium", "high"]
             ]
-            
+
             if alternatives:
                 # Select best alternative
                 return self._skill_based_selection(alternatives, requirements)
-        
+
         return selected_agent
 
     def _update_agent_assignment(
-        self, agent: Dict[str, Any], requirements: Dict[str, Any]
+        self, agent: dict[str, Any], requirements: dict[str, Any]
     ):
         """Update agent workload and tracking data"""
-        
+
         # Update workload
         for stored_agent in self.human_agents:
             if stored_agent["id"] == agent["id"]:
                 stored_agent["current_workload"] += 1
-                
+
                 # Update frustration tracking if this is a frustrated customer
                 frustration_level = requirements["customer_frustration_level"]
                 if frustration_level in ["high", "critical"]:
@@ -623,18 +623,18 @@ class RoutingAgentNode:
                 else:
                     # Reset consecutive difficult cases for easy case
                     stored_agent["consecutive_difficult_cases"] = 0
-                
+
                 break
 
     def _create_routing_decision(
-        self, 
-        state: HybridSystemState, 
-        agent: Dict[str, Any], 
-        requirements: Dict[str, Any],
+        self,
+        state: HybridSystemState,
+        agent: dict[str, Any],
+        requirements: dict[str, Any],
         strategy: RoutingStrategy
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create routing decision record"""
-        
+
         return {
             "assigned_agent_id": agent["id"],
             "assigned_agent_name": agent["name"],
@@ -646,28 +646,28 @@ class RoutingAgentNode:
             "routing_timestamp": datetime.now().isoformat(),
             "routing_confidence": self._calculate_routing_confidence(agent, requirements),
             "alternative_agents": [
-                {"id": a["id"], "name": a["name"]} 
+                {"id": a["id"], "name": a["name"]}
                 for a in self._get_available_agents()[:3]
                 if a["id"] != agent["id"]
             ],
         }
 
-    def _calculate_match_score(self, agent: Dict[str, Any], requirements: Dict[str, Any]) -> float:
+    def _calculate_match_score(self, agent: dict[str, Any], requirements: dict[str, Any]) -> float:
         """Calculate how well the agent matches the requirements"""
-        
+
         score = 0.0
         max_score = 0.0
-        
+
         # Skill matching
         required_skills = requirements["required_skills"]
         agent_skills = agent["skills"]
         skill_matches = len(set(required_skills) & set(agent_skills))
         skill_total = len(required_skills)
-        
+
         if skill_total > 0:
             score += (skill_matches / skill_total) * 40
         max_score += 40
-        
+
         # Experience level matching
         complexity = requirements["complexity"]
         if complexity == "high" and agent["skill_level"] == "senior":
@@ -677,44 +677,44 @@ class RoutingAgentNode:
         elif complexity == "low":
             score += 10
         max_score += 20
-        
+
         # Workload appropriateness
         workload_ratio = agent["current_workload"] / agent["max_concurrent"]
         score += (1 - workload_ratio) * 20
         max_score += 20
-        
+
         # Performance metrics
         score += agent["performance_metrics"]["customer_satisfaction"] * 4
         max_score += 20
-        
+
         return (score / max_score) * 100 if max_score > 0 else 0
 
-    def _calculate_routing_confidence(self, agent: Dict[str, Any], requirements: Dict[str, Any]) -> float:
+    def _calculate_routing_confidence(self, agent: dict[str, Any], requirements: dict[str, Any]) -> float:
         """Calculate confidence in the routing decision"""
-        
+
         match_score = self._calculate_match_score(agent, requirements)
-        
+
         # High match score = high confidence
         base_confidence = match_score / 100
-        
+
         # Adjust for availability
         workload_ratio = agent["current_workload"] / agent["max_concurrent"]
         if workload_ratio < 0.5:
             base_confidence += 0.1
         elif workload_ratio > 0.8:
             base_confidence -= 0.1
-        
+
         # Adjust for agent performance
         if agent["performance_metrics"]["customer_satisfaction"] > 4.5:
             base_confidence += 0.05
-        
+
         return min(1.0, max(0.0, base_confidence))
 
     def _handle_no_agents_available(
-        self, state: HybridSystemState, requirements: Dict[str, Any]
+        self, state: HybridSystemState, requirements: dict[str, Any]
     ) -> HybridSystemState:
         """Handle case when no agents are available"""
-        
+
         self.logger.warning(
             "No human agents available for escalation",
             extra={
@@ -724,7 +724,7 @@ class RoutingAgentNode:
                 "required_skills": requirements["required_skills"],
             },
         )
-        
+
         # Create queue entry
         queue_entry = {
             "queue_position": self._get_queue_position(),
@@ -733,7 +733,7 @@ class RoutingAgentNode:
             "requirements": requirements,
             "queued_timestamp": datetime.now().isoformat(),
         }
-        
+
         return {
             **state,
             "routing_decision": {
@@ -755,9 +755,9 @@ class RoutingAgentNode:
         # In production, this would consider actual queue length and agent availability
         return 15
 
-    def _log_routing_decision(self, state: HybridSystemState, decision: Dict[str, Any]):
+    def _log_routing_decision(self, state: HybridSystemState, decision: dict[str, Any]):
         """Log routing decision for monitoring and analytics"""
-        
+
         self.logger.info(
             "Routing decision completed",
             extra={
@@ -772,7 +772,7 @@ class RoutingAgentNode:
                 "estimated_resolution_time": decision.get("estimated_resolution_time"),
             },
         )
-        
+
         # Add to routing history for queue management
         self.routing_history.append({
             "timestamp": datetime.now(),

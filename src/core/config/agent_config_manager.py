@@ -56,7 +56,7 @@ class AgentConfig:
             # Legacy fallback
             fallbacks = self.models.get('fallback', [])
         return [self._resolve_model_alias(model, model_aliases) for model in fallbacks]
-    
+
     def _resolve_model_alias(self, model_name: str, model_aliases: dict[str, str] = None) -> str:
         """Resolve a model alias to its actual model name"""
         if model_aliases and model_name in model_aliases:
@@ -102,7 +102,7 @@ class AgentConfig:
         # First check if the prompt exists directly in prompts
         if prompt_type in self.prompts:
             return self.prompts[prompt_type]
-        
+
         # For backward compatibility, check for system_prompt specifically
         if prompt_type == 'system':
             return self.prompts.get('system_prompt', f'You are a {self.name} assistant.')
@@ -111,7 +111,7 @@ class AgentConfig:
         templates = self.prompts.get('templates', {})
         if prompt_type in templates:
             return templates[prompt_type]
-            
+
         # Return default
         fallback_default = default if default is not None else f'Default {prompt_type} prompt for {self.name}'
         return fallback_default
@@ -256,7 +256,7 @@ class AgentConfigManager:
 
             # Use only models.yaml for model configuration (config.yaml models section removed)
             merged_models = models_data
-            
+
             # Create agent config
             agent_section = config_data.get('agent', {})
             agent_config = AgentConfig(
@@ -274,7 +274,7 @@ class AgentConfigManager:
                 evaluation=config_data.get('evaluation', {}),
                 routing=config_data.get('routing', {})
             )
-            
+
             # Validate agent version if enabled
             if self.validate_versions:
                 self._validate_agent_version(agent_config)
@@ -290,12 +290,12 @@ class AgentConfigManager:
         """Validate agent version against system requirements"""
         if not agent_config.version:
             raise ConfigLoadError(f"Agent {agent_config.name} missing version field")
-        
+
         # Validate version format (basic semantic versioning check)
         version_parts = agent_config.version.split('.')
         if len(version_parts) != 3 or not all(part.isdigit() for part in version_parts):
             raise ConfigLoadError(f"Agent {agent_config.name} has invalid version format: {agent_config.version}")
-        
+
         self.logger.debug(f"Agent {agent_config.name} version {agent_config.version} validated")
 
     def _apply_environment_overrides(self) -> None:
@@ -346,22 +346,22 @@ class AgentConfigManager:
     def get_providers_config(self) -> dict[str, Any]:
         """Get providers configuration"""
         return self._providers_config
-    
+
     def get_model_aliases(self) -> dict[str, str]:
         """Get model aliases mapping"""
         return self._model_aliases
-    
+
     def resolve_model_name(self, model_alias: str) -> str:
         """Resolve a model alias to its actual model name"""
         return self._model_aliases.get(model_alias, model_alias)
-    
+
     def get_agent_preferred_model(self, agent_name: str) -> str:
         """Get the resolved preferred model for an agent"""
         agent = self.get_agent_config(agent_name)
         if agent:
             return agent.get_preferred_model(self._model_aliases)
         return 'local_general_standard'
-    
+
     def get_agent_fallback_models(self, agent_name: str) -> list[str]:
         """Get the resolved fallback models for an agent"""
         agent = self.get_agent_config(agent_name)

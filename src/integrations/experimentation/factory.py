@@ -5,7 +5,6 @@ This module provides a factory pattern for creating experimentation providers
 with support for different implementations (custom, DSPy, promptfoo, etc.)
 """
 
-from typing import Dict, List, Optional, Type
 
 from ...core.config import ConfigManager
 from ...core.logging import get_logger
@@ -21,7 +20,7 @@ class ExperimentationFactory:
     This factory follows the same pattern as LLMProviderFactory, allowing
     easy swapping between different experimentation implementations.
     """
-    
+
     def __init__(
         self,
         config_manager: ConfigManager,
@@ -39,15 +38,15 @@ class ExperimentationFactory:
         self.session_tracker = session_tracker
         self.llm_factory = llm_factory
         self.logger = get_logger("experimentation.factory")
-        
+
         # Registry of available experimenter implementations
-        self._experimenters: Dict[str, Type[ExperimentationInterface]] = {
+        self._experimenters: dict[str, type[ExperimentationInterface]] = {
             "custom": CustomExperimenter,
             # Future implementations can be added here:
             # "dspy": DSPyExperimenter,
             # "promptfoo": PromptfooExperimenter,
         }
-        
+
         self.logger.info(
             "Experimentation factory initialized",
             extra={
@@ -55,7 +54,7 @@ class ExperimentationFactory:
                 "config_dir": config_manager.config_dir
             }
         )
-    
+
     def create_experimenter(
         self,
         provider_type: str = "custom",
@@ -79,9 +78,9 @@ class ExperimentationFactory:
                 f"Unsupported experimenter type: {provider_type}. "
                 f"Available types: {available}"
             )
-        
+
         experimenter_class = self._experimenters[provider_type]
-        
+
         self.logger.info(
             f"Creating experimenter: {provider_type}",
             extra={
@@ -89,7 +88,7 @@ class ExperimentationFactory:
                 "experimenter_class": experimenter_class.__name__
             }
         )
-        
+
         if provider_type == "custom":
             return experimenter_class(
                 config_manager=self.config_manager,
@@ -118,7 +117,7 @@ class ExperimentationFactory:
                 llm_factory=self.llm_factory,
                 **kwargs
             )
-    
+
     def create_auto_experimenter(self) -> ExperimentationInterface:
         """Create experimenter using automatic selection
         
@@ -132,7 +131,7 @@ class ExperimentationFactory:
         # Check system config for experimentation provider setting
         system_config = self.config_manager.get_system_config()
         preferred_experimenter = system_config.providers.get("experimentation", "custom")
-        
+
         # Check if preferred experimenter is available
         if preferred_experimenter in self._experimenters:
             self.logger.info(
@@ -140,7 +139,7 @@ class ExperimentationFactory:
                 extra={"provider_type": preferred_experimenter}
             )
             return self.create_experimenter(preferred_experimenter)
-        
+
         # Fallback to custom experimenter
         self.logger.warning(
             f"Preferred experimenter '{preferred_experimenter}' not available, "
@@ -151,11 +150,11 @@ class ExperimentationFactory:
             }
         )
         return self.create_experimenter("custom")
-    
+
     def create_experimenter_with_fallback(
         self,
         preferred_type: str = "custom",
-        fallback_types: Optional[List[str]] = None
+        fallback_types: list[str] | None = None
     ) -> ExperimentationInterface:
         """Create experimenter with fallback options
         
@@ -174,10 +173,10 @@ class ExperimentationFactory:
         """
         if fallback_types is None:
             fallback_types = ["custom"]
-        
+
         # Try preferred type first
         experimenters_to_try = [preferred_type] + fallback_types
-        
+
         for experimenter_type in experimenters_to_try:
             if experimenter_type in self._experimenters:
                 try:
@@ -195,16 +194,16 @@ class ExperimentationFactory:
                         }
                     )
                     continue
-        
+
         # If all experimenters failed
         raise ValueError(
             f"No working experimenters available. Tried: {experimenters_to_try}"
         )
-    
+
     def register_experimenter(
         self,
         name: str,
-        experimenter_class: Type[ExperimentationInterface]
+        experimenter_class: type[ExperimentationInterface]
     ):
         """Register a new experimenter implementation
         
@@ -220,14 +219,14 @@ class ExperimentationFactory:
         """
         if name in self._experimenters:
             raise ValueError(f"Experimenter '{name}' already registered")
-        
+
         if not issubclass(experimenter_class, ExperimentationInterface):
             raise ValueError(
-                f"Experimenter class must implement ExperimentationInterface"
+                "Experimenter class must implement ExperimentationInterface"
             )
-        
+
         self._experimenters[name] = experimenter_class
-        
+
         self.logger.info(
             f"Registered experimenter: {name}",
             extra={
@@ -235,16 +234,16 @@ class ExperimentationFactory:
                 "class": experimenter_class.__name__
             }
         )
-    
-    def get_available_experimenters(self) -> List[str]:
+
+    def get_available_experimenters(self) -> list[str]:
         """Get list of available experimenter types
         
         Returns:
             List of experimenter type names
         """
         return list(self._experimenters.keys())
-    
-    def get_experimenter_info(self, experimenter_type: str) -> Dict[str, any]:
+
+    def get_experimenter_info(self, experimenter_type: str) -> dict[str, any]:
         """Get information about a specific experimenter
         
         Args:
@@ -258,16 +257,16 @@ class ExperimentationFactory:
         """
         if experimenter_type not in self._experimenters:
             raise ValueError(f"Experimenter type '{experimenter_type}' not available")
-        
+
         experimenter_class = self._experimenters[experimenter_type]
-        
+
         return {
             "name": experimenter_type,
             "class": experimenter_class.__name__,
             "module": experimenter_class.__module__,
             "available": True
         }
-    
+
     def validate_experimenter_config(self, experimenter_type: str) -> bool:
         """Validate configuration for a specific experimenter type
         
@@ -279,7 +278,7 @@ class ExperimentationFactory:
         """
         if experimenter_type not in self._experimenters:
             return False
-        
+
         try:
             # Try to create a test instance
             experimenter = self.create_experimenter(experimenter_type)
@@ -303,7 +302,7 @@ def create_experimenter_from_config(
     config_manager: ConfigManager,
     session_tracker: SessionTracker,
     llm_factory: LLMProviderFactory,
-    experimenter_type: Optional[str] = None
+    experimenter_type: str | None = None
 ) -> ExperimentationInterface:
     """Create experimenter from configuration
     
@@ -319,7 +318,7 @@ def create_experimenter_from_config(
         ExperimentationInterface implementation
     """
     factory = ExperimentationFactory(config_manager, session_tracker, llm_factory)
-    
+
     if experimenter_type:
         return factory.create_experimenter(experimenter_type)
     else:
@@ -328,7 +327,7 @@ def create_experimenter_from_config(
 
 def create_experimenter_from_env(
     config_dir: str = "config",
-    experimenter_type: Optional[str] = None
+    experimenter_type: str | None = None
 ) -> ExperimentationInterface:
     """Create experimenter from environment configuration
     
@@ -345,7 +344,7 @@ def create_experimenter_from_env(
     config_manager = ConfigManager(config_dir)
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory(config_dir)
-    
+
     return create_experimenter_from_config(
         config_manager=config_manager,
         session_tracker=session_tracker,

@@ -13,7 +13,6 @@ import pytest
 
 from src.core.context_manager import SQLiteContextProvider
 from src.interfaces.core.context import ContextEntry
-from src.core.logging.exceptions import ConfigurationError, ValidationError
 
 
 class TestContextEntry:
@@ -51,7 +50,7 @@ class TestContextEntry:
     def test_context_entry_serialization(self):
         """Test ContextEntry serialization to dict"""
         from dataclasses import asdict
-        
+
         entry = ContextEntry(
             entry_id="entry_123",
             user_id="test_user",

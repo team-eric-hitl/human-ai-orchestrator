@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from src.core.logging.exceptions import ValidationError
 from src.core.session_tracker import SessionTracker
 from src.interfaces.core.session import SessionMetrics
 

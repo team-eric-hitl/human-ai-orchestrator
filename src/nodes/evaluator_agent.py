@@ -7,11 +7,11 @@ from typing import Any
 
 from langsmith import traceable
 
+from ..core.config import ConfigManager
 from ..core.logging import get_logger
 from ..integrations.llm_providers import LLMProviderFactory
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import EvaluationResult, HybridSystemState
-from ..core.config import ConfigManager
 
 
 class EvaluatorAgentNode:
@@ -28,14 +28,14 @@ class EvaluatorAgentNode:
         """Initialize LLM provider for evaluation with fallback strategy"""
         try:
             factory = LLMProviderFactory(self.config_manager.config_dir)
-            
+
             # Use agent-specific model configuration
             preferred_model = self.agent_config.get_preferred_model()
             fallback_models = self.agent_config.get_fallback_models()
             provider = factory.create_provider_with_fallback(
                 preferred_model=preferred_model
             )
-            
+
             self.logger.info(
                 "Evaluator Agent LLM provider initialized",
                 extra={
@@ -163,7 +163,7 @@ class EvaluatorAgentNode:
 
         # Get threshold from agent config
         threshold = self.agent_config.get_setting("escalation.confidence_threshold", 0.7) * 10  # Convert to 1-10 scale
-        
+
         reasons = []
 
         if evaluation.overall_score < threshold:

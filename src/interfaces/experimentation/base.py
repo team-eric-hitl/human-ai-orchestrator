@@ -6,7 +6,6 @@ implementations in the hybrid AI system.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 
 from .models import (
     ExperimentResults,
@@ -31,12 +30,12 @@ class ExperimentationInterface(ABC):
     - Robust error handling and recovery
     - Detailed metrics collection and analysis
     """
-    
+
     @abstractmethod
     def run_prompt_experiments(
         self,
-        variants: List[PromptVariant],
-        test_cases: List[str],
+        variants: list[PromptVariant],
+        test_cases: list[str],
         agent_type: str = "answer_agent",
         iterations: int = 1
     ) -> ExperimentResults:
@@ -58,11 +57,11 @@ class ExperimentationInterface(ABC):
             ExperimentationError: If experiments cannot be run
         """
         pass
-    
+
     @abstractmethod
     def run_threshold_experiments(
         self,
-        experiments: List[ThresholdExperiment],
+        experiments: list[ThresholdExperiment],
         agent_type: str = "evaluator_agent"
     ) -> ExperimentResults:
         """Run experiments with different threshold values
@@ -81,12 +80,12 @@ class ExperimentationInterface(ABC):
             ExperimentationError: If experiments cannot be run
         """
         pass
-    
+
     @abstractmethod
     def run_continuous_optimization(
         self,
         target: OptimizationTarget,
-        test_cases: List[str],
+        test_cases: list[str],
         iterations: int = 10,
         agent_type: str = "answer_agent"
     ) -> ExperimentResults:
@@ -108,12 +107,12 @@ class ExperimentationInterface(ABC):
             ExperimentationError: If optimization cannot be run
         """
         pass
-    
+
     @abstractmethod
     def run_model_comparison(
         self,
-        model_names: List[str],
-        test_cases: List[str],
+        model_names: list[str],
+        test_cases: list[str],
         agent_type: str = "answer_agent"
     ) -> ExperimentResults:
         """Compare performance across different LLM models
@@ -133,12 +132,12 @@ class ExperimentationInterface(ABC):
             ExperimentationError: If comparison cannot be run
         """
         pass
-    
+
     @abstractmethod
     def run_configuration_sweep(
         self,
-        parameter_ranges: Dict[str, List[float]],
-        test_cases: List[str],
+        parameter_ranges: dict[str, list[float]],
+        test_cases: list[str],
         agent_type: str = "answer_agent"
     ) -> ExperimentResults:
         """Run systematic sweep of configuration parameters
@@ -158,13 +157,13 @@ class ExperimentationInterface(ABC):
             ExperimentationError: If parameter sweep cannot be run
         """
         pass
-    
+
     @abstractmethod
     def get_experiment_history(
         self,
-        experiment_type: Optional[str] = None,
-        limit: Optional[int] = None
-    ) -> List[ExperimentResults]:
+        experiment_type: str | None = None,
+        limit: int | None = None
+    ) -> list[ExperimentResults]:
         """Get history of past experiments
         
         Retrieves historical experiment results for analysis and comparison.
@@ -177,13 +176,13 @@ class ExperimentationInterface(ABC):
             List of ExperimentResults from past experiments
         """
         pass
-    
+
     @abstractmethod
     def get_best_configurations(
         self,
         target: OptimizationTarget,
         agent_type: str = "answer_agent"
-    ) -> Dict[str, any]:
+    ) -> dict[str, any]:
         """Get best configurations for a specific optimization target
         
         Returns the best known configurations based on historical
@@ -197,17 +196,17 @@ class ExperimentationInterface(ABC):
             Dictionary containing best configuration parameters
         """
         pass
-    
+
     @property
     @abstractmethod
-    def supported_agent_types(self) -> List[str]:
+    def supported_agent_types(self) -> list[str]:
         """Get list of supported agent types for experimentation
         
         Returns:
             List of agent type names that can be experimented with
         """
         pass
-    
+
     @property
     @abstractmethod
     def experimenter_name(self) -> str:

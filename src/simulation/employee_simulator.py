@@ -4,9 +4,9 @@ Simulates human employees (agents) handling escalated customer interactions
 """
 
 import random
-from typing import Dict, List, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from ..core.logging import get_logger
 
@@ -43,10 +43,10 @@ class EmployeeSimulator:
         self.logger = get_logger(__name__)
         self.employees = self._create_employee_roster()
         self.active_cases = {}
-        
-    def _create_employee_roster(self) -> List[Dict[str, Any]]:
+
+    def _create_employee_roster(self) -> list[dict[str, Any]]:
         """Create a roster of simulated employees"""
-        
+
         employees = [
             {
                 "id": "emp_001",
@@ -70,7 +70,7 @@ class EmployeeSimulator:
                 "type": EmployeeType.TECHNICAL_SPECIALIST,
                 "personality": EmployeePersonality.THOROUGH,
                 "skills": [EmployeeSkill.TECHNICAL, EmployeeSkill.PRODUCT_EXPERTISE],
-                "skill_level": "senior", 
+                "skill_level": "senior",
                 "frustration_tolerance": "medium",
                 "years_experience": 7,
                 "customer_satisfaction": 4.6,
@@ -129,37 +129,37 @@ class EmployeeSimulator:
                 "timezone": "EST",
             },
         ]
-        
+
         return employees
-    
+
     def handle_escalated_case(
-        self, 
-        assigned_employee_id: str, 
-        customer_context: Dict[str, Any],
+        self,
+        assigned_employee_id: str,
+        customer_context: dict[str, Any],
         escalation_reason: str,
         customer_query: str,
         chatbot_response: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Simulate employee handling an escalated customer case"""
-        
+
         employee = self._get_employee(assigned_employee_id)
         if not employee:
             return self._handle_employee_not_available(customer_context)
-        
+
         # Analyze the case
         case_analysis = self._analyze_case(customer_context, escalation_reason, customer_query)
-        
+
         # Generate employee response based on their characteristics
         employee_response = self._generate_employee_response(
             employee, case_analysis, customer_context, customer_query, chatbot_response
         )
-        
+
         # Calculate resolution metrics
         resolution_metrics = self._calculate_resolution_metrics(employee, case_analysis)
-        
+
         # Update employee workload
         self._update_employee_workload(employee["id"], 1)
-        
+
         case_id = f"case_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{random.randint(100, 999)}"
         self.active_cases[case_id] = {
             "employee_id": assigned_employee_id,
@@ -167,7 +167,7 @@ class EmployeeSimulator:
             "start_time": datetime.now(),
             "case_analysis": case_analysis,
         }
-        
+
         return {
             "case_id": case_id,
             "employee": employee,
@@ -177,26 +177,26 @@ class EmployeeSimulator:
             "expected_resolution_time": resolution_metrics["estimated_time"],
             "escalation_handled": True,
         }
-    
+
     def continue_conversation(
         self, case_id: str, customer_message: str, customer_frustration: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Continue conversation between employee and customer"""
-        
+
         if case_id not in self.active_cases:
             return {"error": "Case not found"}
-        
+
         case = self.active_cases[case_id]
         employee = self._get_employee(case["employee_id"])
-        
+
         # Generate follow-up response
         follow_up_response = self._generate_follow_up_response(
             employee, customer_message, customer_frustration, case
         )
-        
+
         # Check if case should be resolved
         should_resolve = self._should_resolve_case(customer_message, customer_frustration, case)
-        
+
         if should_resolve:
             resolution_result = self._resolve_case(case_id)
             return {
@@ -204,29 +204,29 @@ class EmployeeSimulator:
                 "case_resolved": True,
                 "resolution_result": resolution_result,
             }
-        
+
         return {
             "employee_response": follow_up_response,
             "case_resolved": False,
             "conversation_continues": True,
         }
-    
-    def _get_employee(self, employee_id: str) -> Dict[str, Any]:
+
+    def _get_employee(self, employee_id: str) -> dict[str, Any]:
         """Get employee by ID"""
         return next((emp for emp in self.employees if emp["id"] == employee_id), None)
-    
+
     def _analyze_case(
-        self, customer_context: Dict[str, Any], escalation_reason: str, customer_query: str
-    ) -> Dict[str, Any]:
+        self, customer_context: dict[str, Any], escalation_reason: str, customer_query: str
+    ) -> dict[str, Any]:
         """Analyze the escalated case"""
-        
+
         # Determine case complexity
         complexity = "low"
         if "technical" in escalation_reason.lower() or "api" in customer_query.lower():
             complexity = "high"
         elif "billing" in escalation_reason.lower() or "frustrated" in escalation_reason.lower():
             complexity = "medium"
-        
+
         # Determine required skills
         required_skills = []
         if "technical" in customer_query.lower() or "api" in customer_query.lower():
@@ -237,7 +237,7 @@ class EmployeeSimulator:
             required_skills.append(EmployeeSkill.CONFLICT_RESOLUTION)
         if not required_skills:
             required_skills.append(EmployeeSkill.GENERAL_SUPPORT)
-        
+
         # Determine urgency
         urgency = "medium"
         if "urgent" in customer_query.lower() or "critical" in customer_query.lower():
@@ -246,7 +246,7 @@ class EmployeeSimulator:
             urgency = "high"
         elif customer_context.get("previous_escalations", 0) > 1:
             urgency = "high"
-        
+
         return {
             "complexity": complexity,
             "required_skills": required_skills,
@@ -255,30 +255,30 @@ class EmployeeSimulator:
             "previous_escalations": customer_context.get("previous_escalations", 0),
             "estimated_effort": self._estimate_effort(complexity, required_skills),
         }
-    
-    def _estimate_effort(self, complexity: str, required_skills: List[EmployeeSkill]) -> str:
+
+    def _estimate_effort(self, complexity: str, required_skills: list[EmployeeSkill]) -> str:
         """Estimate effort required for case"""
-        
+
         if complexity == "high" or len(required_skills) > 2:
             return "high"
         elif complexity == "medium" or EmployeeSkill.TECHNICAL in required_skills:
             return "medium"
         else:
             return "low"
-    
+
     def _generate_employee_response(
-        self, 
-        employee: Dict[str, Any],
-        case_analysis: Dict[str, Any],
-        customer_context: Dict[str, Any],
+        self,
+        employee: dict[str, Any],
+        case_analysis: dict[str, Any],
+        customer_context: dict[str, Any],
         customer_query: str,
         chatbot_response: str = None
     ) -> str:
         """Generate employee response based on their characteristics"""
-        
+
         personality = employee["personality"]
         employee_type = employee["type"]
-        
+
         # Base greeting and acknowledgment
         if personality == EmployeePersonality.EMPATHETIC:
             greeting = f"Hi, I'm {employee['name']} and I'm here to help you today. I can see you've been having some difficulties, and I want to make sure we get this resolved for you."
@@ -288,7 +288,7 @@ class EmployeeSimulator:
             greeting = f"Hi there, I'm {employee['name']}. I understand this has been frustrating, and I'm going to take all the time needed to work through this with you."
         else:
             greeting = f"Hello, I'm {employee['name']} from the support team. Let me help you with this issue."
-        
+
         # Address escalation reason if customer is frustrated
         if case_analysis["customer_frustration"] > 6:
             if personality == EmployeePersonality.EMPATHETIC:
@@ -296,12 +296,12 @@ class EmployeeSimulator:
             else:
                 empathy = " I apologize for any inconvenience you've experienced. Let's focus on getting this resolved quickly."
             greeting += empathy
-        
+
         # Acknowledge chatbot interaction if present
         if chatbot_response:
             ack_chatbot = " I can see you've already been working with our chatbot. Let me review what's been discussed and take it from here."
             greeting += ack_chatbot
-        
+
         # Provide solution approach based on employee type and case
         if employee_type == EmployeeType.TECHNICAL_SPECIALIST:
             approach = " I'm going to take a detailed look at the technical aspects of this issue and walk you through a comprehensive solution."
@@ -314,7 +314,7 @@ class EmployeeSimulator:
                 approach = " This looks like it might need some specialized attention. I may need to coordinate with our technical team, but I'll stay with you throughout the process."
             else:
                 approach = " I should be able to help you resolve this directly. Let me work through this step by step."
-        
+
         # Add specific next steps based on the query
         if "technical" in customer_query.lower() or "api" in customer_query.lower():
             next_steps = " First, let me gather some technical details about your setup so I can provide the most accurate solution."
@@ -324,10 +324,10 @@ class EmployeeSimulator:
             next_steps = " Let me check your account status and walk you through getting your access restored."
         else:
             next_steps = " Can you provide me with a few more details about exactly what you're experiencing?"
-        
+
         # Combine all parts
         full_response = greeting + approach + next_steps
-        
+
         # Add personality-specific closing
         if personality == EmployeePersonality.PATIENT:
             full_response += " Please take your time explaining, and don't hesitate to ask if anything isn't clear."
@@ -335,20 +335,20 @@ class EmployeeSimulator:
             full_response += " I'll work to get this resolved as quickly as possible while ensuring it's done right."
         elif personality == EmployeePersonality.THOROUGH:
             full_response += " I want to make sure we address not just the immediate issue, but also prevent it from happening again."
-        
+
         return full_response
-    
+
     def _generate_follow_up_response(
-        self, 
-        employee: Dict[str, Any],
+        self,
+        employee: dict[str, Any],
         customer_message: str,
         customer_frustration: int,
-        case: Dict[str, Any]
+        case: dict[str, Any]
     ) -> str:
         """Generate follow-up response from employee"""
-        
+
         personality = employee["personality"]
-        
+
         # Acknowledge customer message
         if customer_frustration > 7:
             if personality == EmployeePersonality.EMPATHETIC:
@@ -359,7 +359,7 @@ class EmployeeSimulator:
             acknowledgment = "You're very welcome! "
         else:
             acknowledgment = "I see. "
-        
+
         # Generate solution or next step
         if "still not working" in customer_message.lower():
             solution = "Let me try a different approach. I'm going to escalate this internally to get additional technical resources involved."
@@ -369,16 +369,16 @@ class EmployeeSimulator:
             solution = "Excellent! I'm glad we got that resolved. Let me just confirm everything is working as expected."
         else:
             solution = "Based on what you've shared, let me provide you with the next steps to resolve this."
-        
+
         return acknowledgment + solution
-    
+
     def _calculate_resolution_metrics(
-        self, employee: Dict[str, Any], case_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, employee: dict[str, Any], case_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Calculate expected resolution metrics"""
-        
+
         base_time = employee["avg_resolution_time"]
-        
+
         # Adjust for case complexity
         if case_analysis["complexity"] == "high":
             estimated_time = base_time * 1.5
@@ -386,78 +386,78 @@ class EmployeeSimulator:
             estimated_time = base_time * 1.2
         else:
             estimated_time = base_time
-        
+
         # Adjust for customer frustration
         if case_analysis["customer_frustration"] > 7:
             estimated_time *= 1.3  # Frustrated customers take longer
-        
+
         # Adjust for employee experience
         if employee["skill_level"] == "senior":
             estimated_time *= 0.8
         elif employee["skill_level"] == "junior":
             estimated_time *= 1.4
-        
+
         # Calculate success probability
         success_probability = 0.9  # Base success rate
-        
+
         # Adjust for skill match
         required_skills = case_analysis["required_skills"]
         employee_skills = employee["skills"]
         skill_match = len(set(required_skills) & set(employee_skills)) / len(required_skills)
         success_probability *= (0.7 + 0.3 * skill_match)
-        
+
         # Adjust for employee experience
         success_probability *= (0.8 + 0.2 * (employee["years_experience"] / 10))
-        
+
         return {
             "estimated_time": int(estimated_time),
             "success_probability": min(0.95, success_probability),
             "expected_satisfaction": employee["customer_satisfaction"],
             "escalation_risk": max(0.05, 1 - success_probability),
         }
-    
+
     def _should_resolve_case(
-        self, customer_message: str, customer_frustration: int, case: Dict[str, Any]
+        self, customer_message: str, customer_frustration: int, case: dict[str, Any]
     ) -> bool:
         """Determine if case should be resolved"""
-        
+
         resolution_indicators = [
-            "thank you", "that worked", "perfect", "solved", "fixed", 
+            "thank you", "that worked", "perfect", "solved", "fixed",
             "resolved", "that's great", "excellent"
         ]
-        
+
         if any(indicator in customer_message.lower() for indicator in resolution_indicators):
             return True
-        
+
         # Low frustration after some time suggests resolution
         if customer_frustration < 3 and len(customer_message) < 50:
             return True
-        
+
         # Simple acknowledgments suggest satisfaction
         if customer_message.lower() in ["ok", "okay", "thanks", "got it"]:
             return True
-        
+
         return False
-    
-    def _resolve_case(self, case_id: str) -> Dict[str, Any]:
+
+    def _resolve_case(self, case_id: str) -> dict[str, Any]:
         """Resolve the case and calculate final metrics"""
-        
+
         case = self.active_cases[case_id]
         employee = self._get_employee(case["employee_id"])
-        
+
         resolution_time = (datetime.now() - case["start_time"]).total_seconds() / 60  # minutes
-        
+
         # Calculate customer satisfaction (simulated)
         base_satisfaction = employee["customer_satisfaction"]
         complexity_factor = {"low": 0.1, "medium": 0.0, "high": -0.2}[case["case_analysis"]["complexity"]]
         satisfaction = min(5.0, base_satisfaction + complexity_factor + random.uniform(-0.2, 0.2))
-        
+
         # Update employee workload
         self._update_employee_workload(employee["id"], -1)
-        
+
         # Remove from active cases
         del self.active_cases[case_id]
-        
+
         return {
             "resolution_time_minutes": resolution_time,
             "customer_satisfaction": round(satisfaction, 1),
@@ -465,15 +465,15 @@ class EmployeeSimulator:
             "employee_performance": "excellent" if satisfaction > 4.5 else "good" if satisfaction > 4.0 else "acceptable",
             "resolution_method": "direct_resolution",
         }
-    
+
     def _update_employee_workload(self, employee_id: str, change: int):
         """Update employee workload"""
         for employee in self.employees:
             if employee["id"] == employee_id:
                 employee["current_workload"] = max(0, employee["current_workload"] + change)
                 break
-    
-    def _handle_employee_not_available(self, customer_context: Dict[str, Any]) -> Dict[str, Any]:
+
+    def _handle_employee_not_available(self, customer_context: dict[str, Any]) -> dict[str, Any]:
         """Handle case when assigned employee is not available"""
         return {
             "error": "Employee not available",
@@ -481,8 +481,8 @@ class EmployeeSimulator:
             "recommendation": "Queue for next available agent or escalate to manager",
             "estimated_wait_time": 15,  # minutes
         }
-    
-    def get_employee_status(self) -> List[Dict[str, Any]]:
+
+    def get_employee_status(self) -> list[dict[str, Any]]:
         """Get current status of all employees"""
         return [
             {
@@ -496,8 +496,8 @@ class EmployeeSimulator:
             }
             for emp in self.employees
         ]
-    
-    def get_active_cases_summary(self) -> Dict[str, Any]:
+
+    def get_active_cases_summary(self) -> dict[str, Any]:
         """Get summary of active cases"""
         return {
             "total_active_cases": len(self.active_cases),

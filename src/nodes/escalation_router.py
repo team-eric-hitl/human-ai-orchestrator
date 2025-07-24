@@ -5,9 +5,9 @@ Responsibility: Route escalations to appropriate human agents
 
 from typing import Any
 
+from ..core.config import ConfigManager
 from ..core.logging import get_logger
 from ..interfaces.core.state_schema import EscalationData, HybridSystemState
-from ..core.config import ConfigManager
 
 
 class EscalationRouterNode:
@@ -96,11 +96,11 @@ class EscalationRouterNode:
 
         # Use agent-specific keyword mapping
         expertise_mapping = self.agent_config.settings.get("routing", {}).get("expertise_domains", {})
-        
+
         for domain, keywords in expertise_mapping.items():
             if any(keyword in query for keyword in keywords.get("keywords", [])):
                 return domain
-        
+
         return "general"
 
     def _calculate_priority(self, state: HybridSystemState) -> str:

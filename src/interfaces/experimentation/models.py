@@ -5,11 +5,10 @@ This module defines the data structures used throughout the experimentation
 system to ensure consistency and type safety.
 """
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class OptimizationTarget(Enum):
@@ -36,8 +35,8 @@ class PromptVariant:
     name: str
     system_prompt: str
     user_prompt_template: str
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -56,8 +55,8 @@ class ThresholdExperiment:
     min_value: float
     max_value: float
     step_size: float
-    test_cases: List[str]
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    test_cases: list[str]
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -79,17 +78,17 @@ class ExperimentResult:
     variant_name: str
     test_case: str
     response: str
-    metrics: Dict[str, float]
+    metrics: dict[str, float]
     execution_time: float
     timestamp: datetime
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     @property
     def success(self) -> bool:
         """Whether this experiment completed successfully"""
         return self.error_message is None
-    
+
     @property
     def overall_score(self) -> float:
         """Calculate overall score from metrics"""
@@ -119,24 +118,24 @@ class ExperimentResults:
     end_time: datetime
     total_experiments: int
     successful_experiments: int
-    results: List[ExperimentResult]
+    results: list[ExperimentResult]
     best_variant: str
     best_score: float
-    analysis: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    analysis: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate as percentage"""
         if self.total_experiments == 0:
             return 0.0
         return (self.successful_experiments / self.total_experiments) * 100
-    
+
     @property
     def duration_seconds(self) -> float:
         """Get total duration in seconds"""
         return (self.end_time - self.start_time).total_seconds()
-    
+
     @property
     def average_execution_time(self) -> float:
         """Get average execution time per experiment"""
@@ -144,12 +143,12 @@ class ExperimentResults:
         if not successful_results:
             return 0.0
         return sum(r.execution_time for r in successful_results) / len(successful_results)
-    
-    def get_results_by_variant(self, variant_name: str) -> List[ExperimentResult]:
+
+    def get_results_by_variant(self, variant_name: str) -> list[ExperimentResult]:
         """Get all results for a specific variant"""
         return [r for r in self.results if r.variant_name == variant_name]
-    
-    def get_variant_scores(self) -> Dict[str, float]:
+
+    def get_variant_scores(self) -> dict[str, float]:
         """Get average scores by variant"""
         variant_scores = {}
         for result in self.results:
@@ -157,14 +156,14 @@ class ExperimentResults:
                 if result.variant_name not in variant_scores:
                     variant_scores[result.variant_name] = []
                 variant_scores[result.variant_name].append(result.overall_score)
-        
+
         return {
             variant: sum(scores) / len(scores)
             for variant, scores in variant_scores.items()
             if scores
         }
-    
-    def get_metric_analysis(self, metric_name: str) -> Dict[str, Any]:
+
+    def get_metric_analysis(self, metric_name: str) -> dict[str, Any]:
         """Get analysis for a specific metric across all variants"""
         metric_data = {}
         for result in self.results:
@@ -173,7 +172,7 @@ class ExperimentResults:
                 if variant not in metric_data:
                     metric_data[variant] = []
                 metric_data[variant].append(result.metrics[metric_name])
-        
+
         analysis = {}
         for variant, values in metric_data.items():
             if values:
@@ -183,5 +182,5 @@ class ExperimentResults:
                     "max": max(values),
                     "count": len(values)
                 }
-        
+
         return analysis

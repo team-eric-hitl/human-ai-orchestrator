@@ -3,20 +3,16 @@ Integration tests for complete system startup with agent-centric configuration.
 Tests end-to-end system initialization including all components.
 """
 
-import json
-import os
 import tempfile
-import yaml
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
+import yaml
 
 from src.core.config import ConfigManager
 from src.core.context_manager import SQLiteContextProvider
 from src.core.logging import get_logger, setup_development_logging
 from src.core.session_tracker import SessionTracker
-from src.integrations.llm_providers import LLMProviderFactory
 
 
 class TestAgentSystemStartup:
@@ -27,7 +23,7 @@ class TestAgentSystemStartup:
         """Create temporary agent-centric configuration directory"""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_dir = Path(temp_dir)
-            
+
             # Create directory structure
             (config_dir / "agents" / "answer_agent").mkdir(parents=True)
             (config_dir / "agents" / "evaluator_agent").mkdir(parents=True)
@@ -72,7 +68,7 @@ class TestAgentSystemStartup:
                     }
                 }
             }
-            
+
             shared_system = {
                 "system": {
                     "name": "Test Hybrid System",
@@ -95,7 +91,7 @@ class TestAgentSystemStartup:
                     "log_level": "INFO"
                 }
             }
-            
+
             shared_providers = {
                 "llm_providers": {
                     "openai": {
@@ -123,12 +119,12 @@ class TestAgentSystemStartup:
                     "timeout": 30
                 }
             }
-            
+
             answer_agent_models = {
                 "preferred": "llama-7b",
                 "fallback": ["gpt-4", "gpt-3.5-turbo"]
             }
-            
+
             answer_prompts = {
                 "system_prompt": "You are a helpful AI assistant. Provide accurate, helpful responses.",
                 "templates": {
@@ -136,7 +132,7 @@ class TestAgentSystemStartup:
                     "no_context": "I'll help you with your question."
                 }
             }
-            
+
             evaluator_agent = {
                 "agent": {
                     "name": "evaluator_agent",
@@ -159,12 +155,12 @@ class TestAgentSystemStartup:
                     "confidence_threshold": 0.7
                 }
             }
-            
+
             evaluator_agent_models = {
                 "preferred": "gpt-4",
                 "fallback": ["gpt-3.5-turbo", "llama-7b"]
             }
-            
+
             escalation_router = {
                 "agent": {
                     "name": "escalation_router",
@@ -186,7 +182,7 @@ class TestAgentSystemStartup:
                     }
                 }
             }
-            
+
             escalation_router_models = {
                 "preferred": "gpt-3.5-turbo",
                 "fallback": ["llama-7b"]
@@ -199,19 +195,19 @@ class TestAgentSystemStartup:
                 yaml.dump(shared_system, f)
             with open(config_dir / "shared" / "providers.yaml", "w") as f:
                 yaml.dump(shared_providers, f)
-            
+
             with open(config_dir / "agents" / "answer_agent" / "config.yaml", "w") as f:
                 yaml.dump(answer_agent, f)
             with open(config_dir / "agents" / "answer_agent" / "prompts.yaml", "w") as f:
                 yaml.dump(answer_prompts, f)
             with open(config_dir / "agents" / "answer_agent" / "models.yaml", "w") as f:
                 yaml.dump(answer_agent_models, f)
-            
+
             with open(config_dir / "agents" / "evaluator_agent" / "config.yaml", "w") as f:
                 yaml.dump(evaluator_agent, f)
             with open(config_dir / "agents" / "evaluator_agent" / "models.yaml", "w") as f:
                 yaml.dump(evaluator_agent_models, f)
-            
+
             with open(config_dir / "agents" / "escalation_router" / "config.yaml", "w") as f:
                 yaml.dump(escalation_router, f)
             with open(config_dir / "agents" / "escalation_router" / "models.yaml", "w") as f:
@@ -233,18 +229,18 @@ class TestAgentSystemStartup:
         # Test ConfigManager initialization
         config_manager = ConfigManager(str(temp_config_dir))
         assert config_manager is not None
-        
+
         # Test agent configurations are loaded
         available_agents = config_manager.get_available_agents()
         assert len(available_agents) >= 3
         assert "answer_agent" in available_agents
         assert "evaluator_agent" in available_agents
         assert "escalation_router" in available_agents
-        
+
         # Test system configuration
         system_config = config_manager.get_system_config()
         assert system_config.name == "Test Hybrid System"
-        
+
         # Test models configuration
         models_config = config_manager.get_models_config()
         assert "models" in models_config
@@ -265,7 +261,7 @@ class TestAgentSystemStartup:
     def test_agent_specific_configurations(self, temp_config_dir):
         """Test agent-specific configuration loading"""
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         # Test answer agent configuration
         answer_config = config_manager.get_agent_config("answer_agent")
         assert answer_config is not None
@@ -273,14 +269,14 @@ class TestAgentSystemStartup:
         assert answer_config.get_preferred_model() == "llama-7b"
         assert answer_config.get_setting("temperature") == 0.7
         assert answer_config.get_prompt("system") == "You are a helpful AI assistant. Provide accurate, helpful responses."
-        
+
         # Test evaluator agent configuration
         evaluator_config = config_manager.get_agent_config("evaluator_agent")
         assert evaluator_config is not None
         assert evaluator_config.get_preferred_model() == "gpt-4"
         assert evaluator_config.get_setting("temperature") == 0.3
         assert evaluator_config.get_setting("criteria.accuracy.weight") == 0.3
-        
+
         # Test escalation router configuration
         router_config = config_manager.get_agent_config("escalation_router")
         assert router_config is not None
@@ -309,30 +305,30 @@ class TestAgentSystemStartup:
     def test_agent_model_preferences(self, temp_config_dir):
         """Test agent-specific model preferences"""
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         # Test each agent gets its preferred model
         answer_model = config_manager.get_primary_model_for_agent("answer_agent")
         assert answer_model == "llama-7b"
-        
+
         evaluator_model = config_manager.get_primary_model_for_agent("evaluator_agent")
         assert evaluator_model == "gpt-4"
-        
+
         router_model = config_manager.get_primary_model_for_agent("escalation_router")
         assert router_model == "gpt-3.5-turbo"
 
     def test_configuration_summary(self, temp_config_dir):
         """Test configuration summary with agent-centric structure"""
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         summary = config_manager.get_summary()
-        
+
         assert "config_directory" in summary
         assert "environment" in summary
         assert "system_name" in summary
         assert "agents_loaded" in summary
         assert "agent_names" in summary
         assert "models_configured" in summary
-        
+
         assert summary["system_name"] == "Test Hybrid System"
         assert summary["agents_loaded"] >= 3
         assert "answer_agent" in summary["agent_names"]
@@ -351,16 +347,16 @@ class TestAgentSystemStartup:
                 "escalation_score": 5.0  # Override default
             }
         }
-        
+
         with open(temp_config_dir / "environments" / "testing.yaml", "w") as f:
             yaml.dump(test_env_config, f)
-        
+
         # Test with specific environment
         config_manager = ConfigManager(str(temp_config_dir), environment="testing")
-        
+
         system_config = config_manager.get_system_config()
         assert system_config.environment == "testing"
-        
+
         # Should use overridden threshold
         escalation_score = config_manager.get_threshold("escalation_score")
         assert escalation_score == 5.0
@@ -368,9 +364,9 @@ class TestAgentSystemStartup:
     def test_configuration_validation(self, temp_config_dir):
         """Test configuration validation"""
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         summary = config_manager.get_summary()
-        
+
         # Should have valid structure
         structure = summary["config_files_structure"]
         assert structure["shared"] == True
@@ -380,10 +376,10 @@ class TestAgentSystemStartup:
     def test_configuration_reloading(self, temp_config_dir):
         """Test configuration hot reloading"""
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         # Initial state
         initial_agents = len(config_manager.get_available_agents())
-        
+
         # Add new agent
         new_agent_config = {
             "agent": {
@@ -392,26 +388,26 @@ class TestAgentSystemStartup:
                 "type": "test_agent"
             }
         }
-        
+
         new_agent_models = {
             "preferred": "llama-7b"
         }
-        
+
         new_agent_dir = temp_config_dir / "agents" / "new_test_agent"
         new_agent_dir.mkdir()
-        
+
         with open(new_agent_dir / "config.yaml", "w") as f:
             yaml.dump(new_agent_config, f)
         with open(new_agent_dir / "models.yaml", "w") as f:
             yaml.dump(new_agent_models, f)
-        
+
         # Reload configuration
         config_manager.reload()
-        
+
         # Should have new agent
         updated_agents = len(config_manager.get_available_agents())
         assert updated_agents == initial_agents + 1
-        
+
         new_agent = config_manager.get_agent_config("new_test_agent")
         assert new_agent is not None
         assert new_agent.name == "new_test_agent"
@@ -474,7 +470,7 @@ class TestAgentSystemStartup:
         # Should still work with defaults
         config_manager = ConfigManager(str(temp_config_dir))
         assert config_manager is not None
-        
+
         # Should have basic system config
         system_config = config_manager.get_system_config()
         assert system_config.name == "Modular LangGraph Hybrid System"  # Default
@@ -485,16 +481,16 @@ class TestAgentSystemStartup:
         invalid_config = {
             "invalid": "configuration"
         }
-        
+
         invalid_agent_dir = temp_config_dir / "agents" / "invalid_agent"
         invalid_agent_dir.mkdir()
-        
+
         with open(invalid_agent_dir / "config.yaml", "w") as f:
             yaml.dump(invalid_config, f)
-        
+
         # Should handle gracefully
         config_manager = ConfigManager(str(temp_config_dir))
-        
+
         # Invalid agent should not be loaded
         invalid_agent = config_manager.get_agent_config("invalid_agent")
         assert invalid_agent is None or invalid_agent.name == "invalid_agent"  # Depends on implementation

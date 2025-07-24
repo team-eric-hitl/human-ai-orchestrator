@@ -5,13 +5,16 @@ Coordinates simulation of customer/chatbot/employee interactions for demonstrati
 
 import asyncio
 import random
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-import json
+from typing import Any
 
-from .human_customer_simulator import HumanCustomerSimulator, CustomerPersonality, CustomerScenario
-from .employee_simulator import EmployeeSimulator
 from ..core.logging import get_logger
+from .employee_simulator import EmployeeSimulator
+from .human_customer_simulator import (
+    CustomerPersonality,
+    CustomerScenario,
+    HumanCustomerSimulator,
+)
 
 
 class DemoOrchestrator:
@@ -24,9 +27,9 @@ class DemoOrchestrator:
         self.active_demonstrations = {}
         self.demo_scenarios = self._create_demo_scenarios()
 
-    def _create_demo_scenarios(self) -> List[Dict[str, Any]]:
+    def _create_demo_scenarios(self) -> list[dict[str, Any]]:
         """Create predefined demonstration scenarios"""
-        
+
         scenarios = [
             {
                 "name": "Happy Path - Simple Question",
@@ -83,28 +86,28 @@ class DemoOrchestrator:
                 "chatbot_quality": "medium",
             },
         ]
-        
+
         return scenarios
 
-    def start_demo_scenario(self, scenario_name: str = None) -> Dict[str, Any]:
+    def start_demo_scenario(self, scenario_name: str = None) -> dict[str, Any]:
         """Start a demonstration scenario"""
-        
+
         if scenario_name:
             scenario = next((s for s in self.demo_scenarios if s["name"] == scenario_name), None)
             if not scenario:
                 raise ValueError(f"Scenario '{scenario_name}' not found")
         else:
             scenario = random.choice(self.demo_scenarios)
-        
+
         # Create customer interaction
         customer_interaction = self.customer_simulator.create_customer_interaction(
             personality=scenario["customer_personality"],
             scenario=scenario["customer_scenario"],
             frustration_level=scenario["initial_frustration"]
         )
-        
+
         demo_id = f"demo_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{random.randint(100, 999)}"
-        
+
         demo_session = {
             "demo_id": demo_id,
             "scenario": scenario,
@@ -118,9 +121,9 @@ class DemoOrchestrator:
             "employee_interaction": None,
             "final_outcome": None,
         }
-        
+
         self.active_demonstrations[demo_id] = demo_session
-        
+
         # Log initial customer query
         self._log_demo_event(demo_id, "customer_query", {
             "query": customer_interaction["initial_query"],
@@ -130,7 +133,7 @@ class DemoOrchestrator:
                 "scenario": customer_interaction["scenario"],
             }
         })
-        
+
         return {
             "demo_id": demo_id,
             "scenario": scenario,
@@ -139,32 +142,32 @@ class DemoOrchestrator:
             "next_step": "chatbot_response",
         }
 
-    def simulate_chatbot_response(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_chatbot_response(self, demo_id: str) -> dict[str, Any]:
         """Simulate chatbot response based on scenario quality settings"""
-        
+
         if demo_id not in self.active_demonstrations:
             raise ValueError(f"Demo {demo_id} not found")
-        
+
         demo = self.active_demonstrations[demo_id]
         scenario = demo["scenario"]
         customer_interaction = demo["customer_interaction"]
-        
+
         # Generate chatbot response based on quality setting
         chatbot_response = self._generate_simulated_chatbot_response(
             customer_interaction["initial_query"],
             scenario["chatbot_quality"],
             customer_interaction["personality"]
         )
-        
+
         demo["chatbot_responses"].append(chatbot_response)
         demo["current_stage"] = "chatbot_responded"
-        
+
         self._log_demo_event(demo_id, "chatbot_response", {
             "response": chatbot_response["response"],
             "quality_level": scenario["chatbot_quality"],
             "confidence": chatbot_response["confidence"],
         })
-        
+
         return {
             "demo_id": demo_id,
             "chatbot_response": chatbot_response["response"],
@@ -172,47 +175,47 @@ class DemoOrchestrator:
             "next_step": "quality_assessment",
         }
 
-    def simulate_quality_assessment(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_quality_assessment(self, demo_id: str) -> dict[str, Any]:
         """Simulate quality agent assessment"""
-        
+
         demo = self.active_demonstrations[demo_id]
         scenario = demo["scenario"]
         chatbot_response = demo["chatbot_responses"][-1]
         customer_interaction = demo["customer_interaction"]
-        
+
         # Simulate quality assessment
         quality_assessment = self._simulate_quality_agent_decision(
             customer_interaction["initial_query"],
             chatbot_response["response"],
             scenario["chatbot_quality"]
         )
-        
+
         demo["current_stage"] = "quality_assessed"
-        
+
         self._log_demo_event(demo_id, "quality_assessment", quality_assessment)
-        
+
         return {
             "demo_id": demo_id,
             "quality_assessment": quality_assessment,
             "next_step": quality_assessment["next_action"],
         }
 
-    def simulate_frustration_analysis(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_frustration_analysis(self, demo_id: str) -> dict[str, Any]:
         """Simulate frustration agent analysis"""
-        
+
         demo = self.active_demonstrations[demo_id]
         scenario = demo["scenario"]
         customer_interaction = demo["customer_interaction"]
-        
+
         # Simulate frustration analysis
         frustration_analysis = self._simulate_frustration_agent_analysis(
             customer_interaction["initial_query"],
             customer_interaction["initial_frustration_level"],
             customer_interaction["personality"]
         )
-        
+
         self._log_demo_event(demo_id, "frustration_analysis", frustration_analysis)
-        
+
         return {
             "demo_id": demo_id,
             "frustration_analysis": frustration_analysis,
@@ -220,24 +223,24 @@ class DemoOrchestrator:
             "next_step": "routing_decision" if frustration_analysis["intervention_needed"] else "respond_to_customer",
         }
 
-    def simulate_routing_decision(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_routing_decision(self, demo_id: str) -> dict[str, Any]:
         """Simulate routing agent decision"""
-        
+
         demo = self.active_demonstrations[demo_id]
         scenario = demo["scenario"]
         customer_interaction = demo["customer_interaction"]
-        
+
         # Simulate routing decision
         routing_decision = self._simulate_routing_agent_decision(
             customer_interaction,
             scenario["expected_outcome"]
         )
-        
+
         demo["escalation_data"] = routing_decision
         demo["current_stage"] = "routed_to_human"
-        
+
         self._log_demo_event(demo_id, "routing_decision", routing_decision)
-        
+
         return {
             "demo_id": demo_id,
             "routing_decision": routing_decision,
@@ -245,16 +248,16 @@ class DemoOrchestrator:
             "next_step": "human_agent_response",
         }
 
-    def simulate_human_agent_response(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_human_agent_response(self, demo_id: str) -> dict[str, Any]:
         """Simulate human agent handling the escalation"""
-        
+
         demo = self.active_demonstrations[demo_id]
         customer_interaction = demo["customer_interaction"]
         routing_decision = demo["escalation_data"]
-        
+
         if not routing_decision:
             raise ValueError("No routing decision found")
-        
+
         # Use employee simulator to handle the case
         employee_response = self.employee_simulator.handle_escalated_case(
             assigned_employee_id=routing_decision["assigned_employee"]["id"],
@@ -263,50 +266,50 @@ class DemoOrchestrator:
             customer_query=customer_interaction["initial_query"],
             chatbot_response=demo["chatbot_responses"][-1]["response"] if demo["chatbot_responses"] else None
         )
-        
+
         demo["employee_interaction"] = employee_response
         demo["current_stage"] = "human_agent_handling"
-        
+
         self._log_demo_event(demo_id, "human_agent_response", employee_response)
-        
+
         return {
             "demo_id": demo_id,
             "employee_response": employee_response,
             "next_step": "customer_response_to_human",
         }
 
-    def simulate_customer_response_to_human(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_customer_response_to_human(self, demo_id: str) -> dict[str, Any]:
         """Simulate customer response to human agent"""
-        
+
         demo = self.active_demonstrations[demo_id]
         employee_response = demo["employee_interaction"]
-        
+
         # Customer simulator evaluates human agent response
         customer_response = self.customer_simulator.respond_to_chatbot(
             employee_response["employee_response"],
             demo["customer_interaction"]
         )
-        
+
         # Most customers are satisfied with human agents
         customer_response["satisfaction_with_response"] = min(10, customer_response["satisfaction_with_response"] + 2)
         customer_response["wants_escalation"] = False  # Assume human agents resolve issues
-        
+
         demo["current_stage"] = "customer_responded_to_human"
-        
+
         self._log_demo_event(demo_id, "customer_response_to_human", customer_response)
-        
+
         return {
             "demo_id": demo_id,
             "customer_response": customer_response,
             "next_step": "resolution",
         }
 
-    def simulate_resolution(self, demo_id: str) -> Dict[str, Any]:
+    def simulate_resolution(self, demo_id: str) -> dict[str, Any]:
         """Simulate case resolution"""
-        
+
         demo = self.active_demonstrations[demo_id]
         employee_interaction = demo.get("employee_interaction")
-        
+
         if employee_interaction:
             # Resolve through employee simulator
             resolution_result = self.employee_simulator.continue_conversation(
@@ -324,13 +327,13 @@ class DemoOrchestrator:
                     "resolution_method": "chatbot_direct",
                 },
             }
-        
+
         demo["final_outcome"] = resolution_result
         demo["current_stage"] = "resolved"
         demo["end_time"] = datetime.now()
-        
+
         self._log_demo_event(demo_id, "resolution", resolution_result)
-        
+
         return {
             "demo_id": demo_id,
             "resolution_result": resolution_result,
@@ -338,14 +341,14 @@ class DemoOrchestrator:
             "summary": self._generate_demo_summary(demo_id),
         }
 
-    def get_demo_log(self, demo_id: str) -> Dict[str, Any]:
+    def get_demo_log(self, demo_id: str) -> dict[str, Any]:
         """Get complete demonstration log"""
-        
+
         if demo_id not in self.active_demonstrations:
             raise ValueError(f"Demo {demo_id} not found")
-        
+
         demo = self.active_demonstrations[demo_id]
-        
+
         return {
             "demo_id": demo_id,
             "scenario": demo["scenario"],
@@ -358,7 +361,7 @@ class DemoOrchestrator:
             "final_outcome": demo.get("final_outcome"),
         }
 
-    def list_available_scenarios(self) -> List[Dict[str, Any]]:
+    def list_available_scenarios(self) -> list[dict[str, Any]]:
         """List all available demonstration scenarios"""
         return [
             {
@@ -369,15 +372,15 @@ class DemoOrchestrator:
             for scenario in self.demo_scenarios
         ]
 
-    def get_active_demos(self) -> List[str]:
+    def get_active_demos(self) -> list[str]:
         """Get list of active demonstration IDs"""
         return list(self.active_demonstrations.keys())
 
     def _generate_simulated_chatbot_response(
         self, query: str, quality_level: str, personality: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate simulated chatbot response with specified quality"""
-        
+
         # Response templates by quality level
         if quality_level == "high":
             responses = [
@@ -386,15 +389,15 @@ class DemoOrchestrator:
                 "I understand exactly what you need. Here's how to solve this: [precise, helpful solution]",
             ]
             confidence = random.uniform(0.85, 0.95)
-            
+
         elif quality_level == "medium":
             responses = [
                 "I can help you with that. Here's what you can try: [partially helpful response, may need clarification]",
-                "Let me provide some information about this: [adequate response but could be more detailed]", 
+                "Let me provide some information about this: [adequate response but could be more detailed]",
                 "Here are some steps that should help: [reasonable response but not comprehensive]",
             ]
             confidence = random.uniform(0.65, 0.80)
-            
+
         elif quality_level == "poor":
             responses = [
                 "I'm not sure I understand your question completely. Could you clarify?",
@@ -402,7 +405,7 @@ class DemoOrchestrator:
                 "You might want to check our documentation for more details.",
             ]
             confidence = random.uniform(0.30, 0.55)
-            
+
         else:  # low quality
             responses = [
                 "I don't know how to help with that specific issue.",
@@ -410,15 +413,15 @@ class DemoOrchestrator:
                 "I'm having trouble understanding your request.",
             ]
             confidence = random.uniform(0.20, 0.40)
-        
+
         response = random.choice(responses)
-        
+
         # Adjust response for personality
         if personality == CustomerPersonality.TECHNICAL.value and quality_level in ["high", "medium"]:
             response = response.replace("[", "First, check your API configuration. Then, [")
         elif personality == CustomerPersonality.FRUSTRATED.value and quality_level == "high":
             response = "I understand this can be frustrating. " + response
-        
+
         return {
             "response": response,
             "confidence": confidence,
@@ -428,9 +431,9 @@ class DemoOrchestrator:
 
     def _simulate_quality_agent_decision(
         self, query: str, response: str, expected_quality: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Simulate quality agent assessment"""
-        
+
         # Map quality levels to scores
         quality_scores = {
             "high": random.uniform(8.0, 9.5),
@@ -438,9 +441,9 @@ class DemoOrchestrator:
             "poor": random.uniform(4.0, 5.5),
             "low": random.uniform(2.0, 4.0),
         }
-        
+
         score = quality_scores.get(expected_quality, 7.0)
-        
+
         if score >= 7.0:
             decision = "adequate"
             next_action = "respond_to_customer"
@@ -450,7 +453,7 @@ class DemoOrchestrator:
         else:
             decision = "human_intervention"
             next_action = "escalate_to_human"
-        
+
         return {
             "decision": decision,
             "overall_score": score,
@@ -461,9 +464,9 @@ class DemoOrchestrator:
 
     def _simulate_frustration_agent_analysis(
         self, query: str, initial_frustration: int, personality: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Simulate frustration agent analysis"""
-        
+
         # Adjust frustration based on personality
         if personality == CustomerPersonality.FRUSTRATED.value:
             frustration_score = initial_frustration + random.uniform(1.0, 2.0)
@@ -471,12 +474,12 @@ class DemoOrchestrator:
             frustration_score = initial_frustration + random.uniform(0.5, 1.5)
         else:
             frustration_score = initial_frustration + random.uniform(-0.5, 0.5)
-        
+
         frustration_score = max(0, min(10, frustration_score))
-        
+
         # Determine intervention need
         intervention_needed = frustration_score > 6.0
-        
+
         if frustration_score >= 8.0:
             level = "critical"
         elif frustration_score >= 6.0:
@@ -485,7 +488,7 @@ class DemoOrchestrator:
             level = "moderate"
         else:
             level = "low"
-        
+
         return {
             "overall_score": frustration_score,
             "overall_level": level,
@@ -495,21 +498,21 @@ class DemoOrchestrator:
         }
 
     def _simulate_routing_agent_decision(
-        self, customer_interaction: Dict[str, Any], expected_outcome: str
-    ) -> Dict[str, Any]:
+        self, customer_interaction: dict[str, Any], expected_outcome: str
+    ) -> dict[str, Any]:
         """Simulate routing agent decision"""
-        
+
         # Get available employees
         employees = self.employee_simulator.get_employee_status()
         available_employees = [emp for emp in employees if emp["availability"] == "available"]
-        
+
         if not available_employees:
             return {
                 "status": "queued",
                 "estimated_wait_time": 15,
                 "queue_position": 3,
             }
-        
+
         # Select appropriate employee based on expected outcome
         if "technical_specialist" in expected_outcome:
             selected = next((emp for emp in available_employees if "technical" in emp["type"]), available_employees[0])
@@ -519,7 +522,7 @@ class DemoOrchestrator:
             selected = next((emp for emp in available_employees if "manager" in emp["type"]), available_employees[0])
         else:
             selected = available_employees[0]
-        
+
         return {
             "assigned_employee": selected,
             "routing_strategy": "skill_based",
@@ -529,44 +532,44 @@ class DemoOrchestrator:
             "escalation_reason": "Quality/Frustration threshold exceeded",
         }
 
-    def _log_demo_event(self, demo_id: str, event_type: str, event_data: Dict[str, Any]):
+    def _log_demo_event(self, demo_id: str, event_type: str, event_data: dict[str, Any]):
         """Log demonstration event"""
-        
+
         if demo_id not in self.active_demonstrations:
             return
-        
+
         demo = self.active_demonstrations[demo_id]
-        
+
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "event_type": event_type,
             "data": event_data,
         }
-        
+
         demo["conversation_log"].append(log_entry)
-        
+
         # Also log system decisions separately
         if event_type in ["quality_assessment", "frustration_analysis", "routing_decision"]:
             demo["system_decisions"].append(log_entry)
 
-    def _generate_demo_summary(self, demo_id: str) -> Dict[str, Any]:
+    def _generate_demo_summary(self, demo_id: str) -> dict[str, Any]:
         """Generate summary of demonstration"""
-        
+
         demo = self.active_demonstrations[demo_id]
-        
+
         total_time = (demo.get("end_time", datetime.now()) - demo["start_time"]).total_seconds()
-        
+
         # Count system interventions
         system_interventions = len(demo["system_decisions"])
-        
+
         # Determine if escalation occurred
         escalated = demo.get("escalation_data") is not None
-        
+
         # Get final satisfaction
         final_satisfaction = 8.0  # Default
         if demo.get("final_outcome"):
             final_satisfaction = demo["final_outcome"].get("resolution_result", {}).get("customer_satisfaction", 8.0)
-        
+
         return {
             "scenario_name": demo["scenario"]["name"],
             "total_duration_seconds": total_time,
@@ -580,45 +583,45 @@ class DemoOrchestrator:
 
     def cleanup_completed_demos(self, max_age_hours: int = 24):
         """Clean up old completed demonstrations"""
-        
+
         cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
-        
+
         completed_demos = [
             demo_id for demo_id, demo in self.active_demonstrations.items()
             if demo.get("end_time") and demo["end_time"] < cutoff_time
         ]
-        
+
         for demo_id in completed_demos:
             del self.active_demonstrations[demo_id]
-        
+
         return len(completed_demos)
 
 
 async def main():
     """Main function to demonstrate the orchestrator"""
     orchestrator = DemoOrchestrator()
-    
+
     print("Available demo scenarios:")
     scenarios = orchestrator.list_available_scenarios()
     for i, scenario in enumerate(scenarios, 1):
         print(f"{i}. {scenario['name']}: {scenario['description']}")
-    
+
     # Run a sample scenario
     print("\nStarting 'Happy Path - Simple Question' scenario...")
     demo_result = orchestrator.start_demo_scenario("Happy Path - Simple Question")
     print(f"Demo started with ID: {demo_result['demo_id']}")
     print(f"Customer query: {demo_result['customer_query']}")
-    
+
     # Simulate chatbot response
     print("\nSimulating chatbot response...")
     chatbot_result = orchestrator.simulate_chatbot_response(demo_result['demo_id'])
     print(f"Chatbot response: {chatbot_result['chatbot_response']}")
-    
+
     # Simulate quality assessment
     print("\nSimulating quality assessment...")
     quality_result = orchestrator.simulate_quality_assessment(demo_result['demo_id'])
     print(f"Quality assessment: {quality_result['quality_assessment']['decision']}")
-    
+
     # Get demo log
     print("\nGetting complete demo log...")
     log = orchestrator.get_demo_log(demo_result['demo_id'])

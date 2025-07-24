@@ -30,7 +30,11 @@ from src.core.logging.formatters import (
     JSONFormatter,
     StructuredFormatter,
 )
-from src.core.logging.handlers import RotatingFileHandler, LangSmithHandler, MetricsHandler
+from src.core.logging.handlers import (
+    LangSmithHandler,
+    MetricsHandler,
+    RotatingFileHandler,
+)
 
 
 class TestAppLogger:

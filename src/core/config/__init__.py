@@ -12,14 +12,19 @@ Usage:
     model = agent_config.get_preferred_model()
 """
 
-from .agent_config_manager import AgentConfigManager, AgentConfig, SystemConfig, ConfigLoadError
+from .agent_config_manager import (
+    AgentConfig,
+    AgentConfigManager,
+    ConfigLoadError,
+    SystemConfig,
+)
 
 # Use AgentConfigManager as the primary ConfigManager
 ConfigManager = AgentConfigManager
 
 __all__ = [
     "ConfigManager",
-    "AgentConfigManager", 
+    "AgentConfigManager",
     "AgentConfig",
     "SystemConfig",
     "ConfigLoadError",

@@ -9,9 +9,9 @@ from .base import ExperimentationInterface
 from .models import (
     ExperimentResult,
     ExperimentResults,
+    OptimizationTarget,
     PromptVariant,
     ThresholdExperiment,
-    OptimizationTarget,
 )
 
 __all__ = [

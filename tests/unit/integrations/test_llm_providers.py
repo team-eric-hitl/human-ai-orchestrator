@@ -40,7 +40,7 @@ class TestLLMProvider:
     def openai_provider_config(self, openai_model_config):
         """Create OpenAI provider configuration"""
         return {
-            "api_key_env": "OPENAI_API_KEY", 
+            "api_key_env": "OPENAI_API_KEY",
             "models": {"gpt-4": openai_model_config}
         }
 
@@ -50,7 +50,7 @@ class TestLLMProvider:
             with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
                 mock_client = Mock()
                 mock_openai.return_value = mock_client
-                
+
                 provider = LLMProvider(model_config=openai_model_config)
 
                 assert provider.model_config == openai_model_config
