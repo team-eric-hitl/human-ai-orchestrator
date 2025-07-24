@@ -1,18 +1,5 @@
 primary_model: "local_general_standard"
 
-model_preferences:
-  general_queries:
-    primary: "local_general_standard"
-    fallback: ["local_general_budget", "local_general_standard"]
-    
-  code_queries:
-    primary: "anthropic_coding_premium"
-    fallback: ["local_coding_standard", "local_general_budget"]
-    
-  complex_reasoning:
-    primary: "anthropic_reasoning_premium"
-    fallback: ["local_general_premium", "local_general_budget"]
-
 model_overrides:
   temperature: 0.7
   max_tokens: 2000

@@ -1,0 +1,44 @@
+QUALITY ASSESSMENT REPORT
+==================================================
+
+Export Date: 2025-07-24 13:41:21
+Total Turns Assessed: 66
+Average Quality Score: 4.42/10.0
+Assessment Model: claude-3-5-haiku-20241022
+
+DECISION DISTRIBUTION:
+  Human Intervention: 31 (47.0%)
+  Adequate: 22 (33.3%)
+  Needs Adjustment: 13 (19.7%)
+
+CUSTOMER TYPE ANALYSIS:
+  Frustrated:
+    Sample Size: 11
+    Average Quality: 4.18/10.0
+    Adjustment Rate: 18.2%
+  Urgent:
+    Sample Size: 18
+    Average Quality: 3.61/10.0
+    Adjustment Rate: 11.1%
+  Confused:
+    Sample Size: 25
+    Average Quality: 5.16/10.0
+    Adjustment Rate: 28.0%
+  Normal:
+    Sample Size: 12
+    Average Quality: 4.33/10.0
+    Adjustment Rate: 16.7%
+
+COMPLEXITY ANALYSIS:
+  Medium Complexity:
+    Sample Size: 21
+    Average Quality: 4.71/10.0
+    Escalation Rate: 38.1%
+  Simple Complexity:
+    Sample Size: 24
+    Average Quality: 4.88/10.0
+    Escalation Rate: 37.5%
+  Complex Complexity:
+    Sample Size: 21
+    Average Quality: 3.62/10.0
+    Escalation Rate: 66.7%

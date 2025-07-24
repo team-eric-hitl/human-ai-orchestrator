@@ -1,21 +1,4 @@
-primary_model: "openai_general_budget"
-
-model_preferences:
-  context_summarization:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_premium"]
-    
-  relevance_analysis:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_standard"]
-    
-  similarity_detection:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_budget"]
-    
-  recommendation_generation:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_premium"]
+primary_model: "anthropic_general_budget"
 
 model_overrides:
   temperature: 0.3

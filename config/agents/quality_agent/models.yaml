@@ -1,17 +1,4 @@
-primary_model: "anthropic_general_standard"
-
-model_preferences:
-  quality_assessment:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_standard"]
-    
-  response_adjustment:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_premium"]
-    
-  context_analysis:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_standard"]
+primary_model: "anthropic_general_budget"
 
 model_overrides:
   temperature: 0.3          # Lower temperature for consistent quality assessment

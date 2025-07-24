@@ -1,17 +1,4 @@
-primary_model: "anthropic_general_standard"
-
-model_preferences:
-  frustration_analysis:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_standard"]
-    
-  pattern_detection:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_budget"]
-    
-  trend_analysis:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_standard"]
+primary_model: "anthropic_general_budget"
 
 model_overrides:
   temperature: 0.2          # Low temperature for consistent sentiment analysis

@@ -172,22 +172,84 @@ class QualityAgentNode:
         
         # Parse LLM response (simplified - in production would use structured output)
         try:
-            # Extract score and reasoning from LLM response
-            lines = llm_response.strip().split('\n')
-            score_line = next((line for line in lines if 'score:' in line.lower()), "score: 7.0")
-            score = float(score_line.split(':')[1].strip())
+            import re
             
-            reasoning = llm_response.replace(score_line, "").strip()
+            # Try multiple score extraction patterns
+            score_patterns = [
+                r'score[:\s]*(\d+(?:\.\d+)?)/10',           # "Score: 7/10" or "Score 7/10"
+                r'score[:\s]*(\d+(?:\.\d+)?)\s*out\s*of\s*10',  # "Score: 7 out of 10"
+                r'score[:\s]*(\d+(?:\.\d+)?)',              # "Score: 7.5"
+                r'(\d+(?:\.\d+)?)/10',                      # Just "7/10" anywhere
+                r'overall[:\s]*(\d+(?:\.\d+)?)/10',         # "Overall: 7/10"
+                r'rating[:\s]*(\d+(?:\.\d+)?)/10',          # "Rating: 7/10"
+            ]
             
+            extracted_score = None
+            score_match_text = ""
+            
+            # Try each pattern to extract score
+            for pattern in score_patterns:
+                match = re.search(pattern, llm_response, re.IGNORECASE)
+                if match:
+                    extracted_score = float(match.group(1))
+                    score_match_text = match.group(0)
+                    break
+            
+            # If no score pattern found, try line-by-line search for score keyword
+            if extracted_score is None:
+                lines = llm_response.strip().split('\n')
+                for line in lines:
+                    if 'score' in line.lower():
+                        # Try to extract any number from the line
+                        numbers = re.findall(r'(\d+(?:\.\d+)?)', line)
+                        if numbers:
+                            # Take the first reasonable score (1-10 range)
+                            for num_str in numbers:
+                                num = float(num_str)
+                                if 1.0 <= num <= 10.0:
+                                    extracted_score = num
+                                    score_match_text = line.strip()
+                                    break
+                        if extracted_score is not None:
+                            break
+            
+            # Ensure score is within valid range
+            if extracted_score is not None:
+                extracted_score = max(1.0, min(10.0, extracted_score))
+                
+                # Remove the score line from reasoning to avoid duplication
+                reasoning = llm_response
+                if score_match_text:
+                    reasoning = reasoning.replace(score_match_text, "").strip()
+                
+                return {
+                    "overall_score": extracted_score,
+                    "reasoning": f"LLM assessment: {reasoning}",
+                }
+            else:
+                # No score found - this indicates a parsing issue
+                self.logger.warning(
+                    "No score found in LLM response, using fallback",
+                    extra={
+                        "operation": "llm_quality_assessment_parsing",
+                        "response_preview": llm_response[:100],
+                    }
+                )
+                raise ValueError("No score pattern matched")
+                
+        except Exception as e:
+            # Fallback parsing - use rule-based assessment instead of hardcoded 7.0
+            self.logger.error(
+                "LLM score parsing failed, using rule-based fallback",
+                extra={
+                    "error": str(e),
+                    "operation": "llm_quality_assessment_parsing",
+                    "response_preview": llm_response[:100],
+                }
+            )
             return {
-                "overall_score": score,
-                "reasoning": reasoning,
-            }
-        except Exception:
-            # Fallback parsing
-            return {
-                "overall_score": 7.0,
-                "reasoning": f"LLM assessment: {llm_response[:200]}...",
+                "overall_score": 5.0,  # Conservative fallback score
+                "reasoning": f"LLM assessment parsing failed: {llm_response[:200]}...",
             }
 
     def _rule_based_assessment(self, query: str, response: str) -> Tuple[float, str]:

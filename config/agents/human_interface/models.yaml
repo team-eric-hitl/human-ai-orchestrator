@@ -1,18 +1,5 @@
 primary_model: "anthropic_general_budget"
 
-model_preferences:
-  context_summarization:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_budget"]
-    
-  handoff_formatting:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_budget"]
-    
-  complex_context:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "anthropic_general_budget"]
-
 model_overrides:
   temperature: 0.5
   max_tokens: 1500

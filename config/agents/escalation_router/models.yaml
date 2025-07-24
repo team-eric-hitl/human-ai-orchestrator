@@ -1,18 +1,5 @@
 primary_model: "anthropic_general_budget"
 
-model_preferences:
-  routing_decisions:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_budget"]
-    
-  complex_routing:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "anthropic_general_budget"]
-    
-  priority_assessment:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_budget"]
-
 model_overrides:
   temperature: 0.4
   max_tokens: 1000

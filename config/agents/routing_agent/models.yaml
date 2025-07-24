@@ -1,21 +1,4 @@
-primary_model: "openai_general_budget"
-
-model_preferences:
-  skill_analysis:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_standard"]
-    
-  priority_calculation:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_budget"]
-    
-  agent_selection:
-    primary: "openai_general_budget"
-    fallback: ["anthropic_general_budget", "local_general_standard"]
-    
-  wellbeing_assessment:
-    primary: "anthropic_general_standard"
-    fallback: ["openai_general_standard", "local_general_premium"]
+primary_model: "anthropic_general_budget"
 
 model_overrides:
   temperature: 0.2
