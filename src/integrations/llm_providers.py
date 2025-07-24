@@ -216,6 +216,59 @@ class LLMProvider:
             gpu_layers=self.model_config.get("gpu_layers", 0),
         )
 
+    def _format_prompt_for_local_model(self, prompt: str, system_prompt: str = "") -> str:
+        """Format prompt according to model's expected format for local models"""
+        model_type = self.model_config.get("type", "").lower()
+
+        self.logger.debug(
+            "Formatting prompt for local model",
+            extra={
+                "model_name": self.model_name,
+                "model_type": model_type,
+                "has_system_prompt": bool(system_prompt),
+                "prompt_length": len(prompt),
+            },
+        )
+
+        if model_type == "llama":
+            # Llama format without leading <s> (let the model handle BOS token)
+            # Format: [INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{user_message} [/INST]
+            if system_prompt:
+                formatted_prompt = f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]"
+            else:
+                formatted_prompt = f"[INST] {prompt} [/INST]"
+        elif model_type == "mistral":
+            # Mistral format following official specification
+            # For v0.1/v0.2: Use <<SYS>> workaround for system prompts
+            # For v0.3+: This format still works and is compatible
+            if system_prompt:
+                # Use official system prompt format with <<SYS>> markers
+                formatted_prompt = f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]"
+            else:
+                # Simple instruction format
+                formatted_prompt = f"[INST] {prompt} [/INST]"
+        else:
+            # Fallback to current behavior for unknown model types
+            self.logger.warning(
+                "Unknown model type, using fallback formatting",
+                extra={"model_type": model_type, "model_name": self.model_name}
+            )
+            if system_prompt:
+                formatted_prompt = f"{system_prompt}\n\n{prompt}"
+            else:
+                formatted_prompt = prompt
+
+        self.logger.debug(
+            "Prompt formatted for local model",
+            extra={
+                "model_name": self.model_name,
+                "formatted_length": len(formatted_prompt),
+                "format_applied": model_type,
+            },
+        )
+
+        return formatted_prompt
+
     @retry_on_failure(max_retries=3, delay=1.0, backoff=2.0)
     @traceable(
         run_type="llm",
@@ -231,7 +284,7 @@ class LLMProvider:
         },
     )
     def generate_response(self, prompt: str, system_prompt: str = "") -> str:
-        """Generate response using LLM"""
+        """Generate response using LLM with proper prompt formatting for local models"""
         start_time = time.time()
 
         self.logger.debug(
@@ -244,12 +297,20 @@ class LLMProvider:
         )
 
         try:
-            messages = []
-            if system_prompt:
-                messages.append(SystemMessage(content=system_prompt))
-            messages.append(HumanMessage(content=prompt))
+            # Check if this is a local model that needs special formatting
+            is_local_model = self.provider_type in ["llama", "local", "mistral"]
 
-            response = self.client.invoke(messages)
+            if is_local_model:
+                # Format the prompt specifically for local models
+                formatted_prompt = self._format_prompt_for_local_model(prompt, system_prompt)
+                response = self.client.invoke(formatted_prompt)
+            else:
+                # Use message-based approach for cloud models (OpenAI, Anthropic)
+                messages = []
+                if system_prompt:
+                    messages.append(SystemMessage(content=system_prompt))
+                messages.append(HumanMessage(content=prompt))
+                response = self.client.invoke(messages)
             duration = time.time() - start_time
 
             # Handle different response types (some return strings, others objects)
@@ -367,16 +428,16 @@ class LLMProviderFactory:
         """
         models_config = self.config_manager.get_models_config()
         available_models = models_config.get("models", {})
-        
+
         # Initialize resolved name
         resolved_model_name = None
-        
+
         if model_name:
             # Resolve model alias if AgentConfigManager is available
             resolved_model_name = model_name
             if self.agent_config_manager:
                 resolved_model_name = self.agent_config_manager.resolve_model_name(model_name)
-            
+
             if resolved_model_name not in available_models:
                 raise ValueError(f"Model {resolved_model_name} not found in configuration")
             model_config = available_models[resolved_model_name]
@@ -411,11 +472,11 @@ class LLMProviderFactory:
         # Get provider strategy from system config
         system_config = self.config_manager.get_system_config()
         strategy = system_config.providers.get("strategy", "auto")
-        
+
         # Get available models from config
         models_config = self.config_manager.get_models_config()
         available_models = models_config.get("models", {})
-        
+
         if not available_models:
             raise ValueError(
                 "No models are available. Check your configuration and model files."
