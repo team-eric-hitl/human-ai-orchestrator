@@ -1,10 +1,10 @@
 {
   "experiment_info": {
-    "timestamp": "20250723_1330",
+    "timestamp": "20250724_1921",
     "agent_type": "chatbot_agent",
     "experiment_type": "full_conversation_simulation",
     "total_questions": 20,
-    "completed_conversations": 19,
+    "completed_conversations": 20,
     "input_file": "test_questions_20250718_1744.json"
   },
   "model_settings": {
@@ -67,29 +67,6 @@
     },
     "models_config": {
       "primary_model": "local_general_standard",
-      "model_preferences": {
-        "general_queries": {
-          "primary": "local_general_standard",
-          "fallback": [
-            "local_general_budget",
-            "local_general_standard"
-          ]
-        },
-        "code_queries": {
-          "primary": "anthropic_coding_premium",
-          "fallback": [
-            "local_coding_standard",
-            "local_general_budget"
-          ]
-        },
-        "complex_reasoning": {
-          "primary": "anthropic_reasoning_premium",
-          "fallback": [
-            "local_general_premium",
-            "local_general_budget"
-          ]
-        }
-      },
       "model_overrides": {
         "temperature": 0.7,
         "max_tokens": 2000,

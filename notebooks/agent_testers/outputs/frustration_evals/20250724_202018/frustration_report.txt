@@ -1,0 +1,52 @@
+FRUSTRATION ANALYSIS REPORT
+==================================================
+
+Export Date: 2025-07-24 20:20:18
+Total Turns Analyzed: 50
+Average Frustration Score: 1.95/10.0
+Analysis Model: claude-3-5-haiku-20241022
+Intervention Threshold: high
+
+FRUSTRATION LEVEL DISTRIBUTION:
+  Low: 39 (78.0%)
+  Moderate: 10 (20.0%)
+  High: 1 (2.0%)
+
+INTERVENTION ANALYSIS:
+  Interventions Recommended: 1
+  Intervention Rate: 2.0%
+
+ESCALATION TRENDS:
+  None: 50 (100.0%)
+
+CUSTOMER TYPE ANALYSIS:
+  Frustrated:
+    Sample Size: 15
+    Average Frustration: 3.76/10.0
+    Intervention Rate: 6.7%
+    High Frustration Rate: 6.7%
+  Urgent:
+    Sample Size: 15
+    Average Frustration: 1.34/10.0
+    Intervention Rate: 0.0%
+    High Frustration Rate: 0.0%
+  Confused:
+    Sample Size: 14
+    Average Frustration: 1.18/10.0
+    Intervention Rate: 0.0%
+    High Frustration Rate: 0.0%
+  Normal:
+    Sample Size: 6
+    Average Frustration: 0.73/10.0
+    Intervention Rate: 0.0%
+    High Frustration Rate: 0.0%
+
+EMPLOYEE WELLBEING IMPACT:
+  High-Stress Interactions: 1 (2.0%)
+  Escalating Patterns: 0 (0.0%)
+
+  Recommendations:
+    • Rotate high-frustration customers among multiple agents
+    • Provide emotional support for agents handling difficult cases
+    • Monitor agent stress levels during peak frustration periods
+    • Consider priority routing for escalating situations
