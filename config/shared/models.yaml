@@ -7,10 +7,8 @@ model_aliases:
   openai_general_standard: gpt-4
   openai_general_budget: gpt-3.5-turbo
   openai_coding_standard: gpt-4
-  deepinfra_general_standard: qwen3-32b
-  deepinfra_general_budget: qwen3-14b
-  deepinfra_coding_standard: llama4-maverick-17b
-  deepinfra_reasoning_premium: deepseek-v3-turbo
+  deepinfra_general_standard: gemini-2.5-flash
+  deepinfra_general_budget: Llama-3.3-70B-Instruct-Turbo
   local_general_standard: llama-7b
   local_general_premium: llama-13b
   local_coding_standard: codellama-7b
@@ -117,6 +115,22 @@ models:
     repetition_penalty: 1.2
     top_p: 0.9
     description: Devstral Small - developer-focused model via DeepInfra
+  Llama-3.3-70B-Instruct-Turbo:
+    type: deepinfra
+    model_id: meta-llama/Llama-3.3-70B-Instruct-Turbo
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Llama 3.3 70B Instruct Turbo - high-performance instruction model via DeepInfra
+  gemini-2.5-flash:
+    type: deepinfra
+    model_id: google/gemini-2.5-flash
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Google Gemini 2.5 Flash - fast multimodal model via DeepInfra
 use_cases:
   general:
     recommended: local_general_standard

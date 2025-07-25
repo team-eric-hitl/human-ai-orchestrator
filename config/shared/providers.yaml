@@ -51,6 +51,8 @@ llm_providers:
       - "deepseek-ai/DeepSeek-V3-0324-Turbo"
       - "meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo"
       - "mistralai/Devstral-Small-2507"
+      - "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+      - "google/gemini-2.5-flash"
     rate_limits:                            # API rate limits
       requests_per_minute: 200              # Max requests per minute
       tokens_per_minute: 100000             # Max tokens per minute
