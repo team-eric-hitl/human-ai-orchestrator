@@ -7,8 +7,10 @@ model_aliases:
   openai_general_standard: gpt-4
   openai_general_budget: gpt-3.5-turbo
   openai_coding_standard: gpt-4
-  deepinfra_general_standard: gemini-2.5-flash
-  deepinfra_general_budget: Llama-3.3-70B-Instruct-Turbo
+  deepinfra_general_standard: kimi-k2-instruct
+  deepinfra_general_budget: meta-llama-3-8b-instruct
+  deepinfra_coding_standard: meta-llama-3.1-8b-instruct
+  deepinfra_reasoning_premium: mistral-7b-instruct-v0.3
   local_general_standard: llama-7b
   local_general_premium: llama-13b
   local_coding_standard: codellama-7b
@@ -75,62 +77,38 @@ models:
     temperature: 0.7
     max_tokens: 2000
     description: Anthropic Claude 3.5 Haiku - fast and efficient
-  qwen3-32b:
+  kimi-k2-instruct:
     type: deepinfra
-    model_id: Qwen/Qwen3-32B
+    model_id: moonshotai/Kimi-K2-Instruct
     temperature: 0.7
     max_tokens: 2000
     repetition_penalty: 1.2
     top_p: 0.9
-    description: Qwen3 32B - high-quality conversational model via DeepInfra
-  qwen3-14b:
+    description: Kimi K2 Instruct - large-scale MoE language model via DeepInfra
+  meta-llama-3-8b-instruct:
     type: deepinfra
-    model_id: Qwen/Qwen3-14B
+    model_id: meta-llama/Meta-Llama-3-8B-Instruct
     temperature: 0.7
     max_tokens: 2000
     repetition_penalty: 1.2
     top_p: 0.9
-    description: Qwen3 14B - balanced performance model via DeepInfra
-  deepseek-v3-turbo:
+    description: Meta Llama 3 8B Instruct - balanced performance model via DeepInfra
+  meta-llama-3.1-8b-instruct:
     type: deepinfra
-    model_id: deepseek-ai/DeepSeek-V3-0324-Turbo
-    temperature: 0.7
-    max_tokens: 2000
-    repetition_penalty: 1.2
-    top_p: 0.9
-    description: DeepSeek V3 Turbo - fast and efficient model via DeepInfra
-  llama4-maverick-17b:
-    type: deepinfra
-    model_id: meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo
+    model_id: meta-llama/Meta-Llama-3.1-8B-Instruct
     temperature: 0.2
     max_tokens: 2000
     repetition_penalty: 1.1
     top_p: 0.9
-    description: Llama 4 Maverick 17B - specialized instruction model via DeepInfra
-  devstral-small:
+    description: Meta Llama 3.1 8B Instruct - optimized for code and reasoning via DeepInfra
+  mistral-7b-instruct-v0.3:
     type: deepinfra
-    model_id: mistralai/Devstral-Small-2507
+    model_id: mistralai/Mistral-7B-Instruct-v0.3
     temperature: 0.7
     max_tokens: 2000
     repetition_penalty: 1.2
     top_p: 0.9
-    description: Devstral Small - developer-focused model via DeepInfra
-  Llama-3.3-70B-Instruct-Turbo:
-    type: deepinfra
-    model_id: meta-llama/Llama-3.3-70B-Instruct-Turbo
-    temperature: 0.7
-    max_tokens: 2000
-    repetition_penalty: 1.2
-    top_p: 0.9
-    description: Llama 3.3 70B Instruct Turbo - high-performance instruction model via DeepInfra
-  gemini-2.5-flash:
-    type: deepinfra
-    model_id: google/gemini-2.5-flash
-    temperature: 0.7
-    max_tokens: 2000
-    repetition_penalty: 1.2
-    top_p: 0.9
-    description: Google Gemini 2.5 Flash - fast multimodal model via DeepInfra
+    description: Mistral 7B Instruct v0.3 - excellent instruction following via DeepInfra
 use_cases:
   general:
     recommended: local_general_standard
