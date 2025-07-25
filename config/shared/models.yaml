@@ -211,6 +211,13 @@ fallback_strategy:
   max_retries: 3
   retry_delay: 5
   default_fallback:
-  - local_general_budget
-  - anthropic_general_budget
-  - gpt-3.5-turbo
+  # Prioritize working DeepInfra models first (fast, serverless)
+  - deepinfra_general_standard      # moonshotai/Kimi-K2-Instruct (verified working)
+  - deepinfra_general_budget        # meta-llama/Meta-Llama-3-8B-Instruct (verified working)
+  - deepinfra_coding_standard       # meta-llama/Meta-Llama-3.1-8B-Instruct (verified working)
+  - deepinfra_reasoning_premium     # mistralai/Mistral-7B-Instruct-v0.3 (verified working)
+  # Then try local models (reliable but slower)
+  - local_general_budget            # mistral-7b (if available locally)
+  # Finally cloud providers (reliable but costs money)
+  - anthropic_general_budget        # claude-3-5-haiku (requires API key)
+  - gpt-3.5-turbo                   # openai fallback (requires API key)

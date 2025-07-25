@@ -565,7 +565,7 @@ class LLMProviderFactory:
             return self.create_provider(strategy)
 
     def create_provider_with_fallback(
-        self, preferred_model: str | None = None
+        self, preferred_model: str | None = None, use_case: str | None = None
     ) -> LLMProvider:
         """Create provider with automatic fallback to available models"""
 
@@ -574,26 +574,37 @@ class LLMProviderFactory:
         # Get fallback chain from config
         models_config = self.config_manager.get_models_config()
         use_cases = models_config.get("use_cases", {})
-        general_use_case = use_cases.get("general", {})
-        fallback_models = general_use_case.get("alternatives", [])
+        fallback_config = models_config.get("fallback_strategy", {})
+        
+        # Determine which use case to use for fallbacks
+        target_use_case = use_case or "general"
+        case_config = use_cases.get(target_use_case, use_cases.get("general", {}))
+        fallback_models = case_config.get("alternatives", [])
 
         # Start with preferred model if specified
         models_to_try = []
         if preferred_model:
             models_to_try.append(preferred_model)
 
-        # Add primary model
+        # Add primary model for the use case
         try:
-            primary_model = general_use_case.get("recommended", "local_general_standard")
+            primary_model = case_config.get("recommended", "local_general_standard")
             if primary_model not in models_to_try:
                 models_to_try.append(primary_model)
         except Exception:
             pass
 
-        # Add fallback models
+        # Add use case specific fallback models
         for model in fallback_models:
             if model not in models_to_try:
                 models_to_try.append(model)
+                
+        # Add global fallback models if enabled
+        if fallback_config.get("enabled", True):
+            global_fallbacks = fallback_config.get("default_fallback", [])
+            for model in global_fallbacks:
+                if model not in models_to_try:
+                    models_to_try.append(model)
 
         # Try each model in order
         for model_name in models_to_try:
@@ -611,6 +622,149 @@ class LLMProviderFactory:
             f"No working models available. Tried: {', '.join(models_to_try)}"
         )
 
+    def create_provider_with_inference_fallback(
+        self, preferred_model: str | None = None, use_case: str | None = None
+    ) -> "LLMProviderWithFallback":
+        """Create provider that automatically falls back during inference failures"""
+        
+        logger = get_logger("llm_provider.factory")
+        
+        # Get fallback chain using existing logic
+        models_config = self.config_manager.get_models_config()
+        use_cases = models_config.get("use_cases", {})
+        fallback_config = models_config.get("fallback_strategy", {})
+        
+        # Determine which use case to use for fallbacks
+        target_use_case = use_case or "general"
+        case_config = use_cases.get(target_use_case, use_cases.get("general", {}))
+        fallback_models = case_config.get("alternatives", [])
+
+        # Build complete fallback chain
+        models_to_try = []
+        if preferred_model:
+            models_to_try.append(preferred_model)
+
+        # Add primary model for the use case
+        primary_model = case_config.get("recommended", "local_general_standard")
+        if primary_model not in models_to_try:
+            models_to_try.append(primary_model)
+
+        # Add use case specific fallback models
+        for model in fallback_models:
+            if model not in models_to_try:
+                models_to_try.append(model)
+                
+        # Add global fallback models if enabled
+        if fallback_config.get("enabled", True):
+            global_fallbacks = fallback_config.get("default_fallback", [])
+            for model in global_fallbacks:
+                if model not in models_to_try:
+                    models_to_try.append(model)
+
+        logger.info(f"Creating provider with fallback chain: {models_to_try}")
+        
+        return LLMProviderWithFallback(self, models_to_try)
+
+
+class LLMProviderWithFallback:
+    """
+    LLM provider wrapper that automatically falls back to alternative models
+    when inference fails after exhausting retries
+    """
+    
+    def __init__(self, factory: LLMProviderFactory, model_chain: list[str]):
+        self.factory = factory
+        self.model_chain = model_chain
+        self.current_provider = None
+        self.current_model_index = 0
+        self.logger = get_logger("llm_provider.fallback")
+        
+        # Initialize with first working provider
+        self._initialize_current_provider()
+    
+    def _initialize_current_provider(self):
+        """Initialize the current provider, trying models in fallback chain"""
+        while self.current_model_index < len(self.model_chain):
+            try:
+                model_name = self.model_chain[self.current_model_index]
+                self.current_provider = self.factory.create_provider(model_name)
+                self.logger.info(f"Initialized provider with model: {model_name}")
+                return
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize model {model_name}: {str(e)}")
+                self.current_model_index += 1
+                
+        raise ValueError(f"No working models available in chain: {self.model_chain}")
+    
+    def _try_next_provider(self):
+        """Try to initialize the next provider in the fallback chain"""
+        self.current_model_index += 1
+        if self.current_model_index >= len(self.model_chain):
+            return False
+            
+        try:
+            model_name = self.model_chain[self.current_model_index]
+            self.current_provider = self.factory.create_provider(model_name)
+            self.logger.info(f"Switched to fallback model: {model_name}")
+            return True
+        except Exception as e:
+            self.logger.warning(f"Failed to switch to fallback model {model_name}: {str(e)}")
+            return self._try_next_provider()  # Recursively try next
+    
+    @property
+    def model_name(self) -> str:
+        """Get current model name"""
+        if self.current_provider:
+            return self.current_provider.model_name
+        return "unknown"
+    
+    @property
+    def provider_type(self) -> str:
+        """Get current provider type"""
+        if self.current_provider:
+            return self.current_provider.provider_type
+        return "unknown"
+        
+    def generate_response(self, prompt: str, system_prompt: str = "") -> str:
+        """Generate response with automatic fallback on failure"""
+        last_exception = None
+        
+        while self.current_provider and self.current_model_index < len(self.model_chain):
+            try:
+                # Try current provider (this will do its own retries)
+                response = self.current_provider.generate_response(prompt, system_prompt)
+                return response
+                
+            except (ModelInferenceError, Exception) as e:
+                last_exception = e
+                current_model = self.model_chain[self.current_model_index] if self.current_model_index < len(self.model_chain) else "unknown"
+                
+                self.logger.error(
+                    f"Model {current_model} failed after retries, attempting fallback",
+                    extra={"error": str(e), "model_index": self.current_model_index}
+                )
+                
+                # Try to switch to next provider
+                if not self._try_next_provider():
+                    break
+        
+        # If we get here, all models in the chain have been exhausted
+        raise ModelInferenceError(
+            f"All models in fallback chain failed. Chain: {self.model_chain}",
+            model_name="fallback_chain",
+            model_type="fallback",
+            context={
+                "fallback_chain": self.model_chain,
+                "last_error": str(last_exception) if last_exception else None
+            }
+        )
+    
+    def evaluate_response(self, query: str, response: str) -> dict[str, Any]:
+        """Evaluate response using current provider"""
+        if self.current_provider:
+            return self.current_provider.evaluate_response(query, response)
+        return {"error": "No active provider"}
+
 
 def create_provider_from_config(
     config_dir: str = "config", model_name: str | None = None
@@ -622,6 +776,16 @@ def create_provider_from_config(
         return factory.create_provider(model_name)
     else:
         return factory.create_auto_provider()
+
+
+def create_provider_with_fallback_from_config(
+    config_dir: str = "config", 
+    preferred_model: str | None = None, 
+    use_case: str | None = None
+) -> LLMProviderWithFallback:
+    """Create LLM provider with automatic inference fallback from configuration"""
+    factory = LLMProviderFactory(config_dir)
+    return factory.create_provider_with_inference_fallback(preferred_model, use_case)
 
 
 # Backward compatibility function
