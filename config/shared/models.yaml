@@ -7,6 +7,10 @@ model_aliases:
   openai_general_standard: gpt-4
   openai_general_budget: gpt-3.5-turbo
   openai_coding_standard: gpt-4
+  deepinfra_general_standard: qwen3-32b
+  deepinfra_general_budget: qwen3-14b
+  deepinfra_coding_standard: llama4-maverick-17b
+  deepinfra_reasoning_premium: deepseek-v3-turbo
   local_general_standard: llama-7b
   local_general_premium: llama-13b
   local_coding_standard: codellama-7b
@@ -73,27 +77,71 @@ models:
     temperature: 0.7
     max_tokens: 2000
     description: Anthropic Claude 3.5 Haiku - fast and efficient
+  qwen3-32b:
+    type: deepinfra
+    model_id: Qwen/Qwen3-32B
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Qwen3 32B - high-quality conversational model via DeepInfra
+  qwen3-14b:
+    type: deepinfra
+    model_id: Qwen/Qwen3-14B
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Qwen3 14B - balanced performance model via DeepInfra
+  deepseek-v3-turbo:
+    type: deepinfra
+    model_id: deepseek-ai/DeepSeek-V3-0324-Turbo
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: DeepSeek V3 Turbo - fast and efficient model via DeepInfra
+  llama4-maverick-17b:
+    type: deepinfra
+    model_id: meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo
+    temperature: 0.2
+    max_tokens: 2000
+    repetition_penalty: 1.1
+    top_p: 0.9
+    description: Llama 4 Maverick 17B - specialized instruction model via DeepInfra
+  devstral-small:
+    type: deepinfra
+    model_id: mistralai/Devstral-Small-2507
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Devstral Small - developer-focused model via DeepInfra
 use_cases:
   general:
     recommended: local_general_standard
     alternatives:
+    - deepinfra_general_standard
     - local_general_budget
     - anthropic_general_standard
     - openai_general_standard
   code:
     recommended: local_coding_standard
     alternatives:
+    - deepinfra_coding_standard
     - anthropic_coding_premium
     - openai_coding_standard
     - local_general_budget
   fast:
     recommended: anthropic_general_budget
     alternatives:
+    - deepinfra_general_budget
     - openai_general_budget
     - local_general_standard
   high_quality:
     recommended: openai_general_standard
     alternatives:
+    - deepinfra_reasoning_premium
     - anthropic_reasoning_premium
     - anthropic_general_standard
     - local_general_budget

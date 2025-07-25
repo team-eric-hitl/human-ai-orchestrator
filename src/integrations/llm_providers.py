@@ -20,6 +20,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 # Cloud-based LLMs
 from langchain_openai import ChatOpenAI
+from langchain_community.llms import DeepInfra
 
 # Tracing
 from langsmith import traceable
@@ -123,6 +124,8 @@ class LLMProvider:
             return self._setup_openai()
         elif self.provider_type == "anthropic":
             return self._setup_anthropic()
+        elif self.provider_type == "deepinfra":
+            return self._setup_deepinfra()
         elif self.provider_type == "llama":
             return self._setup_llama()
         elif self.provider_type == "mistral":
@@ -160,6 +163,28 @@ class LLMProvider:
             temperature=self.model_config.get("temperature", 0.7),
             max_tokens=self.model_config.get("max_tokens", 2000),
             api_key=api_key,
+        )
+
+    def _setup_deepinfra(self) -> DeepInfra:
+        """Setup DeepInfra client"""
+        api_token = os.getenv("DEEPINFRA_API_TOKEN")
+        if not api_token:
+            raise ValueError(
+                "DEEPINFRA_API_TOKEN environment variable is required for DeepInfra models"
+            )
+
+        # Configure model parameters
+        model_kwargs = {
+            "temperature": self.model_config.get("temperature", 0.7),
+            "max_new_tokens": self.model_config.get("max_tokens", 2000),
+            "repetition_penalty": self.model_config.get("repetition_penalty", 1.2),
+            "top_p": self.model_config.get("top_p", 0.9),
+        }
+
+        return DeepInfra(
+            model_id=self.model_config.get("model_id", "meta-llama/Llama-2-7b-chat-hf"),
+            deepinfra_api_token=api_token,
+            model_kwargs=model_kwargs,
         )
 
     def _setup_llama(self) -> LlamaCpp:
@@ -299,11 +324,19 @@ class LLMProvider:
         try:
             # Check if this is a local model that needs special formatting
             is_local_model = self.provider_type in ["llama", "local", "mistral"]
+            is_deepinfra_model = self.provider_type == "deepinfra"
 
             if is_local_model:
                 # Format the prompt specifically for local models
                 formatted_prompt = self._format_prompt_for_local_model(prompt, system_prompt)
                 response = self.client.invoke(formatted_prompt)
+            elif is_deepinfra_model:
+                # DeepInfra uses string-based prompts but handles system prompts differently
+                if system_prompt:
+                    full_prompt = f"{system_prompt}\n\nUser: {prompt}\nAssistant:"
+                else:
+                    full_prompt = f"User: {prompt}\nAssistant:"
+                response = self.client.invoke(full_prompt)
             else:
                 # Use message-based approach for cloud models (OpenAI, Anthropic)
                 messages = []
@@ -345,7 +378,7 @@ class LLMProvider:
                 f"Failed to generate response with {self.model_name}",
                 model_name=self.model_name,
                 model_type=self.provider_type,
-                extra={"prompt_length": len(prompt), "duration": duration},
+                context={"prompt_length": len(prompt), "duration": duration},
             ) from e
 
     @traceable(
@@ -459,6 +492,8 @@ class LLMProviderFactory:
             raise ValueError("OPENAI_API_KEY not set for OpenAI model")
         elif model_type == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
             raise ValueError("ANTHROPIC_API_KEY not set for Anthropic model")
+        elif model_type == "deepinfra" and not os.getenv("DEEPINFRA_API_TOKEN"):
+            raise ValueError("DEEPINFRA_API_TOKEN not set for DeepInfra model")
 
         # Show both alias and resolved name if different
         display_name = model_name or resolved_model_name

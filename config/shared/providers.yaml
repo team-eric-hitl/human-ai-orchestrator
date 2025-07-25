@@ -38,6 +38,23 @@ llm_providers:
       requests_per_minute: 100             # Max requests per minute
       tokens_per_minute: 40000             # Max tokens per minute
       
+  # DeepInfra provider - serverless GPU compute for open-source models
+  deepinfra:
+    enabled: true                           # Enable DeepInfra provider
+    api_key_env: "DEEPINFRA_API_TOKEN"      # Environment variable name for API token
+    base_url: "https://api.deepinfra.com/v1/inference"  # DeepInfra API endpoint
+    timeout: 60                             # Request timeout in seconds
+    max_retries: 3                          # Retry failed requests up to 3 times
+    models:                                 # Available DeepInfra models
+      - "Qwen/Qwen3-32B"
+      - "Qwen/Qwen3-14B"
+      - "deepseek-ai/DeepSeek-V3-0324-Turbo"
+      - "meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo"
+      - "mistralai/Devstral-Small-2507"
+    rate_limits:                            # API rate limits
+      requests_per_minute: 200              # Max requests per minute
+      tokens_per_minute: 100000             # Max tokens per minute
+      
   # Local provider - runs models on your computer via Ollama
   local:
     enabled: true                          # Enable local model provider
