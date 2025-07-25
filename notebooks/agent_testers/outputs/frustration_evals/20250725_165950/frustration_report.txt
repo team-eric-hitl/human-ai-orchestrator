@@ -1,0 +1,53 @@
+FRUSTRATION ANALYSIS REPORT
+==================================================
+
+Export Date: 2025-07-25 16:59:51
+Total Turns Analyzed: 60
+Average Frustration Score: 3.43/10.0
+Analysis Model: kimi-k2-instruct
+Intervention Threshold: high
+
+FRUSTRATION LEVEL DISTRIBUTION:
+  Low: 37 (61.7%)
+  Moderate: 10 (16.7%)
+  High: 7 (11.7%)
+  Critical: 6 (10.0%)
+
+INTERVENTION ANALYSIS:
+  Interventions Recommended: 13
+  Intervention Rate: 21.7%
+
+ESCALATION TRENDS:
+  None: 60 (100.0%)
+
+CUSTOMER TYPE ANALYSIS:
+  Frustrated:
+    Sample Size: 12
+    Average Frustration: 7.50/10.0
+    Intervention Rate: 91.7%
+    High Frustration Rate: 91.7%
+  Urgent:
+    Sample Size: 17
+    Average Frustration: 3.35/10.0
+    Intervention Rate: 11.8%
+    High Frustration Rate: 11.8%
+  Confused:
+    Sample Size: 24
+    Average Frustration: 2.04/10.0
+    Intervention Rate: 0.0%
+    High Frustration Rate: 0.0%
+  Normal:
+    Sample Size: 7
+    Average Frustration: 1.43/10.0
+    Intervention Rate: 0.0%
+    High Frustration Rate: 0.0%
+
+EMPLOYEE WELLBEING IMPACT:
+  High-Stress Interactions: 13 (21.7%)
+  Escalating Patterns: 0 (0.0%)
+
+  Recommendations:
+    • Rotate high-frustration customers among multiple agents
+    • Provide emotional support for agents handling difficult cases
+    • Monitor agent stress levels during peak frustration periods
+    • Consider priority routing for escalating situations
