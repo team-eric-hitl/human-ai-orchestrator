@@ -123,6 +123,10 @@ class ChatbotAgentNode:
     def _build_customer_service_context(self, state: HybridSystemState) -> str:
         """Build comprehensive customer service context"""
 
+        # Handle case when context provider is disabled
+        if self.context_provider is None:
+            return self._get_context_template("new_customer_note")
+
         context_summary = self.context_provider.get_context_summary(
             state["user_id"], state["session_id"]
         )
@@ -222,6 +226,10 @@ class ChatbotAgentNode:
         self, state: HybridSystemState, response: str, metadata: dict | None = None
     ):
         """Save interaction to context store with enhanced metadata"""
+        # Skip if context provider is disabled
+        if self.context_provider is None:
+            return
+            
         from datetime import datetime
 
         from ..interfaces.core.context import ContextEntry

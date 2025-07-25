@@ -196,6 +196,18 @@ class FrustrationAgentNode:
     def _analyze_interaction_history(self, state: HybridSystemState, current_llm_score: float = None) -> dict[str, Any]:
         """Analyze interaction history for escalating frustration patterns"""
 
+        # Skip history analysis if context provider is disabled
+        if self.context_provider is None:
+            return {
+                "escalation_trend": "stable",
+                "trend_confidence": 0.5,
+                "history_context": "No historical context available",
+                "query_repetition_score": 0.0,
+                "pattern_score": 0.0,
+                "interaction_count": 1,
+                "time_pattern": "normal"
+            }
+
         # Get recent context
         recent_context = self.context_provider.get_recent_context(
             state["user_id"], state["session_id"], limit=10
@@ -415,6 +427,10 @@ class FrustrationAgentNode:
         self, state: HybridSystemState, assessment: dict[str, Any]
     ):
         """Update context with frustration analysis"""
+        
+        # Skip context update if context provider is disabled
+        if self.context_provider is None:
+            return
 
         from datetime import datetime
 

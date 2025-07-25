@@ -302,6 +302,10 @@ class QualityAgentNode:
 
         adjustment = 0.0
 
+        # Skip context adjustment if context provider is disabled
+        if self.context_provider is None:
+            return adjustment
+
         # Get user context
         context_summary = self.context_provider.get_context_summary(
             state["user_id"], state["session_id"]

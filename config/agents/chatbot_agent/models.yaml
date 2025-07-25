@@ -1,4 +1,4 @@
-primary_model: "local_general_standard"
+primary_model: "deepinfra_general_budget"
 
 model_overrides:
   temperature: 0.7
