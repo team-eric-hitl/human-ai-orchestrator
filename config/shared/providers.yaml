@@ -45,11 +45,20 @@ llm_providers:
     base_url: "https://api.deepinfra.com/v1/inference"  # DeepInfra API endpoint
     timeout: 60                             # Request timeout in seconds
     max_retries: 3                          # Retry failed requests up to 3 times
-    models:                                 # Available DeepInfra models (verified working)
+    models:                                 # Available DeepInfra models
+      # Verified working models (primary)
       - "moonshotai/Kimi-K2-Instruct"
       - "meta-llama/Meta-Llama-3-8B-Instruct"
       - "meta-llama/Meta-Llama-3.1-8B-Instruct"
       - "mistralai/Mistral-7B-Instruct-v0.3"
+      # Alternative models (may have availability issues)
+      - "Qwen/Qwen3-32B"
+      - "Qwen/Qwen3-14B"
+      - "deepseek-ai/DeepSeek-V3-0324-Turbo"
+      - "meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo"
+      - "mistralai/Devstral-Small-2507"
+      - "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+      - "google/gemini-2.5-flash"
     rate_limits:                            # API rate limits
       requests_per_minute: 200              # Max requests per minute
       tokens_per_minute: 100000             # Max tokens per minute
