@@ -474,6 +474,7 @@ class LLMProviderFactory:
             if resolved_model_name not in available_models:
                 raise ValueError(f"Model {resolved_model_name} not found in configuration")
             model_config = available_models[resolved_model_name]
+            model_config["model_name"] = resolved_model_name
         else:
             # Get the primary model from use cases
             use_cases = models_config.get("use_cases", {})
@@ -481,6 +482,7 @@ class LLMProviderFactory:
             primary_model_name = general_use_case.get("recommended", "local_general_standard")
             resolved_model_name = primary_model_name
             model_config = available_models.get(primary_model_name, {})
+            model_config["model_name"] = primary_model_name
 
         # Validate model is available
         model_type = model_config.get("type", "unknown")
@@ -524,10 +526,12 @@ class LLMProviderFactory:
             if local_models:
                 model_name = list(local_models.keys())[0]
                 model_config = local_models[model_name]
+                model_config["model_name"] = model_name
                 print(f"✅ Auto-selected local model: {model_name}")
             else:
                 model_name = list(available_models.keys())[0]
                 model_config = available_models[model_name]
+                model_config["model_name"] = model_name
                 print(f"✅ Auto-selected cloud model: {model_name}")
 
             return LLMProvider(model_config)
@@ -538,7 +542,9 @@ class LLMProviderFactory:
             if not local_models:
                 raise ValueError("No local models are available")
             model_name = list(local_models.keys())[0]
-            return LLMProvider(local_models[model_name])
+            model_config = local_models[model_name]
+            model_config["model_name"] = model_name
+            return LLMProvider(model_config)
 
         elif strategy == "openai":
             # Force OpenAI
@@ -548,7 +554,9 @@ class LLMProviderFactory:
                     "No OpenAI models are available (check OPENAI_API_KEY)"
                 )
             model_name = list(openai_models.keys())[0]
-            return LLMProvider(openai_models[model_name])
+            model_config = openai_models[model_name]
+            model_config["model_name"] = model_name
+            return LLMProvider(model_config)
 
         elif strategy == "anthropic":
             # Force Anthropic
@@ -558,7 +566,9 @@ class LLMProviderFactory:
                     "No Anthropic models are available (check ANTHROPIC_API_KEY)"
                 )
             model_name = list(anthropic_models.keys())[0]
-            return LLMProvider(anthropic_models[model_name])
+            model_config = anthropic_models[model_name]
+            model_config["model_name"] = model_name
+            return LLMProvider(model_config)
 
         else:
             # Strategy is a specific model name

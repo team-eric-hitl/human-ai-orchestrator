@@ -32,8 +32,7 @@ class FrustrationAgentNode:
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
 
-        # Load frustration indicators from config
-        self.frustration_indicators = self._load_frustration_indicators()
+        # No longer using rule-based indicators - using LLM-only approach
 
     def _initialize_llm_provider(self):
         """Initialize the LLM provider for frustration analysis"""
@@ -62,38 +61,6 @@ class FrustrationAgentNode:
             )
             return None
 
-    def _load_frustration_indicators(self) -> dict[str, list[str]]:
-        """Load frustration indicators from config"""
-
-        default_indicators = {
-            "high_frustration": [
-                "angry", "furious", "outraged", "livid", "pissed", "mad",
-                "ridiculous", "unacceptable", "disgusting", "horrible",
-                "worst", "terrible", "awful", "useless", "garbage",
-                "stupid", "idiotic", "moronic", "pathetic", "joke"
-            ],
-            "moderate_frustration": [
-                "frustrated", "annoyed", "irritated", "upset", "disappointed",
-                "unhappy", "dissatisfied", "confused", "lost", "stuck",
-                "tired", "fed up", "sick", "bothered", "troubled"
-            ],
-            "escalation_phrases": [
-                "speak to manager", "supervisor", "escalate", "complaint",
-                "lawsuit", "lawyer", "attorney", "sue", "legal action",
-                "corporate", "headquarters", "cancel", "refund"
-            ],
-            "urgency_indicators": [
-                "urgent", "emergency", "asap", "immediately", "right now",
-                "critical", "important", "deadline", "time sensitive"
-            ],
-            "repeat_indicators": [
-                "again", "still", "keep", "multiple times", "several times",
-                "how many times", "over and over", "repeatedly"
-            ]
-        }
-
-        # Get from config or use defaults
-        return self.agent_config.settings.get("frustration_indicators", default_indicators)
 
     @traceable(name="Frustration Agent")
     def __call__(self, state: HybridSystemState) -> HybridSystemState:
@@ -108,7 +75,8 @@ class FrustrationAgentNode:
         current_analysis = self._analyze_query_frustration(customer_query)
 
         # Analyze interaction history for escalating frustration
-        history_analysis = self._analyze_interaction_history(state)
+        current_llm_score = current_analysis.get("current_query_score", 0.0)
+        history_analysis = self._analyze_interaction_history(state, current_llm_score)
 
         # Combine analyses for overall frustration assessment
         overall_assessment = self._combine_frustration_analysis(
@@ -139,10 +107,7 @@ class FrustrationAgentNode:
 
         query_lower = query.lower()
 
-        # Rule-based analysis
-        rule_based_score = self._rule_based_frustration_score(query_lower)
-
-        # LLM-based analysis if available
+        # LLM-based analysis only
         llm_analysis = None
         if self.llm_provider:
             try:
@@ -157,13 +122,14 @@ class FrustrationAgentNode:
                     },
                 )
 
-        # Combine scores
+        # Use LLM score or fallback
         if llm_analysis:
-            combined_score = (rule_based_score["score"] + llm_analysis["score"]) / 2
-            confidence = min(rule_based_score["confidence"], llm_analysis["confidence"])
+            combined_score = llm_analysis["score"]
+            confidence = llm_analysis["confidence"]
         else:
-            combined_score = rule_based_score["score"]
-            confidence = rule_based_score["confidence"] * 0.8  # Lower confidence without LLM
+            # Fallback when LLM fails
+            combined_score = 2.0  # Conservative moderate score
+            confidence = 0.3
 
         # Determine frustration level
         frustration_level = self._score_to_frustration_level(combined_score)
@@ -172,66 +138,14 @@ class FrustrationAgentNode:
             "current_query_score": combined_score,
             "frustration_level": frustration_level.value,
             "confidence": confidence,
-            "rule_based_indicators": rule_based_score["indicators"],
+            "rule_based_indicators": [],  # No longer using rule-based
             "llm_analysis": llm_analysis["reasoning"] if llm_analysis else None,
             "raw_scores": {
-                "rule_based": rule_based_score["score"],
+                "rule_based": None,  # No longer using rule-based
                 "llm_based": llm_analysis["score"] if llm_analysis else None,
             }
         }
 
-    def _rule_based_frustration_score(self, query: str) -> dict[str, Any]:
-        """Calculate frustration score using rule-based approach"""
-
-        score = 0.0
-        indicators_found = []
-
-        # Check for different types of frustration indicators
-        for category, keywords in self.frustration_indicators.items():
-            category_matches = []
-            for keyword in keywords:
-                if keyword in query:
-                    category_matches.append(keyword)
-
-            if category_matches:
-                indicators_found.extend([(category, match) for match in category_matches])
-
-                # Weight different categories
-                if category == "high_frustration":
-                    score += len(category_matches) * 3.0
-                elif category == "moderate_frustration":
-                    score += len(category_matches) * 2.0
-                elif category == "escalation_phrases":
-                    score += len(category_matches) * 4.0
-                elif category == "urgency_indicators":
-                    score += len(category_matches) * 1.5
-                elif category == "repeat_indicators":
-                    score += len(category_matches) * 2.5
-
-        # Check for caps lock (shouting)
-        caps_ratio = sum(1 for c in query if c.isupper()) / max(len(query), 1)
-        if caps_ratio > 0.7 and len(query) > 10:
-            score += 2.0
-            indicators_found.append(("shouting", "excessive_caps"))
-
-        # Check for excessive punctuation
-        exclamation_count = query.count('!')
-        question_count = query.count('?')
-        if exclamation_count > 2:
-            score += min(exclamation_count * 0.5, 2.0)
-            indicators_found.append(("emphasis", f"{exclamation_count}_exclamations"))
-
-        # Normalize score to 0-10 scale
-        normalized_score = min(10.0, score)
-
-        # Calculate confidence based on number of indicators
-        confidence = min(0.95, 0.5 + (len(indicators_found) * 0.1))
-
-        return {
-            "score": normalized_score,
-            "confidence": confidence,
-            "indicators": indicators_found,
-        }
 
     def _llm_frustration_analysis(self, query: str) -> dict[str, Any]:
         """Use LLM to analyze frustration in the query"""
@@ -279,7 +193,7 @@ class FrustrationAgentNode:
                 "reasoning": f"LLM analysis: {llm_response[:200]}...",
             }
 
-    def _analyze_interaction_history(self, state: HybridSystemState) -> dict[str, Any]:
+    def _analyze_interaction_history(self, state: HybridSystemState, current_llm_score: float = None) -> dict[str, Any]:
         """Analyze interaction history for escalating frustration patterns"""
 
         # Get recent context
@@ -294,18 +208,28 @@ class FrustrationAgentNode:
         ]
 
         if len(recent_queries) < 2:
+            # For first turn, use current LLM score as pattern score
+            pattern_score = current_llm_score if current_llm_score is not None else 0.0
             return {
-                "pattern_score": 0.0,
+                "pattern_score": pattern_score,
                 "escalation_trend": "none",
                 "interaction_count": len(recent_queries),
                 "time_pattern": "normal",
             }
 
-        # Analyze frustration progression
+        # Analyze frustration progression using LLM
         frustration_scores = []
         for query in recent_queries[-5:]:  # Last 5 queries
-            query_analysis = self._rule_based_frustration_score(query.lower())
-            frustration_scores.append(query_analysis["score"])
+            try:
+                if self.llm_provider:
+                    llm_analysis = self._llm_frustration_analysis(query)
+                    frustration_scores.append(llm_analysis["score"])
+                else:
+                    # Fallback to moderate score when LLM unavailable
+                    frustration_scores.append(2.0)
+            except Exception:
+                # Fallback on error
+                frustration_scores.append(2.0)
 
         # Calculate trend
         if len(frustration_scores) >= 3:
@@ -444,11 +368,13 @@ class FrustrationAgentNode:
         if current["current_query_score"] > 6.0:
             factors.append("high_frustration_language")
 
-        if current["rule_based_indicators"]:
-            factor_types = set([indicator[0] for indicator in current["rule_based_indicators"]])
-            if "escalation_phrases" in factor_types:
+        # Use LLM analysis for factor identification
+        if current.get("llm_analysis"):
+            # Extract key phrases from LLM reasoning to identify factors
+            llm_reasoning = current["llm_analysis"].lower()
+            if "escalat" in llm_reasoning or "urgent" in llm_reasoning:
                 factors.append("escalation_language")
-            if "high_frustration" in factor_types:
+            if "frustrat" in llm_reasoning or "anger" in llm_reasoning:
                 factors.append("strong_negative_sentiment")
 
         # Historical factors
