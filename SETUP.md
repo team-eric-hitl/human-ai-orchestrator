@@ -31,6 +31,18 @@ By the end of this guide, you'll have:
    - Search for "Dev Containers" by Microsoft
    - Click Install
 
+### 🚀 GPU Support (Optional)
+If you have an NVIDIA GPU and want to use local LLM models with GPU acceleration:
+
+1. **Install NVIDIA GPU drivers** and **NVIDIA Docker runtime**
+2. **Use the GPU devcontainer**: The project includes a GPU-enabled devcontainer configuration
+   - Located at `.devcontainer/devcontainer.gpu.json`
+   - Automatically configured for GPU access with `--gpus all`
+   - Includes CUDA environment variables
+3. **Select GPU devcontainer**: When opening in VSCode/Cursor, choose the GPU configuration if prompted
+
+For detailed GPU setup instructions, see [docs/GPU_SETUP.md](docs/GPU_SETUP.md)
+
 ## 🔧 Step-by-Step Setup
 
 ### Step 1: Get the Project
@@ -65,10 +77,15 @@ If you don't see the popup:
 
 The first time you open the project, it will:
 1. **Build the development container** (this takes 3-5 minutes)
+   - For GPU support: Uses `Dockerfile.gpu` with CUDA runtime
+   - For CPU-only: Uses standard `Dockerfile`
 2. **Install Python dependencies** with `uv sync`
 3. **Configure all the development tools**
+4. **Setup GPU access** (if using GPU devcontainer)
 
 You'll see progress in the bottom-right corner of your editor.
+
+**Note**: The GPU devcontainer will automatically detect and configure GPU access. You can verify GPU availability once the container is running by checking `nvidia-smi` in the terminal.
 
 ### Step 4: Verify Everything Works
 
@@ -88,6 +105,14 @@ Once the container is ready:
 4. **Run a quick test**:
    ```bash
    make test
+   ```
+5. **Check GPU availability** (if using GPU container):
+   ```bash
+   nvidia-smi
+   # Should show your GPU information
+   
+   # Test GPU in Python
+   python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
    ```
 
 ## 🎓 Your First Steps

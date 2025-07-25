@@ -56,15 +56,51 @@ make run
 ```
 
 ### Development with Dev Container
+
+The project includes comprehensive dev container support for both CPU and GPU development:
+
+#### Standard Dev Container
 ```bash
 # Open in VSCode/Cursor
 code .
 # Click "Reopen in Container" when prompted
 
-# Or manually with Docker
+# Uses .devcontainer/devcontainer.json
+# - Standard Python development environment
+# - All dependencies pre-installed
+# - Development tools configured (linting, formatting, debugging)
+```
+
+#### GPU-Enabled Dev Container
+```bash
+# For GPU acceleration with local LLM models
+# Prerequisites: NVIDIA GPU drivers + Docker GPU runtime
+
+# Open in VSCode/Cursor and select GPU container
+# Uses .devcontainer/devcontainer.gpu.json
+# - Dockerfile.gpu with CUDA runtime
+# - GPU access with --gpus all
+# - CUDA environment variables configured
+# - Automatic GPU detection and setup
+```
+
+#### Manual Dev Container Setup
+```bash
+# Standard container
 docker-compose -f .devcontainer/docker-compose.yml up -d
 docker exec -it hybrid-ai-system bash
+
+# GPU container (if available)
+docker build -f Dockerfile.gpu -t hybrid-ai-system:gpu .
+docker run --gpus all -v $(pwd):/workspace -it hybrid-ai-system:gpu bash
 ```
+
+**Benefits of Dev Containers:**
+- Consistent development environment across team members
+- All dependencies and tools pre-configured
+- Isolated from host system
+- GPU support for local LLM development
+- Extensions and settings automatically configured
 
 ### Running Components Separately
 ```bash

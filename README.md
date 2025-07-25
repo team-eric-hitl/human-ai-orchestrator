@@ -433,7 +433,18 @@ docker run --env-file .env hybrid-ai-system
 
 # Or mount .env file as volume
 docker run -v $(pwd)/.env:/app/.env hybrid-ai-system
+
+# For GPU support
+docker build -f Dockerfile.gpu -t hybrid-ai-system:gpu .
+docker run --gpus all --env-file .env hybrid-ai-system:gpu
 ```
+
+### Dev Container Support
+For development with VSCode/Cursor:
+- **Standard devcontainer**: `.devcontainer/devcontainer.json`
+- **GPU-enabled devcontainer**: `.devcontainer/devcontainer.gpu.json` 
+
+The GPU devcontainer automatically configures NVIDIA GPU access for local LLM models. See [SETUP.md](SETUP.md) for detailed setup instructions.
 
 ### Environment Configuration
 - **Development**: Comprehensive logging, local models
