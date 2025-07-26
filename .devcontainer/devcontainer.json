@@ -1,13 +1,10 @@
 {
     "name": "Team Eric HITL",
-    "dockerFile": "../Dockerfile.gpu",
+    "dockerFile": "../Dockerfile",
     "context": "..",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
     "workspaceFolder": "/workspace",
-    "forwardPorts": [
-        8888
-    ],
-    "runArgs": ["--gpus", "all"],
+    "forwardPorts": [8888],
     "postCreateCommand": "rm -rf .venv && uv sync",
     "customizations": {
         "vscode": {
