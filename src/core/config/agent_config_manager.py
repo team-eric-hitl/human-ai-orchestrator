@@ -116,6 +116,10 @@ class AgentConfig:
         fallback_default = default if default is not None else f'Default {prompt_type} prompt for {self.name}'
         return fallback_default
 
+    def get_all_prompts(self) -> dict[str, Any]:
+        """Get all prompts for this agent"""
+        return self.prompts
+
 
 @dataclass
 class SystemConfig:

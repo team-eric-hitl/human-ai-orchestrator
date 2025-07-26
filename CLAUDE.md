@@ -73,6 +73,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 ### Key Components
 
 **HITL LangGraph Nodes** (`src/nodes/`):
+- `MockAutomationAgent` - Handles routine automated insurance tasks (policy lookups, claims, billing) with intelligent escalation
 - `ChatbotAgent` (Chatbot) - Customer service-focused response generation with emotional intelligence
 - `QualityAgent` - Reviews all chatbot responses before delivery, with improvement capabilities  
 - `FrustrationAgent` - Real-time customer sentiment analysis and intervention triggers
@@ -93,6 +94,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 - Integrated logging/error handling system in `/core/logging/`
 
 **Agent-Centric Configuration System** (`config/`):
+- `config/agents/mock_automation_agent/` - Automation task repertoire, insurance mock data, and response templates
 - `config/agents/quality_agent/` - Quality assessment thresholds and prompts
 - `config/agents/frustration_agent/` - Frustration indicators and intervention settings
 - `config/agents/routing_agent/` - Employee wellbeing and routing strategies
@@ -192,6 +194,7 @@ tests/
 │   │   ├── test_context_management.py # Context storage & retrieval
 │   │   └── test_session_tracking.py   # Session metrics & lifecycle
 │   ├── nodes/                      # LangGraph node tests
+│   │   ├── test_mock_automation_agent.py # Automation task handling and escalation
 │   │   ├── test_chatbot_agent.py   # Chatbot generation logic
 │   │   ├── test_evaluator_agent.py # Response evaluation
 │   │   └── test_escalation_router.py # Human agent routing
@@ -221,15 +224,17 @@ tests/
 
 ### Test Categories
 - **Core Infrastructure**: Configuration, logging, context management, session tracking
-- **Node Components**: Answer agents, evaluators, escalation routers
+- **Node Components**: Mock automation agent, answer agents, evaluators, escalation routers
 - **Integration**: LLM providers, workflow orchestration, system startup
 - **Data Models**: State validation, configuration schemas
 - **Edge Cases**: Error conditions, boundary values, performance limits
 
 ## Current Implementation Status
 
-**Completed (95%)**:
-- Complete HITL architecture with 5 specialized agents
+**Completed (98%)**:
+- Complete HITL architecture with 6 specialized agents including MockAutomationAgent
+- Mock automation system for routine insurance tasks with intelligent escalation
+- Automation-first workflow: Automation → AI Chatbot → Human Escalation
 - Quality interception system with response improvement
 - Real-time frustration detection and employee protection
 - Intelligent routing with workload balancing and wellbeing considerations
@@ -240,17 +245,16 @@ tests/
 - Core infrastructure: context management, session tracking, logging
 - LLM provider abstraction with multi-provider support
 
-**In Progress (5%)**:
-- Production workflow orchestration with LangGraph (agents complete, workflow integration needed)
+**In Progress (2%)**:
 - Advanced monitoring dashboard for customer satisfaction and employee wellbeing metrics
 - Real-time web search integration for context manager
 - Multi-language support for frustration detection
 
 **Testing Status**: 
-- ✅ Unit tests for all core infrastructure components
+- ✅ Unit tests for all core infrastructure components including MockAutomationAgent
 - ✅ Integration tests for system startup and configuration
 - ✅ Mock-based testing for LLM providers and external dependencies
-- ✅ Error scenario and edge case validation
+- ✅ Error scenario and edge case validation for automation tasks
 - ✅ Performance and concurrency testing
 
 ## Dependencies and Tech Stack

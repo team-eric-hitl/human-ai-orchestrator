@@ -333,6 +333,7 @@ keys/
 scratch/
 experiments/
 playground/
+zzz/
 
 # Generated files from scripts
 generated/

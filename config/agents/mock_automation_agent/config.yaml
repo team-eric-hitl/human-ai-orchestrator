@@ -1,0 +1,67 @@
+# Mock Automation Agent Configuration
+# This agent handles routine automated insurance tasks that don't require LLM processing
+#
+# BEGINNER'S GUIDE:
+# This agent simulates automated systems that handle routine insurance tasks like policy lookups,
+# claim status checks, and billing inquiries. It uses predefined responses to simulate real automation.
+
+agent:
+  name: "mock_automation_agent"              # Agent identifier (must match directory name)
+  version: "1.0.0"                          # Agent version for compatibility
+  description: "Mock automation agent that simulates routine insurance task handling"
+  type: "automation_agent"                  # Type of agent (automation, not LLM)
+  created: "2025-01-26"                     # Creation date
+  last_modified: "2025-01-26"               # Last modification date
+
+# Basic automation settings
+settings:
+  response_time_simulation: 0.5             # Simulate realistic response time (seconds)
+  success_rate: 0.95                        # Percentage of tasks that succeed (0.0-1.0)
+  timeout: 10                               # Maximum processing time (seconds)
+  max_retries: 2                            # Retry attempts if automation fails
+
+# Behavior configuration - how the agent acts
+behavior:
+  escalation_on_failure: true               # Escalate to human when automation fails
+  log_all_interactions: true                # Log all automation attempts
+  validate_inputs: true                     # Validate request formats
+  include_metadata: true                    # Include processing metadata in response
+
+# Task categories this agent can handle
+task_categories:
+  policy_information:
+    enabled: true
+    success_rate: 0.98                      # Higher success for simple lookups
+    avg_response_time: 0.3
+    
+  claims_status:
+    enabled: true
+    success_rate: 0.95
+    avg_response_time: 0.5
+    
+  billing_payment:
+    enabled: true
+    success_rate: 0.97
+    avg_response_time: 0.4
+    
+  coverage_lookup:
+    enabled: true
+    success_rate: 0.92                      # Lower success for complex coverage questions
+    avg_response_time: 0.6
+    
+  account_management:
+    enabled: true
+    success_rate: 0.85                      # Lower success for changes requiring validation
+    avg_response_time: 0.8
+
+# Escalation thresholds
+escalation:
+  complex_query_threshold: 0.7              # Escalate if complexity score > threshold
+  failure_escalation: true                  # Escalate on automation failure
+  manual_override_keywords:                 # Keywords that force human routing
+    - "complaint"
+    - "dispute"
+    - "frustrated"
+    - "manager"
+    - "legal"
+    - "lawsuit"

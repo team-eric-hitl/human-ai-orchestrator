@@ -56,12 +56,13 @@ agents:
   # Agent loading order (for dependency resolution)
   # Some agents depend on others, so order matters
   load_order:
-    - "chatbot_agent"      # Main customer service agent
-    - "evaluator_agent"    # Quality assessment agent
-    - "escalation_router"  # Routes complex issues to humans
-    - "human_interface"    # Manages human-AI handoffs
-    - "feedback_processor" # Processes customer feedback
-    - "quality_monitor"    # Monitors conversation quality
+    - "mock_automation_agent"  # Handles routine automated tasks (first priority)
+    - "chatbot_agent"          # Main customer service agent
+    - "evaluator_agent"        # Quality assessment agent
+    - "escalation_router"      # Routes complex issues to humans
+    - "human_interface"        # Manages human-AI handoffs
+    - "feedback_processor"     # Processes customer feedback
+    - "quality_monitor"        # Monitors conversation quality
     
   # Agent configuration inheritance - allows agents to share common settings
   inheritance:

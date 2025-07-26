@@ -11,6 +11,11 @@ The system uses a three-tier configuration structure:
 ```
 config/
 ├── agents/                          # Agent-specific configurations
+│   ├── mock_automation_agent/       # NEW: Automation task handling
+│   │   ├── config.yaml             # Automation behavior & success rates
+│   │   ├── prompts.yaml            # Response templates & error messages
+│   │   ├── models.yaml             # Optional NLP models for intent detection
+│   │   └── automation_repertoire.yaml # Task definitions & mock data
 │   ├── chatbot_agent/
 │   │   ├── config.yaml             # Agent settings & behavior (NO model config)
 │   │   ├── prompts.yaml            # Agent prompts & templates
@@ -612,6 +617,101 @@ agent:
 - **Compatibility Management**: Ensure system compatibility
 - **Rollback Support**: Revert to previous working versions
 - **A/B Testing**: Run different agent versions simultaneously
+
+## Mock Automation Agent Configuration
+
+The MockAutomationAgent represents a new paradigm in HITL systems - automation-first processing with intelligent escalation. Here's how to configure it:
+
+### Core Configuration (`config/agents/mock_automation_agent/config.yaml`)
+
+```yaml
+agent:
+  name: "mock_automation_agent"
+  type: "automation_agent"           # Non-LLM agent type
+  version: "1.0.0"
+
+# Performance simulation settings
+settings:
+  response_time_simulation: 0.5      # Realistic response timing
+  success_rate: 0.95                 # Overall automation success rate
+  timeout: 10                        # Maximum processing time
+  
+# Task-specific success rates
+task_categories:
+  policy_information:
+    success_rate: 0.98               # Higher for simple lookups
+  claims_status:
+    success_rate: 0.95
+  billing_payment:
+    success_rate: 0.97
+  coverage_lookup:
+    success_rate: 0.92               # Lower for complex coverage questions
+    
+# Escalation triggers
+escalation:
+  manual_override_keywords:          # Force human routing
+    - "complaint"
+    - "frustrated" 
+    - "manager"
+    - "legal"
+```
+
+### Response Templates (`config/agents/mock_automation_agent/prompts.yaml`)
+
+```yaml
+# Success response templates
+system_templates:
+  success_response: |
+    Task completed successfully via automated system.
+    Processing time: {processing_time}s
+    Reference ID: {reference_id}
+    
+# Insurance-specific responses
+policy_responses:
+  policy_details: |
+    Policy Information Retrieved:
+    Policy Number: {policy_number}
+    Status: {status}
+    Premium: ${premium}/month
+    Deductible: ${deductible}
+    Next Payment Due: {next_payment_date}
+```
+
+### Task Repertoire (`config/agents/mock_automation_agent/automation_repertoire.yaml`)
+
+```yaml
+# Define the 25+ automation tasks
+automation_tasks:
+  retrieve_policy_details:
+    category: "policy_information"
+    keywords: ["policy details", "coverage information"]
+    success_rate: 0.98
+    avg_response_time: 0.3
+    response_template: "policy_responses.policy_details"
+    
+  check_claim_status:
+    category: "claims_status" 
+    keywords: ["claim status", "claim progress"]
+    success_rate: 0.96
+    avg_response_time: 0.4
+    
+# Mock database for demo
+mock_data:
+  policies:
+    "POL-2024-001234":
+      status: "Active"
+      premium: 125.50
+      deductible: 500
+      next_payment_date: "2025-02-15"
+```
+
+### Configuration Benefits
+
+- **Demo-Ready**: Complete insurance simulation with realistic data
+- **Configurable Performance**: Adjust success rates and timing per business needs
+- **Easy Customization**: Add new tasks or modify existing ones without code changes
+- **Intelligent Escalation**: Built-in logic for routing complex queries to humans
+- **Industry Focus**: Pre-configured for insurance industry requirements
 
 ## Migration from Legacy Configuration
 

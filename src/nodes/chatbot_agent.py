@@ -229,7 +229,7 @@ class ChatbotAgentNode:
         # Skip if context provider is disabled
         if self.context_provider is None:
             return
-            
+
         from datetime import datetime
 
         from ..interfaces.core.context import ContextEntry

@@ -1,0 +1,304 @@
+# Mock Automation Agent Repertoire
+# Defines the specific automated responses and data this agent can provide
+
+# Mock customer database (in real system, this would be API calls)
+mock_data:
+  customers:
+    "12345":
+      name: "John Smith"
+      policy_number: "POL-2024-001234"
+      phone: "555-0123"
+      email: "john.smith@email.com"
+      address: "123 Main St, Anytown, ST 12345"
+      
+    "67890":
+      name: "Sarah Johnson" 
+      policy_number: "POL-2024-005678"
+      phone: "555-0456"
+      email: "sarah.j@email.com"
+      address: "456 Oak Ave, Somewhere, ST 67890"
+
+  policies:
+    "POL-2024-001234":
+      customer_id: "12345"
+      type: "Auto Insurance"
+      status: "Active"
+      premium: 125.50
+      deductible: 500
+      coverage_limits:
+        liability: "100K/300K/50K"
+        collision: "Actual Cash Value"
+        comprehensive: "Actual Cash Value"
+      effective_date: "2024-01-15"
+      expiration_date: "2025-01-15"
+      next_payment_date: "2025-02-15"
+      
+    "POL-2024-005678":
+      customer_id: "67890"
+      type: "Homeowners Insurance"
+      status: "Active"
+      premium: 89.25
+      deductible: 1000
+      coverage_limits:
+        dwelling: "250K"
+        personal_property: "125K"
+        liability: "300K"
+      effective_date: "2024-03-01"
+      expiration_date: "2025-03-01"
+      next_payment_date: "2025-02-01"
+
+  claims:
+    "CLM-2024-9001":
+      policy_number: "POL-2024-001234"
+      type: "Auto Collision"
+      status: "Under Review"
+      filed_date: "2024-12-15"
+      estimated_completion: "2025-02-01"
+      adjuster: "Mike Wilson"
+      adjuster_phone: "555-0199"
+      
+    "CLM-2024-9002":
+      policy_number: "POL-2024-005678"
+      type: "Water Damage"
+      status: "Approved"
+      filed_date: "2024-11-20"
+      settlement_amount: 3500.00
+      completion_date: "2024-12-20"
+
+# Automated task definitions
+automation_tasks:
+  
+  # Policy Information Tasks
+  retrieve_policy_details:
+    category: "policy_information"
+    keywords: ["policy details", "coverage information", "policy info"]
+    required_fields: ["policy_number"]
+    success_rate: 0.98
+    avg_response_time: 0.3
+    response_template: "policy_responses.policy_details"
+    
+  check_policy_status:
+    category: "policy_information"
+    keywords: ["policy status", "active policy", "policy expired"]
+    required_fields: ["policy_number"]
+    success_rate: 0.99
+    avg_response_time: 0.2
+    response_template: "policy_responses.policy_status"
+    
+  view_payment_history:
+    category: "policy_information"
+    keywords: ["payment history", "past payments", "payment record"]
+    required_fields: ["policy_number"]
+    success_rate: 0.97
+    avg_response_time: 0.4
+    response_template: "policy_responses.payment_history"
+    
+  download_policy_documents:
+    category: "policy_information"
+    keywords: ["download policy", "policy documents", "declarations page"]
+    required_fields: ["policy_number"]
+    success_rate: 0.95
+    avg_response_time: 0.6
+    escalation_reason: "Document generation requires secure verification"
+    
+  update_contact_info:
+    category: "policy_information"
+    keywords: ["update address", "change phone", "update email", "contact information"]
+    required_fields: ["policy_number", "verification"]
+    success_rate: 0.85
+    avg_response_time: 0.8
+    response_template: "account_responses.contact_update"
+
+  # Claims-Related Tasks
+  check_claim_status:
+    category: "claims_status"
+    keywords: ["claim status", "check claim", "claim progress", "claim update"]
+    required_fields: ["claim_number", "policy_number"]
+    success_rate: 0.96
+    avg_response_time: 0.4
+    response_template: "claims_responses.claim_status"
+    
+  view_claim_history:
+    category: "claims_status"
+    keywords: ["claim history", "past claims", "previous claims"]
+    required_fields: ["policy_number"]
+    success_rate: 0.94
+    avg_response_time: 0.5
+    response_template: "claims_responses.claim_history"
+    
+  submit_claim_photos:
+    category: "claims_status"
+    keywords: ["submit photos", "upload images", "claim pictures"]
+    required_fields: ["claim_number", "photo_attachments"]
+    success_rate: 0.88
+    avg_response_time: 1.2
+    escalation_reason: "Photo review requires human validation"
+    
+  schedule_adjuster:
+    category: "claims_status"
+    keywords: ["schedule adjuster", "adjuster appointment", "inspection appointment"]
+    required_fields: ["claim_number"]
+    success_rate: 0.75
+    avg_response_time: 1.0
+    response_template: "claims_responses.adjuster_info"
+    
+  get_repair_shops:
+    category: "claims_status"
+    keywords: ["repair shop", "recommended shops", "body shop", "repair recommendations"]
+    required_fields: ["location", "claim_type"]
+    success_rate: 0.92
+    avg_response_time: 0.7
+    escalation_reason: "Location-specific recommendations need verification"
+
+  # Billing and Payment Tasks
+  make_payment:
+    category: "billing_payment"
+    keywords: ["make payment", "pay bill", "payment", "pay premium"]
+    required_fields: ["policy_number", "payment_amount", "payment_method"]
+    success_rate: 0.97
+    avg_response_time: 0.5
+    response_template: "billing_responses.payment_confirmation"
+    
+  setup_autopay:
+    category: "billing_payment"
+    keywords: ["autopay", "automatic payment", "auto pay", "recurring payment"]
+    required_fields: ["policy_number", "payment_method"]
+    success_rate: 0.93
+    avg_response_time: 0.8
+    response_template: "billing_responses.autopay_setup"
+    
+  change_payment_method:
+    category: "billing_payment"
+    keywords: ["change payment", "update payment method", "new card"]
+    required_fields: ["policy_number", "new_payment_method"]
+    success_rate: 0.90
+    avg_response_time: 0.7
+    escalation_reason: "Payment method changes require security verification"
+    
+  request_payment_extension:
+    category: "billing_payment"
+    keywords: ["payment extension", "extend due date", "payment plan"]
+    required_fields: ["policy_number", "reason"]
+    success_rate: 0.60
+    avg_response_time: 0.4
+    escalation_reason: "Payment extensions require manual approval"
+    
+  explain_billing:
+    category: "billing_payment"
+    keywords: ["billing question", "explain bill", "billing discrepancy", "bill error"]
+    required_fields: ["policy_number"]
+    success_rate: 0.85
+    avg_response_time: 0.6
+    response_template: "billing_responses.billing_inquiry"
+
+  # Coverage Questions
+  coverage_verification:
+    category: "coverage_lookup"
+    keywords: ["am I covered", "does my insurance cover", "coverage for", "covered for"]
+    required_fields: ["policy_number", "coverage_type"]
+    success_rate: 0.92
+    avg_response_time: 0.5
+    response_template: "coverage_responses.coverage_check"
+    
+  coverage_limits_lookup:
+    category: "coverage_lookup"
+    keywords: ["coverage limits", "policy limits", "maximum coverage"]
+    required_fields: ["policy_number"]
+    success_rate: 0.95
+    avg_response_time: 0.3
+    response_template: "coverage_responses.coverage_limits"
+    
+  deductible_information:
+    category: "coverage_lookup"
+    keywords: ["deductible", "deductible amount", "how much is my deductible"]
+    required_fields: ["policy_number"]
+    success_rate: 0.98
+    avg_response_time: 0.2
+    response_template: "coverage_responses.deductible_info"
+    
+  add_coverage:
+    category: "coverage_lookup"
+    keywords: ["add coverage", "additional coverage", "increase coverage"]
+    required_fields: ["policy_number", "coverage_type"]
+    success_rate: 0.70
+    avg_response_time: 0.9
+    escalation_reason: "Coverage changes require underwriting review"
+    
+  remove_coverage:
+    category: "coverage_lookup"
+    keywords: ["remove coverage", "cancel coverage", "reduce coverage"]
+    required_fields: ["policy_number", "coverage_type"]
+    success_rate: 0.65
+    avg_response_time: 0.8
+    escalation_reason: "Coverage reductions require legal compliance check"
+
+  # Account Management
+  add_vehicle:
+    category: "account_management"
+    keywords: ["add vehicle", "new car", "add driver", "additional vehicle"]
+    required_fields: ["policy_number", "vehicle_info"]
+    success_rate: 0.80
+    avg_response_time: 1.0
+    response_template: "account_responses.vehicle_added"
+    
+  remove_vehicle:
+    category: "account_management"
+    keywords: ["remove vehicle", "delete car", "cancel vehicle"]
+    required_fields: ["policy_number", "vehicle_id"]
+    success_rate: 0.85
+    avg_response_time: 0.8
+    escalation_reason: "Vehicle removal affects coverage calculation"
+    
+  update_beneficiary:
+    category: "account_management"
+    keywords: ["beneficiary", "update beneficiary", "change beneficiary"]
+    required_fields: ["policy_number", "beneficiary_info"]
+    success_rate: 0.70
+    avg_response_time: 1.2
+    escalation_reason: "Beneficiary changes require legal documentation"
+    
+  request_id_cards:
+    category: "account_management"
+    keywords: ["id card", "insurance card", "proof of insurance"]
+    required_fields: ["policy_number"]
+    success_rate: 0.95
+    avg_response_time: 0.4
+    response_template: "account_responses.id_card_request"
+    
+  change_coverage_dates:
+    category: "account_management"
+    keywords: ["effective date", "change date", "coverage date"]
+    required_fields: ["policy_number", "new_effective_date"]
+    success_rate: 0.60
+    avg_response_time: 1.0
+    escalation_reason: "Date changes affect billing and coverage calculations"
+
+# Escalation triggers
+escalation_triggers:
+  complexity_keywords:
+    - "complaint"
+    - "dispute" 
+    - "frustrated"
+    - "angry"
+    - "manager"
+    - "supervisor"
+    - "legal"
+    - "lawyer"
+    - "lawsuit"
+    - "sue"
+    - "discriminat"
+    - "unfair"
+    - "cancel policy"
+    - "switch companies"
+    
+  failure_conditions:
+    - missing_required_fields
+    - system_error
+    - data_not_found
+    - security_verification_needed
+    - manual_review_required
+    
+  success_rate_thresholds:
+    below_80_percent: "escalate_immediately"
+    below_90_percent: "escalate_after_retry"
+    below_95_percent: "log_for_review"

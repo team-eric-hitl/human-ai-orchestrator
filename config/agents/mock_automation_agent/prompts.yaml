@@ -1,0 +1,181 @@
+# Mock Automation Agent Prompts and Response Templates
+# Since this is a mock automation agent, these are predefined response templates
+
+# System templates for different types of automation responses
+system_templates:
+  success_response: |
+    Task completed successfully via automated system.
+    Processing time: {processing_time}s
+    Reference ID: {reference_id}
+    
+  failure_response: |
+    Automated system unable to complete request.
+    Error: {error_message}
+    Escalating to human agent for assistance.
+    Reference ID: {reference_id}
+    
+  partial_response: |
+    Automated system completed part of your request.
+    Completed: {completed_tasks}
+    Requires manual review: {manual_tasks}
+    Reference ID: {reference_id}
+
+# Policy Information Response Templates
+policy_responses:
+  policy_details: |
+    Policy Information Retrieved:
+    Policy Number: {policy_number}
+    Status: {status}
+    Coverage Type: {coverage_type}
+    Premium: ${premium}/month
+    Deductible: ${deductible}
+    Next Payment Due: {next_payment_date}
+    
+  policy_status: |
+    Policy Status: {status}
+    Effective Date: {effective_date}
+    Expiration Date: {expiration_date}
+    {additional_status_info}
+    
+  payment_history: |
+    Recent Payment History:
+    {payment_entries}
+    Next Payment Due: {next_due_date} (${amount})
+
+# Claims Response Templates  
+claims_responses:
+  claim_status: |
+    Claim Status Update:
+    Claim Number: {claim_number}
+    Status: {status}
+    Filed: {file_date}
+    Last Updated: {update_date}
+    Estimated Resolution: {estimated_completion}
+    {additional_details}
+    
+  claim_history: |
+    Claim History Summary:
+    {claim_entries}
+    
+  adjuster_info: |
+    Adjuster Assignment:
+    Name: {adjuster_name}
+    Phone: {adjuster_phone}
+    Email: {adjuster_email}
+    Next Appointment: {appointment_date}
+
+# Billing Response Templates
+billing_responses:
+  payment_confirmation: |
+    Payment Processed Successfully:
+    Amount: ${amount}
+    Method: {payment_method}
+    Confirmation: {confirmation_number}
+    New Balance: ${new_balance}
+    
+  billing_inquiry: |
+    Billing Information:
+    Current Balance: ${current_balance}
+    Last Payment: ${last_payment} on {last_payment_date}
+    Next Due: ${next_amount} on {next_due_date}
+    {billing_details}
+    
+  autopay_setup: |
+    AutoPay Configuration:
+    Status: {autopay_status}
+    Payment Method: {payment_method}
+    Monthly Amount: ${monthly_amount}
+    Next Auto-Payment: {next_autopay_date}
+
+# Coverage Response Templates
+coverage_responses:
+  coverage_check: |
+    Coverage Verification:
+    Covered: {is_covered}
+    Coverage Type: {coverage_type}
+    Limits: {coverage_limits}
+    Deductible: ${deductible}
+    {additional_coverage_info}
+    
+  coverage_limits: |
+    Your Coverage Limits:
+    {coverage_limit_details}
+    
+  deductible_info: |
+    Deductible Information:
+    {deductible_details}
+
+# Account Management Templates
+account_responses:
+  contact_update: |
+    Contact Information Updated:
+    {updated_fields}
+    Effective: {effective_date}
+    Confirmation: {confirmation_code}
+    
+  vehicle_added: |
+    Vehicle Added to Policy:
+    Vehicle: {vehicle_info}
+    Coverage: {coverage_added}
+    Premium Change: +${premium_change}/month
+    Effective: {effective_date}
+    
+  id_card_request: |
+    Insurance ID Card Request:
+    Cards will be mailed to: {mailing_address}
+    Expected delivery: {delivery_date}
+    Digital cards available in mobile app immediately.
+
+# Error Message Templates
+error_responses:
+  system_unavailable: |
+    Automated system temporarily unavailable.
+    Please try again in a few minutes or speak with an agent.
+    
+  invalid_input: |
+    Unable to process request. Please verify:
+    - Policy number format
+    - Account information
+    - Request details
+    
+  insufficient_data: |
+    Additional information required to complete request.
+    An agent will assist you with this inquiry.
+    
+  security_verification: |
+    Security verification required for this request.
+    Transferring to secure agent line.
+
+# Intent Detection Phrases (for rule-based matching)
+intent_patterns:
+  policy_lookup:
+    - "policy details"
+    - "coverage information" 
+    - "policy status"
+    - "what does my policy cover"
+    - "policy limits"
+    
+  claim_status:
+    - "claim status"
+    - "check my claim"
+    - "claim update"
+    - "claim progress"
+    
+  billing_inquiry:
+    - "make payment"
+    - "billing question"
+    - "payment history"
+    - "autopay"
+    - "bill"
+    
+  coverage_question:
+    - "am I covered"
+    - "does my insurance cover"
+    - "coverage for"
+    - "deductible"
+    
+  account_management:
+    - "update address"
+    - "change phone"
+    - "add vehicle"
+    - "id card"

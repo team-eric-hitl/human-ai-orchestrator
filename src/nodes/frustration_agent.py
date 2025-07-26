@@ -164,7 +164,7 @@ class FrustrationAgentNode:
         try:
             lines = llm_response.strip().split('\n')
             score_line = next((line for line in lines if 'score:' in line.lower()), "score: 5.0")
-            
+
             # Extract score - handle both "5.0" and "9/10" formats
             score_text = score_line.split(':')[1].strip()
             if '/' in score_text:
@@ -427,7 +427,7 @@ class FrustrationAgentNode:
         self, state: HybridSystemState, assessment: dict[str, Any]
     ):
         """Update context with frustration analysis"""
-        
+
         # Skip context update if context provider is disabled
         if self.context_provider is None:
             return

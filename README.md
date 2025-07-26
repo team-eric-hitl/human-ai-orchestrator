@@ -8,6 +8,7 @@ This system implements a **Human-in-the-Loop (HITL) Architecture** that goes bey
 
 ### Key Features
 
+- **🤖 Automation-First Design**: Routine tasks handled automatically before AI/human intervention
 - **🛡️ Quality Interception**: All AI responses reviewed before customer delivery
 - **😤 Frustration Detection**: Real-time sentiment analysis with escalation triggers  
 - **👥 Employee Protection**: Workload balancing and burnout prevention
@@ -29,6 +30,7 @@ src/
 │   ├── nodes/                     # Node behavior contracts
 │   └── workflows/                 # Workflow orchestration interfaces
 ├── nodes/                         # HITL agent implementations
+│   ├── mock_automation_agent.py   # Routine task automation (insurance focused)
 │   ├── chatbot_agent.py           # Customer service-focused chatbot
 │   ├── quality_agent.py           # Response quality assessment & improvement
 │   ├── frustration_agent.py       # Customer frustration detection & analysis

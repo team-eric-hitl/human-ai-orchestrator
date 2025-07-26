@@ -13,6 +13,7 @@ The Human-in-the-Loop (HITL) AI System is a modular LangGraph-based workflow orc
 - **Extensibility**: New agents and workflows can be added easily
 
 ### 2. Human-in-the-Loop Integration
+- **Automation-First Design**: Routine tasks handled automatically before AI/human intervention
 - **Quality Interception**: All AI responses reviewed before customer delivery
 - **Frustration Detection**: Real-time monitoring of customer emotional state
 - **Intelligent Routing**: Smart assignment considering both customer needs and employee wellbeing
@@ -33,26 +34,37 @@ The Human-in-the-Loop (HITL) AI System is a modular LangGraph-based workflow orc
 │                        HUMAN-IN-THE-LOOP AI SYSTEM                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │  Chatbot Agent  │    │  Quality Agent  │    │  Frustration Agent      │  │
-│  │                 │    │                 │    │                         │  │
-│  │ • Customer      │    │ • Response      │    │ • Sentiment Analysis    │  │
-│  │   Service Focus │────│   Review        │────│ • Pattern Detection     │  │
-│  │ • Empathy       │    │ • Improvement   │    │ • Escalation Triggers   │  │
-│  │ • Multi-Provider│    │ • Escalation    │    │ • Employee Protection   │  │
-│  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
-│           │                       │                          │              │
-│           └───────────────────────┼──────────────────────────┘              │
-│                                   │                                         │
-│  ┌─────────────────────────────────┼─────────────────────────────────────────┐ │
-│  │     ┌─────────────────────────┐ │ ┌─────────────────────────────────────┐ │ │
-│  │     │    Routing Agent        │ │ │    Context Manager Agent            │ │ │
-│  │     │                         │ │ │                                     │ │ │
-│  │     │ • Employee Wellbeing    │ │ │ • SQL Database Context              │ │ │
-│  │     │ • Skill Matching        │─┼─│ • Interaction History               │ │ │
-│  │     │ • Workload Balancing    │ │ │ • Similar Cases                     │ │ │
-│  │     │ • Strategic Routing     │ │ │ • Web Search (Optional)             │ │ │
-│  │     └─────────────────────────┘ │ └─────────────────────────────────────┘ │ │
+│  ┌─────────────────────┐    ┌─────────────────┐    ┌─────────────────────┐  │
+│  │ Mock Automation     │    │  Chatbot Agent  │    │  Quality Agent      │  │
+│  │ Agent               │    │                 │    │                     │  │
+│  │ • Routine Tasks     │    │ • Customer      │    │ • Response Review   │  │
+│  │ • Insurance Focus   │────│   Service Focus │────│ • Improvement       │  │
+│  │ • Fast Response     │    │ • Empathy       │    │ • Escalation        │  │
+│  │ • Smart Escalation  │    │ • Multi-Provider│    │ • Quality Scoring   │  │
+│  └─────────────────────┘    └─────────────────┘    └─────────────────────┘  │
+│           │                           │                          │          │
+│           └───────────────────────────┼──────────────────────────┘          │
+│                                       │                                     │
+│  ┌─────────────────────────────────────┼───────────────────────────────────┐ │
+│  │     ┌─────────────────────────┐     │ ┌─────────────────────────────────┐ │ │
+│  │     │  Frustration Agent      │     │ │    Context Manager Agent        │ │ │
+│  │     │                         │     │ │                                 │ │ │
+│  │     │ • Sentiment Analysis    │     │ │ • SQL Database Context          │ │ │
+│  │     │ • Pattern Detection     │─────┼─│ • Interaction History           │ │ │
+│  │     │ • Escalation Triggers   │     │ │ • Similar Cases                 │ │ │
+│  │     │ • Employee Protection   │     │ │ • Web Search (Optional)         │ │ │
+│  │     └─────────────────────────┘     │ └─────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                     │
+│  ┌─────────────────────────────────────┼───────────────────────────────────┐ │
+│  │     ┌─────────────────────────┐     │ ┌─────────────────────────────────┐ │ │
+│  │     │    Routing Agent        │     │ │    (Additional Agents)          │ │ │
+│  │     │                         │     │ │                                 │ │ │
+│  │     │ • Employee Wellbeing    │     │ │ • Quality Monitor               │ │ │
+│  │     │ • Skill Matching        │─────┼─│ • Feedback Processor            │ │ │
+│  │     │ • Workload Balancing    │     │ │ • Human Interface               │ │ │
+│  │     │ • Strategic Routing     │     │ │ • Future Extensions             │ │ │
+│  │     └─────────────────────────┘     │ └─────────────────────────────────┘ │ │
 │  └─────────────────────────────────────────────────────────────────────────┘ │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
@@ -60,10 +72,10 @@ The Human-in-the-Loop (HITL) AI System is a modular LangGraph-based workflow orc
 │  │  ┌─────────────┐  ┌─────────────┐  ┌───────────────┐  ┌──────────────┐ │ │
 │  │  │Agent Config │  │ Context     │  │Session        │  │ Simulation   │ │ │
 │  │  │Manager      │  │ Manager     │  │Tracking       │  │ Framework    │ │ │
-│  │  │• Quality    │  │• SQLite     │  │• Performance  │  │• Customer    │ │ │
-│  │  │• Frustration│  │• History    │  │• Metrics      │  │  Simulator   │ │ │
-│  │  │• Routing    │  │• Memory     │  │• Cost Track   │  │• Employee    │ │ │
-│  │  │• Context    │  │• Privacy    │  │• Error Mon    │  │  Simulator   │ │ │
+│  │  │• Automation │  │• SQLite     │  │• Performance  │  │• Customer    │ │ │
+│  │  │• Quality    │  │• History    │  │• Metrics      │  │  Simulator   │ │ │
+│  │  │• Frustration│  │• Memory     │  │• Cost Track   │  │• Employee    │ │ │
+│  │  │• Routing    │  │• Privacy    │  │• Error Mon    │  │  Simulator   │ │ │
 │  │  └─────────────┘  └─────────────┘  └───────────────┘  └──────────────┘ │ │
 │  └─────────────────────────────────────────────────────────────────────────┘ │
 │                                                                             │
@@ -99,6 +111,9 @@ HybridSystemState = {
     "messages": List[Message],  # LangChain compatible
     
     # Agent outputs
+    "automation_response": str,  # MockAutomationAgent response
+    "automation_metadata": Dict,  # Automation task details
+    "requires_escalation": bool,  # From automation agent
     "ai_response": str,
     "evaluation_result": EvaluationResult,
     "escalation_decision": bool,
@@ -117,15 +132,53 @@ HybridSystemState = {
 
 ### Workflow Execution Pattern
 
+The system follows an **automation-first** approach to maximize efficiency:
+
 ```
-User Query → State Initialization → Agent Processing → State Update → Next Agent
-     ↓               ↓                     ↓                ↓           ↓
-  query_id      HybridSystemState    Node.__call__()   State Merge   Router
+User Query → MockAutomationAgent → [Success] → Response Delivery
+     ↓               ↓                    ↓            ↓
+  query_id      Task Detection      Automated       Final Response
+                                    Response         (Fast Path)
+     ↓               ↓
+[No Match/         Escalation → ChatbotAgent → QualityAgent → [Decision]
+ Escalation]            ↓              ↓             ↓            ↓
+                    AI Response    Evaluation    Human Route  Response
+                                                              Delivery
 ```
+
+**Flow Details**:
+1. **MockAutomationAgent**: Handles 25+ routine insurance tasks (0.2-0.5s response)
+2. **Intelligent Escalation**: Complex queries routed to AI chatbot
+3. **Quality Control**: All AI responses reviewed before delivery
+4. **Human Routing**: Employee wellbeing-aware assignment for complex cases
 
 ## Component Deep Dive
 
-### 1. Chatbot Agent (`src/nodes/chatbot_agent.py`)
+### 1. Mock Automation Agent (`src/nodes/mock_automation_agent.py`)
+
+**Responsibility**: Handle routine insurance tasks automatically with intelligent escalation
+
+**Key Features**:
+- **25+ Insurance Tasks**: Policy lookups, claims status, billing, coverage questions, account management
+- **Fast Response**: 0.2-0.5 second processing vs 30+ seconds for LLM responses
+- **Realistic Simulation**: Configurable success rates (85%-98%) and processing times
+- **Smart Escalation**: Detects frustration keywords and complex queries
+- **Mock Data Integration**: Complete insurance database simulation with policies, claims, customers
+
+**Task Categories**:
+- **Policy Information**: Status checks, payment history, document downloads
+- **Claims Management**: Status updates, adjuster scheduling, repair shop recommendations
+- **Billing Operations**: Payments, autopay setup, payment extensions
+- **Coverage Inquiries**: Coverage verification, limits lookup, deductible information
+- **Account Changes**: Vehicle additions, contact updates, ID card requests
+
+**Escalation Logic**:
+- Keywords: "frustrated", "manager", "complaint", "legal", "lawsuit"
+- Complex queries requiring human judgment
+- System failures or unavailable data
+- Security verification requirements
+
+### 2. Chatbot Agent (`src/nodes/chatbot_agent.py`)
 
 **Responsibility**: Generate customer service-focused AI responses with enhanced empathy and service orientation
 

@@ -37,6 +37,7 @@ class NodeInterface(ABC):
 
     All nodes in the hybrid system should implement this interface.
     Nodes are responsible for specific processing tasks such as:
+    - Handling routine automation tasks
     - Generating AI responses
     - Evaluating response quality
     - Routing escalations
