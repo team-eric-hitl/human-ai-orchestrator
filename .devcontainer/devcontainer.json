@@ -10,16 +10,13 @@
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "ms-python.black-formatter",
-                "ms-python.isort",
-                "ms-python.flake8",
+                "charliermarsh.ruff",
                 "ms-toolsai.jupyter",
                 "ms-vscode.vscode-json",
                 "redhat.vscode-yaml",
                 "eamodio.gitlens",
                 "ms-vscode.vscode-markdown",
                 "ms-vscode.vscode-docker",
-                "ms-python.pylint",
                 "ms-python.debugpy",
                 "ms-python.vscode-pylance"
             ],
@@ -34,10 +31,13 @@
                     "env"
                 ],
                 "jupyter.serverLaunchTimeout": 60,
-                "python.formatting.provider": "black",
-                "python.linting.enabled": true,
-                "python.linting.flake8Enabled": true,
-                "python.linting.pylintEnabled": true,
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.ruff": "explicit",
+                        "source.organizeImports.ruff": "explicit"
+                    }
+                },
                 "editor.formatOnSave": true,
                 "editor.codeActionsOnSave": {
                     "source.organizeImports": true
