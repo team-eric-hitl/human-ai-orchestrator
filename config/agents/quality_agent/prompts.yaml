@@ -37,6 +37,19 @@ quality_assessment: |
   - Generic responses that don't address specifics
   - Signs the customer may become frustrated
 
+quality_assessment_compact: |
+  Assess chatbot response quality (1-10 scale):
+  
+  Query: "{customer_query}"
+  Response: "{chatbot_response}"
+  
+  Rate: accuracy, completeness, clarity, tone, usefulness
+  
+  Respond in exact format:
+  [score]|[confidence 0.1-1.0]|[brief issue/strength, max 6 words]
+  
+  Example: 8.2|0.85|accurate, concise, slightly impersonal
+
 response_adjustment: |
   The following chatbot response has been identified as needing improvement.
   

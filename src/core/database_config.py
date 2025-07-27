@@ -33,9 +33,10 @@ class DatabaseConfig:
         """
         try:
             if self.config_manager:
-                config = self.config_manager.get_config()
-                storage_dir = getattr(config.providers.context, 'storage_directory', 'data')
-                default_db_name = getattr(config.providers.context, 'db_name', 'hybrid_system.db')
+                providers_config = self.config_manager.get_providers_config()
+                database_config = providers_config.get('external_services', {}).get('database', {})
+                storage_dir = database_config.get('storage_directory', 'data')
+                default_db_name = database_config.get('db_name', 'hybrid_system.db')
             else:
                 # Fallback configuration
                 storage_dir = 'data'
@@ -89,8 +90,9 @@ class DatabaseConfig:
         """
         try:
             if self.config_manager:
-                config = self.config_manager.get_config()
-                storage_dir = getattr(config.providers.context, 'storage_directory', 'data')
+                providers_config = self.config_manager.get_providers_config()
+                database_config = providers_config.get('external_services', {}).get('database', {})
+                storage_dir = database_config.get('storage_directory', 'data')
             else:
                 storage_dir = 'data'
 
@@ -114,8 +116,9 @@ class DatabaseConfig:
         """Ensure the data directory exists"""
         try:
             if self.config_manager:
-                config = self.config_manager.get_config()
-                storage_dir = getattr(config.providers.context, 'storage_directory', 'data')
+                providers_config = self.config_manager.get_providers_config()
+                database_config = providers_config.get('external_services', {}).get('database', {})
+                storage_dir = database_config.get('storage_directory', 'data')
             else:
                 storage_dir = 'data'
 

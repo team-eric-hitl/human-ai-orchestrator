@@ -41,6 +41,18 @@ frustration_analysis: |
   
   Consider the emotional impact on both customer and support staff.
 
+frustration_analysis_compact: |
+  Analyze customer frustration level (1-10 scale):
+  
+  Customer Query: "{customer_query}"
+  
+  Scale: 1-2=calm, 3-4=slight frustration, 5-6=moderate, 7-8=high, 9-10=extreme
+  
+  Respond in exact format:
+  [score]|[confidence 0.1-1.0]|[brief reason, max 6 words]
+  
+  Example: 7.5|0.9|angry language, demands manager
+
 pattern_analysis: |
   Analyze this customer's interaction pattern for escalating frustration trends.
   

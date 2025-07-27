@@ -1,19 +1,23 @@
 primary_model: "deepinfra_general_standard"
 
 model_overrides:
-  temperature: 0.2          # Low temperature for consistent sentiment analysis
-  max_tokens: 800           # Sufficient for frustration analysis
+  temperature: 0.1          # Very low temperature for fast, deterministic responses
+  max_tokens: 150           # Reduced for compact responses
   
   # Task-specific overrides
   per_model:
+    frustration_analysis_compact:
+      temperature: 0.1      # Very low for objective sentiment analysis
+      max_tokens: 50        # Compact format: "7.5|0.9|angry language, demands manager"
+      
     frustration_analysis:
       temperature: 0.1      # Very low for objective sentiment analysis
-      max_tokens: 500
+      max_tokens: 500       # Keep full tokens for verbose mode
       
     pattern_detection:
-      temperature: 0.2
-      max_tokens: 300
+      temperature: 0.1      # Reduced for consistency
+      max_tokens: 150       # Reduced from 300
       
     trend_analysis:
-      temperature: 0.3
-      max_tokens: 400
+      temperature: 0.2      # Reduced from 0.3
+      max_tokens: 200       # Reduced from 400

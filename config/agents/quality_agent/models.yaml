@@ -1,19 +1,23 @@
 primary_model: "deepinfra_general_standard"
 
 model_overrides:
-  temperature: 0.3          # Lower temperature for consistent quality assessment
-  max_tokens: 1000          # Sufficient for quality analysis
+  temperature: 0.1          # Very low temperature for fast, deterministic responses
+  max_tokens: 150           # Reduced for compact responses
   
   # Task-specific overrides
   per_model:
+    quality_assessment_compact:
+      temperature: 0.1      # Very low for objective assessment
+      max_tokens: 50        # Compact format: "8.2|0.85|accurate, concise, slightly impersonal"
+      
     quality_assessment:
       temperature: 0.2      # Very low for objective assessment
-      max_tokens: 500
+      max_tokens: 500       # Keep full tokens for verbose mode
       
     response_adjustment:
-      temperature: 0.5      # Slightly higher for creative improvement
-      max_tokens: 800
+      temperature: 0.4      # Reduced from 0.5, still creative for improvement
+      max_tokens: 600       # Reduced from 800
       
     context_analysis:
-      temperature: 0.3
-      max_tokens: 300
+      temperature: 0.2      # Reduced from 0.3
+      max_tokens: 200       # Reduced from 300
