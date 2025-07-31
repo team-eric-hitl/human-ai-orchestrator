@@ -12,7 +12,10 @@ agent:
 
 # Routing strategy settings
 settings:
-  # Primary routing strategy
+  # Enable LLM-powered routing with database integration
+  use_llm_routing: true
+  
+  # Primary routing strategy (for legacy fallback)
   default_routing_strategy: "employee_wellbeing"  # skill_based, workload_balanced, employee_wellbeing
   
   # Strategy selection rules

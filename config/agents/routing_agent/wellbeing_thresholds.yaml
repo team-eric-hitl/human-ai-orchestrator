@@ -1,0 +1,5 @@
+max_continuous_hours: 6.0
+max_queue_length: 8
+max_stress_level: 8.5
+max_utilization: 0.9
+min_break_time_hours: 0.25

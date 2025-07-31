@@ -202,6 +202,15 @@ class DatabaseConfig:
             )
             return False
 
+    def get_human_agents_db_path(self) -> str:
+        """
+        Get the path to the human agents database
+        
+        Returns:
+            Full path to human agents database file
+        """
+        return self.get_db_path("human_agents.db")
+
     def cleanup_old_databases(self, old_paths: list[str], keep_backups: bool = True) -> bool:
         """
         Clean up old database files after migration

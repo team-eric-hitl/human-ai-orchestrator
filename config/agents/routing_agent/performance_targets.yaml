@@ -1,0 +1,5 @@
+max_conversation_duration_minutes: 45
+min_experience_for_complex: 3
+min_experience_for_vip: 4
+target_response_time_minutes: 5.0
+target_satisfaction_score: 8.0

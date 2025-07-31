@@ -14,6 +14,8 @@ from ..core.logging import get_logger
 from ..integrations.llm_providers import LLMProviderFactory
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
+from ..nodes.sync_llm_routing import SyncLLMRoutingAgent
+from ..interfaces.human_agents import Specialization
 
 
 class RoutingStrategy(Enum):
@@ -41,9 +43,15 @@ class RoutingAgentNode:
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
 
-        # Load human agent data
+        # Initialize synchronous LLM routing agent with database integration
+        self.sync_llm_routing_agent = SyncLLMRoutingAgent()
+        
+        # Load human agent data (legacy support)
         self.human_agents = self._load_human_agents()
         self.routing_history = []  # Track routing decisions
+        
+        # Flag to use new LLM routing system
+        self.use_llm_routing = self.agent_config.settings.get("use_llm_routing", True)
 
     def _initialize_llm_provider(self):
         """Initialize LLM provider for intelligent routing decisions"""
@@ -169,6 +177,81 @@ class RoutingAgentNode:
         """
         Main routing function - select best human agent for escalation
         """
+
+        if self.use_llm_routing:
+            return self._sync_llm_based_routing(state)
+        else:
+            return self._legacy_routing(state)
+
+    def _sync_llm_based_routing(self, state: HybridSystemState) -> HybridSystemState:
+        """Use synchronous LLM-powered routing with database integration"""
+        try:
+            # Analyze routing requirements (enhanced with context if available)
+            routing_requirements = self._analyze_routing_requirements(state)
+            
+            # Enhance routing requirements with Context Manager data if available
+            if state.get("enriched_context"):
+                routing_requirements = self._enhance_routing_with_context(routing_requirements, state)
+            
+            # Convert to conversation and customer context for LLM router
+            conversation_context = self._create_conversation_context(state, routing_requirements)
+            customer_context = self._create_customer_context(state)
+            urgency_level = self._map_priority_to_urgency(routing_requirements["priority"])
+            
+            # Use synchronous LLM routing agent
+            routing_result = self.sync_llm_routing_agent.route_to_human(
+                conversation_context=conversation_context,
+                customer_context=customer_context,
+                urgency_level=urgency_level
+            )
+            
+            if routing_result["success"]:
+                # Extract selected agent info
+                selected_agent = routing_result["selected_agent"]
+                decision_details = routing_result["decision_details"]
+                
+                # Create routing decision in expected format
+                routing_decision = {
+                    "assigned_agent_id": selected_agent["id"],
+                    "assigned_agent_name": selected_agent["name"],
+                    "assigned_agent_email": selected_agent["email"],
+                    "routing_strategy": "llm_powered",
+                    "routing_requirements": routing_requirements,
+                    "agent_match_score": decision_details["score"] * 100,  # Convert to 0-100 scale
+                    "estimated_resolution_time": routing_requirements["estimated_resolution_time"],
+                    "routing_timestamp": routing_result["routing_timestamp"],
+                    "routing_confidence": decision_details["confidence"],
+                    "alternative_agents": [
+                        {"id": alt["agent_id"], "name": alt["agent_name"]}
+                        for alt in decision_details.get("alternatives", [])[:3]
+                    ],
+                    "llm_reasoning": decision_details.get("reasoning", []),
+                    "llm_explanation": self.sync_llm_routing_agent.explain_routing_decision(routing_result, conversation_context)
+                }
+                
+                # Convert to legacy agent format for compatibility
+                final_agent = self._convert_to_legacy_format(selected_agent)
+                
+                # Log routing decision
+                self._log_routing_decision(state, routing_decision)
+                
+                return {
+                    **state,
+                    "routing_decision": routing_decision,
+                    "assigned_human_agent": final_agent,
+                    "routing_requirements": routing_requirements,
+                    "next_action": "transfer_to_human",
+                }
+            else:
+                # Handle routing failure
+                return self._handle_no_agents_available(state, routing_requirements)
+                
+        except Exception as e:
+            self.logger.error(f"Sync LLM routing failed: {e}, falling back to legacy routing")
+            return self._legacy_routing(state)
+
+    def _legacy_routing(self, state: HybridSystemState) -> HybridSystemState:
+        """Legacy routing function - select best human agent for escalation"""
 
         # Determine routing requirements
         routing_requirements = self._analyze_routing_requirements(state)
@@ -779,3 +862,202 @@ class RoutingAgentNode:
             "decision": decision,
             "state": state,
         })
+
+    def _create_conversation_context(self, state: HybridSystemState, requirements: dict[str, Any]) -> dict[str, Any]:
+        """Create conversation context for LLM routing agent"""
+        
+        # Map skills to specializations
+        skill_to_specialization = {
+            "technical": "technical",
+            "billing": "billing", 
+            "account_management": "policy",
+            "product_support": "general",
+            "compliance": "escalation"
+        }
+        
+        required_skills = requirements.get("required_skills", [])
+        required_specialization = None
+        
+        if required_skills:
+            # Use first matching specialization
+            for skill in required_skills:
+                if skill in skill_to_specialization:
+                    required_specialization = skill_to_specialization[skill]
+                    break
+        
+        return {
+            "issue_type": requirements.get("escalation_type", "general_inquiry"),
+            "required_specialization": required_specialization,
+            "issue_description": state.get("query", "Customer escalation request"),
+            "complexity_level": self._map_complexity_to_level(requirements.get("complexity", "low")),
+            "estimated_duration_minutes": requirements.get("estimated_resolution_time", 30)
+        }
+
+    def _create_customer_context(self, state: HybridSystemState) -> dict[str, Any]:
+        """Create customer context for LLM routing agent"""
+        
+        # Extract language preference from special requirements
+        special_requirements = state.get("routing_requirements", {}).get("special_requirements", [])
+        language_preference = None
+        
+        for req in special_requirements:
+            if req.startswith("language_"):
+                language_preference = req.replace("language_", "")
+                break
+        
+        # Determine customer tier from requirements
+        tier = "standard"
+        if "vip_customer" in special_requirements:
+            tier = "vip"
+        
+        return {
+            "preferred_language": language_preference,
+            "tier": tier,
+            "customer_id": state.get("user_id"),
+            "last_agent_id": None  # Could be enhanced with session history
+        }
+
+    def _map_priority_to_urgency(self, priority: str) -> int:
+        """Map priority level to urgency scale (1-5)"""
+        priority_mapping = {
+            "low": 1,
+            "medium": 2, 
+            "high": 4,
+            "critical": 5
+        }
+        return priority_mapping.get(priority, 1)
+
+    def _map_complexity_to_level(self, complexity: str) -> int:
+        """Map complexity to numeric level (1-5)"""
+        complexity_mapping = {
+            "low": 1,
+            "medium": 3,
+            "high": 5
+        }
+        return complexity_mapping.get(complexity, 1)
+
+    def _enhance_routing_with_context(self, routing_requirements: dict[str, Any], state: HybridSystemState) -> dict[str, Any]:
+        """Enhance routing requirements with Context Manager analysis"""
+        context_analysis = state.get("context_analysis", {})
+        context_summaries = state.get("context_summaries", {})
+        
+        # Create enhanced copy of routing requirements
+        enhanced_requirements = routing_requirements.copy()
+        
+        # Extract routing-specific insights from context
+        routing_summary = context_summaries.get("for_routing_decision", "")
+        
+        # Parse routing considerations
+        if "high_escalation_user" in routing_summary:
+            enhanced_requirements["user_escalation_history"] = "high_risk"
+            enhanced_requirements["priority"] = self._escalate_priority(enhanced_requirements["priority"])
+        
+        if "technical_complexity" in routing_summary:
+            enhanced_requirements["requires_technical_specialist"] = True
+            enhanced_requirements["complexity"] = "high"
+            
+        if "billing_issue" in routing_summary:
+            enhanced_requirements["requires_billing_specialist"] = True
+        
+        # Use context recommendations
+        context_recommendations = context_analysis.get("recommendations", [])
+        enhanced_requirements["context_recommendations"] = context_recommendations
+        
+        # Extract user behavior patterns
+        priority_context = context_analysis.get("priority_context", {})
+        if "user_profile" in priority_context:
+            user_profile = priority_context["user_profile"]["data"]
+            enhanced_requirements["user_behavior_pattern"] = user_profile.get("user_behavior_pattern")
+            enhanced_requirements["user_escalation_rate"] = user_profile.get("escalation_rate", 0)
+            enhanced_requirements["user_interaction_frequency"] = user_profile.get("interaction_frequency")
+        
+        # Extract similar cases insights
+        if "similar_cases" in priority_context:
+            similar_cases = priority_context["similar_cases"]["data"]
+            if similar_cases:
+                enhanced_requirements["similar_cases_found"] = len(similar_cases)
+                enhanced_requirements["top_similarity_score"] = similar_cases[0]["similarity_score"]
+        
+        # Adjust routing strategy based on context
+        if any("immediate human escalation" in rec for rec in context_recommendations):
+            enhanced_requirements["force_senior_agent"] = True
+            enhanced_requirements["priority"] = "critical"
+        
+        if any("technical specialist" in rec for rec in context_recommendations):
+            enhanced_requirements["required_skills"] = enhanced_requirements.get("required_skills", []) + ["technical"]
+        
+        # Log context enhancement
+        self.logger.info(
+            "Routing enhanced with context manager data",
+            extra={
+                "operation": "context_enhancement",
+                "query_id": state.get("query_id"),
+                "context_recommendations": len(context_recommendations),
+                "priority_sources": list(priority_context.keys()),
+                "original_priority": routing_requirements["priority"],
+                "enhanced_priority": enhanced_requirements["priority"]
+            }
+        )
+        
+        return enhanced_requirements
+    
+    def _escalate_priority(self, current_priority: str) -> str:
+        """Escalate priority level based on context insights"""
+        priority_escalation = {
+            "low": "medium",
+            "medium": "high", 
+            "high": "critical",
+            "critical": "critical"  # Already at max
+        }
+        return priority_escalation.get(current_priority, current_priority)
+
+    def _convert_to_legacy_format(self, agent_info: dict[str, Any]) -> dict[str, Any]:
+        """Convert new agent format to legacy format for compatibility"""
+        
+        # Map specializations back to skills
+        specialization_to_skills = {
+            "claims": ["technical", "billing"],
+            "billing": ["billing", "account_management"],
+            "policy": ["account_management", "general"],
+            "technical": ["technical", "product_support"],
+            "escalation": ["technical", "compliance"],
+            "general": ["general", "product_support"]
+        }
+        
+        specializations = agent_info.get("specializations", [])
+        skills = []
+        for spec in specializations:
+            skills.extend(specialization_to_skills.get(spec, ["general"]))
+        
+        # Remove duplicates
+        skills = list(set(skills))
+        
+        # Map experience level to skill level
+        experience_to_skill_level = {
+            1: "junior",
+            2: "junior", 
+            3: "intermediate",
+            4: "senior",
+            5: "senior"
+        }
+        
+        skill_level = experience_to_skill_level.get(agent_info.get("experience_level", 1), "junior")
+        
+        return {
+            "id": agent_info["id"],
+            "name": agent_info["name"],
+            "email": agent_info["email"],
+            "status": "available",  # Simplified for now
+            "skills": skills,
+            "skill_level": skill_level,
+            "languages": agent_info.get("languages", ["english"]),
+            "current_workload": int(agent_info.get("current_workload", "0/5").split("/")[0]),
+            "max_concurrent": int(agent_info.get("current_workload", "0/5").split("/")[1]),
+            "frustration_tolerance": "high" if agent_info.get("experience_level", 1) >= 4 else "medium",
+            "specializations": specializations,
+            "performance_metrics": {
+                "avg_resolution_time": 20,  # Default values
+                "customer_satisfaction": 4.5,
+                "escalation_rate": 0.15,
+            }
+        }
