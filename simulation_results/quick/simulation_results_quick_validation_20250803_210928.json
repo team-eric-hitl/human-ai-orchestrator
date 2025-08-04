@@ -1,0 +1,179 @@
+{
+  "system_metrics": {
+    "run_id": "quick_validation_20250803_210928",
+    "start_time": "2025-08-03 21:09:28.638696",
+    "end_time": "2025-08-03 21:11:03.037596",
+    "total_cycles": 5,
+    "avg_customer_satisfaction": 0.0,
+    "total_escalations": 0,
+    "escalation_rate": 0.0,
+    "quality_agent_accuracy": 1.0,
+    "frustration_detection_precision": 1.0,
+    "routing_success_rate": 0.0,
+    "avg_resolution_time": 18.779251199999997,
+    "system_utilization": 0.0,
+    "failed_routes": 0,
+    "quality_interventions": 0,
+    "frustration_interventions": 0
+  },
+  "agent_metrics": {},
+  "cycle_results": [
+    {
+      "cycle_id": "cycle_0000_frustrated_customer",
+      "scenario_name": "Frustrated Customer",
+      "customer_personality": "frustrated",
+      "start_time": "2025-08-03 21:09:28.639029",
+      "end_time": "2025-08-03 21:09:48.529806",
+      "duration_seconds": 19.890777,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.5,
+      "frustration_score": 7.5,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0001_frustrated_customer",
+      "scenario_name": "Frustrated Customer",
+      "customer_personality": "frustrated",
+      "start_time": "2025-08-03 21:09:48.630158",
+      "end_time": "2025-08-03 21:10:09.838349",
+      "duration_seconds": 21.208191,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.5,
+      "frustration_score": 8.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0002_happy_path_-_simple_question",
+      "scenario_name": "Happy Path - Simple Question",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:10:09.938766",
+      "end_time": "2025-08-03 21:10:29.554929",
+      "duration_seconds": 19.616163,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.0,
+      "frustration_score": 1.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0003_quality_issue_-_poor_response",
+      "scenario_name": "Quality Issue - Poor Response",
+      "customer_personality": "confused",
+      "start_time": "2025-08-03 21:10:29.655577",
+      "end_time": "2025-08-03 21:10:49.039141",
+      "duration_seconds": 19.383564,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.5,
+      "frustration_score": 2.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0004_happy_path_-_simple_question",
+      "scenario_name": "Happy Path - Simple Question",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:10:49.139507",
+      "end_time": "2025-08-03 21:11:02.937068",
+      "duration_seconds": 13.797561,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.5,
+      "frustration_score": 1.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    }
+  ],
+  "decision_details": {
+    "quality_decisions": [
+      {
+        "cycle_id": "cycle_0000_frustrated_customer",
+        "decision": "adequate",
+        "score": 7.5,
+        "confidence": 0.75,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0001_frustrated_customer",
+        "decision": "adequate",
+        "score": 7.5,
+        "confidence": 0.75,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0002_happy_path_-_simple_question",
+        "decision": "adequate",
+        "score": 8.0,
+        "confidence": 0.8,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0003_quality_issue_-_poor_response",
+        "decision": "adequate",
+        "score": 8.5,
+        "confidence": 0.85,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0004_happy_path_-_simple_question",
+        "decision": "adequate",
+        "score": 8.5,
+        "confidence": 0.85,
+        "next_action": "respond_to_customer"
+      }
+    ],
+    "frustration_decisions": [
+      {
+        "cycle_id": "cycle_0000_frustrated_customer",
+        "score": 7.5,
+        "level": "high",
+        "intervention_needed": false,
+        "confidence": 0.9
+      },
+      {
+        "cycle_id": "cycle_0001_frustrated_customer",
+        "score": 8.0,
+        "level": "critical",
+        "intervention_needed": false,
+        "confidence": 0.9
+      },
+      {
+        "cycle_id": "cycle_0002_happy_path_-_simple_question",
+        "score": 1.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.9
+      },
+      {
+        "cycle_id": "cycle_0003_quality_issue_-_poor_response",
+        "score": 2.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.6
+      },
+      {
+        "cycle_id": "cycle_0004_happy_path_-_simple_question",
+        "score": 1.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.9
+      }
+    ],
+    "routing_decisions": []
+  }
+}

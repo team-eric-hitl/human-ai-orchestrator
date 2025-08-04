@@ -777,6 +777,20 @@ class ContextManagerAgentNode:
                 context_data=context_text
             )
 
+            # Log the LLM call at agent level
+            self.logger.info(
+                "Context Manager Agent calling LLM",
+                extra={
+                    "agent": "context_manager_agent",
+                    "model_name": self.llm_provider.model_name,
+                    "provider_type": self.llm_provider.provider_type,
+                    "prompt_length": len(prompt),
+                    "system_prompt_length": len(system_prompt),
+                    "context_entries": len(priority_context),
+                    "operation": "agent_llm_call"
+                }
+            )
+
             summary = self.llm_provider.generate_response(
                 prompt=prompt,
                 system_prompt=system_prompt

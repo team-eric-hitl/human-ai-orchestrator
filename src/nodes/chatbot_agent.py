@@ -197,6 +197,20 @@ class ChatbotAgentNode:
                 query, context_prompt, customer_analysis
             )
 
+            # Log the LLM call at agent level
+            self.logger.info(
+                "Chatbot Agent calling LLM",
+                extra={
+                    "agent": "chatbot_agent",
+                    "model_name": self.llm_provider.model_name,
+                    "provider_type": self.llm_provider.provider_type,
+                    "prompt_length": len(full_prompt),
+                    "system_prompt_length": len(system_prompt),
+                    "customer_tone": customer_analysis.get("tone", "unknown"),
+                    "operation": "agent_llm_call"
+                }
+            )
+
             # Generate response using LLM with customer service system prompt
             response = self.llm_provider.generate_response(
                 prompt=full_prompt, system_prompt=system_prompt

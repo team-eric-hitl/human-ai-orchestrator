@@ -311,6 +311,18 @@ class LLMProvider:
         """Generate response using LLM with proper prompt formatting for local models"""
         start_time = time.time()
 
+        # Add prominent LLM call logging
+        self.logger.info(
+            "🤖 INVOKING LLM",
+            extra={
+                "model_name": self.model_name,
+                "provider_type": self.provider_type,
+                "prompt_length": len(prompt),
+                "has_system_prompt": bool(system_prompt),
+                "operation": "llm_call_start"
+            },
+        )
+
         self.logger.debug(
             "Starting response generation",
             extra={
@@ -351,6 +363,19 @@ class LLMProvider:
             else:
                 response_text = str(response)
 
+            # Add prominent completion logging
+            self.logger.info(
+                "✅ LLM RESPONSE COMPLETED",
+                extra={
+                    "model_name": self.model_name,
+                    "provider_type": self.provider_type,
+                    "duration": duration,
+                    "prompt_length": len(prompt),
+                    "response_length": len(response_text),
+                    "operation": "llm_call_completed"
+                },
+            )
+
             self.logger.model_call(
                 model_name=self.model_name,
                 operation="generate_response",
@@ -363,6 +388,17 @@ class LLMProvider:
 
         except Exception as e:
             duration = time.time() - start_time
+            # Add prominent failure logging
+            self.logger.error(
+                "❌ LLM CALL FAILED",
+                extra={
+                    "model_name": self.model_name,
+                    "provider_type": self.provider_type,
+                    "duration": duration,
+                    "error": str(e),
+                    "operation": "llm_call_failed"
+                },
+            )
             self.logger.error(
                 "Response generation failed",
                 exc_info=True,
@@ -714,7 +750,14 @@ class LLMProviderWithFallback:
         try:
             model_name = self.model_chain[self.current_model_index]
             self.current_provider = self.factory.create_provider(model_name)
-            self.logger.info(f"Switched to fallback model: {model_name}")
+            self.logger.info(
+                f"✅ FALLBACK SUCCESS: Switched to model: {model_name}",
+                extra={
+                    "new_model": model_name,
+                    "model_index": self.current_model_index,
+                    "operation": "fallback_success"
+                }
+            )
             return True
         except Exception as e:
             self.logger.warning(f"Failed to switch to fallback model {model_name}: {str(e)}")
@@ -738,6 +781,17 @@ class LLMProviderWithFallback:
         """Generate response with automatic fallback on failure"""
         last_exception = None
 
+        # Log the start of fallback chain
+        self.logger.info(
+            "🔗 STARTING FALLBACK CHAIN",
+            extra={
+                "fallback_chain": self.model_chain,
+                "current_model": self.model_chain[self.current_model_index] if self.current_model_index < len(self.model_chain) else "none",
+                "prompt_length": len(prompt),
+                "operation": "fallback_chain_start"
+            }
+        )
+
         while self.current_provider and self.current_model_index < len(self.model_chain):
             try:
                 # Try current provider (this will do its own retries)
@@ -749,8 +803,13 @@ class LLMProviderWithFallback:
                 current_model = self.model_chain[self.current_model_index] if self.current_model_index < len(self.model_chain) else "unknown"
 
                 self.logger.error(
-                    f"Model {current_model} failed after retries, attempting fallback",
-                    extra={"error": str(e), "model_index": self.current_model_index}
+                    f"🔄 FALLBACK: Model {current_model} failed after retries, attempting fallback",
+                    extra={
+                        "error": str(e), 
+                        "model_index": self.current_model_index,
+                        "failed_model": current_model,
+                        "operation": "fallback_attempt"
+                    }
                 )
 
                 # Try to switch to next provider

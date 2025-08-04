@@ -42,7 +42,8 @@
       "WebFetch(domain:docs.mistral.ai)",
       "WebFetch(domain:huggingface.co)",
       "WebFetch(domain:deepinfra.com)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

@@ -170,6 +170,20 @@ class QualityAgentNode:
             chatbot_response=response
         )
 
+        # Log the LLM call at agent level
+        self.logger.info(
+            "Quality Agent calling LLM",
+            extra={
+                "agent": "quality_agent",
+                "model_name": self.llm_provider.model_name,
+                "provider_type": self.llm_provider.provider_type,
+                "prompt_length": len(evaluation_query),
+                "system_prompt_length": len(system_prompt),
+                "compact_mode": compact,
+                "operation": "agent_llm_call"
+            }
+        )
+
         llm_response = self.llm_provider.generate_response(
             prompt=evaluation_query,
             system_prompt=system_prompt

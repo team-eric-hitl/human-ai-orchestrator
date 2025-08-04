@@ -110,49 +110,49 @@ class HumanCustomerSimulator:
     ) -> str:
         """Generate initial customer query based on personality and scenario"""
 
-        # Base queries by scenario
+        # Base queries by scenario - Insurance specific questions
         base_queries = {
             CustomerScenario.SIMPLE_QUESTION: [
-                "How do I reset my password?",
-                "What are your business hours?",
-                "How do I update my billing information?",
-                "Can you explain your pricing plans?",
+                "How do deductibles work exactly?",
+                "What's the difference between comprehensive and collision coverage?",
+                "Can you explain how my premiums are calculated?",
+                "What factors affect my insurance rates?",
             ],
             CustomerScenario.TECHNICAL_ISSUE: [
-                "I'm having trouble with the API integration",
-                "The webhook isn't working properly",
-                "I'm getting a 500 error when making requests",
-                "The authentication system seems to be down",
+                "I'm trying to understand my coverage limits but the policy language is confusing",
+                "The terms in my policy document don't match what I was told when I signed up",
+                "I need help interpreting the exclusions section of my policy",
+                "Can you explain what 'actual cash value' means versus replacement cost?",
             ],
             CustomerScenario.BILLING_PROBLEM: [
-                "I was charged twice this month",
-                "My subscription seems to have the wrong plan",
-                "I need to update my payment method",
-                "Can you explain this charge on my bill?",
+                "My premium went up significantly and I don't understand why",
+                "I think there's an error in how my multi-policy discount was applied",
+                "I was promised a good driver discount but don't see it on my bill",
+                "Can you explain all these fees on my insurance statement?",
             ],
             CustomerScenario.ACCOUNT_ACCESS: [
-                "I can't log into my account",
-                "I think my account has been suspended",
-                "I need to add users to my organization",
-                "How do I change my account permissions?",
+                "I need to add my teenage driver to my policy but have questions about coverage",
+                "How do I properly report changes to my vehicle's usage?",
+                "I want to adjust my coverage but need to understand the implications first",
+                "Can you help me understand what happens if I change my deductible?",
             ],
             CustomerScenario.COMPLEX_INTEGRATION: [
-                "I need help setting up SSO for my enterprise account",
-                "How do I configure real-time data sync between systems?",
-                "I need custom reporting for our compliance requirements",
-                "Can you help with our multi-tenant setup?",
+                "I have multiple properties and vehicles - how should I structure my coverage?",
+                "I'm starting a home business and need to understand liability implications",
+                "I have a classic car collection - what special considerations are there?",
+                "Can you help me understand umbrella insurance and whether I need it?",
             ],
             CustomerScenario.REPEAT_ISSUE: [
-                "I'm still having the same problem I contacted you about last week",
-                "This issue keeps happening even after your last fix",
-                "I've tried everything you suggested but it's not working",
-                "Why does this keep breaking?",
+                "I filed a claim weeks ago and still haven't heard about the status",
+                "This is the third time I'm calling about my claim reimbursement",
+                "My adjuster hasn't returned my calls and I'm getting frustrated",
+                "I was told my claim would be processed but nothing has happened",
             ],
             CustomerScenario.ESCALATION_REQUEST: [
-                "I need to speak to a manager about this issue",
-                "Can you escalate this to your technical team?",
-                "I want to file a formal complaint",
-                "This needs immediate attention from someone senior",
+                "I'm not satisfied with how my claim is being handled - I need a manager",
+                "This claim settlement offer seems unfair, I need to speak to someone in charge",
+                "I want to file a complaint about my agent's service",
+                "I'm considering switching insurers due to poor service - can a supervisor call me?",
             ],
         }
 

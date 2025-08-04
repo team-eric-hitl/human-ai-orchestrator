@@ -1,0 +1,179 @@
+{
+  "system_metrics": {
+    "run_id": "quick_validation_20250803_214841",
+    "start_time": "2025-08-03 21:48:41.757061",
+    "end_time": "2025-08-03 21:48:42.489534",
+    "total_cycles": 5,
+    "avg_customer_satisfaction": 0.0,
+    "total_escalations": 0,
+    "escalation_rate": 0.0,
+    "quality_agent_accuracy": 1.0,
+    "frustration_detection_precision": 1.0,
+    "routing_success_rate": 0.0,
+    "avg_resolution_time": 0.0459716,
+    "system_utilization": 0.0,
+    "failed_routes": 0,
+    "quality_interventions": 1,
+    "frustration_interventions": 0
+  },
+  "agent_metrics": {},
+  "cycle_results": [
+    {
+      "cycle_id": "cycle_0000_impatient_business_customer",
+      "scenario_name": "Impatient Business Customer",
+      "customer_personality": "impatient",
+      "start_time": "2025-08-03 21:48:41.757384",
+      "end_time": "2025-08-03 21:48:41.799569",
+      "duration_seconds": 0.042185,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.14386950132463,
+      "frustration_score": 4.7069168537555,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0001_impatient_business_customer",
+      "scenario_name": "Impatient Business Customer",
+      "customer_personality": "impatient",
+      "start_time": "2025-08-03 21:48:41.899923",
+      "end_time": "2025-08-03 21:48:41.942104",
+      "duration_seconds": 0.042181,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.19591092330185,
+      "frustration_score": 5.478863794095772,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0002_impatient_business_customer",
+      "scenario_name": "Impatient Business Customer",
+      "customer_personality": "impatient",
+      "start_time": "2025-08-03 21:48:42.042885",
+      "end_time": "2025-08-03 21:48:42.087052",
+      "duration_seconds": 0.044167,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 6.018398152947272,
+      "frustration_score": 5.490575564439977,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0003_happy_path_-_simple_question",
+      "scenario_name": "Happy Path - Simple Question",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:48:42.187461",
+      "end_time": "2025-08-03 21:48:42.237062",
+      "duration_seconds": 0.049601,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.904793326935259,
+      "frustration_score": 0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0004_happy_path_-_simple_question",
+      "scenario_name": "Happy Path - Simple Question",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:48:42.337418",
+      "end_time": "2025-08-03 21:48:42.389142",
+      "duration_seconds": 0.051724,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.314973265006323,
+      "frustration_score": 0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    }
+  ],
+  "decision_details": {
+    "quality_decisions": [
+      {
+        "cycle_id": "cycle_0000_impatient_business_customer",
+        "decision": "adequate",
+        "score": 7.14386950132463,
+        "confidence": 0.7963151795753822,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0001_impatient_business_customer",
+        "decision": "adequate",
+        "score": 7.19591092330185,
+        "confidence": 0.7177635620946523,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0002_impatient_business_customer",
+        "decision": "needs_adjustment",
+        "score": 6.018398152947272,
+        "confidence": 0.7108831496721497,
+        "next_action": "adjust_response"
+      },
+      {
+        "cycle_id": "cycle_0003_happy_path_-_simple_question",
+        "decision": "adequate",
+        "score": 8.904793326935259,
+        "confidence": 0.7692410553286892,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0004_happy_path_-_simple_question",
+        "decision": "adequate",
+        "score": 8.314973265006323,
+        "confidence": 0.8488070122634103,
+        "next_action": "respond_to_customer"
+      }
+    ],
+    "frustration_decisions": [
+      {
+        "cycle_id": "cycle_0000_impatient_business_customer",
+        "score": 4.7069168537555,
+        "level": "moderate",
+        "intervention_needed": false,
+        "confidence": 0.7404814041327324
+      },
+      {
+        "cycle_id": "cycle_0001_impatient_business_customer",
+        "score": 5.478863794095772,
+        "level": "moderate",
+        "intervention_needed": false,
+        "confidence": 0.8754242432925579
+      },
+      {
+        "cycle_id": "cycle_0002_impatient_business_customer",
+        "score": 5.490575564439977,
+        "level": "moderate",
+        "intervention_needed": false,
+        "confidence": 0.8595306083277259
+      },
+      {
+        "cycle_id": "cycle_0003_happy_path_-_simple_question",
+        "score": 0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.8647697284766839
+      },
+      {
+        "cycle_id": "cycle_0004_happy_path_-_simple_question",
+        "score": 0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.7586690008280814
+      }
+    ],
+    "routing_decisions": []
+  }
+}

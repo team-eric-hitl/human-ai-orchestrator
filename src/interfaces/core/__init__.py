@@ -16,6 +16,15 @@ from .logging import (
 )
 from .session import SessionMetrics, SessionTrackerInterface
 from .state_schema import EscalationData, EvaluationResult, HybridSystemState
+from .trace import (
+    TraceCollectorInterface,
+    InteractionTrace,
+    AgentInteraction,
+    SystemDecision,
+    WorkflowStage,
+    PerformanceMetrics,
+    OutputFormat
+)
 
 __all__ = [
     "ContextProvider",
@@ -27,6 +36,13 @@ __all__ = [
     "StructuredLoggerProvider",
     "SessionTrackerInterface",
     "SessionMetrics",
+    "TraceCollectorInterface",
+    "InteractionTrace",
+    "AgentInteraction",
+    "SystemDecision",
+    "WorkflowStage",
+    "PerformanceMetrics",
+    "OutputFormat",
     "HybridSystemState",
     "EscalationData",
     "EvaluationResult",

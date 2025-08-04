@@ -1,0 +1,216 @@
+{
+  "system_metrics": {
+    "run_id": "quick_validation_20250803_203025",
+    "start_time": "2025-08-03 20:30:25.432128",
+    "end_time": "2025-08-03 20:30:26.223612",
+    "total_cycles": 5,
+    "avg_customer_satisfaction": 0.0,
+    "total_escalations": 3,
+    "escalation_rate": 0.6,
+    "quality_agent_accuracy": 1.0,
+    "frustration_detection_precision": 1.0,
+    "routing_success_rate": 1.0,
+    "avg_resolution_time": 0.05782659999999999,
+    "system_utilization": 0.0,
+    "failed_routes": 0,
+    "quality_interventions": 4,
+    "frustration_interventions": 2
+  },
+  "agent_metrics": {
+    "agent_008": {
+      "agent_id": "agent_008",
+      "agent_name": "Agent agent_008",
+      "agent_type": "unknown",
+      "cases_handled": 3,
+      "avg_resolution_time": 0.06537799999999999,
+      "customer_satisfaction": 0.0,
+      "escalation_rate": 0.0,
+      "max_concurrent": 0,
+      "avg_utilization": 0.0,
+      "stress_level": 0.0,
+      "successful_resolutions": 0,
+      "total_resolution_attempts": 3
+    }
+  },
+  "cycle_results": [
+    {
+      "cycle_id": "cycle_0000_happy_path_-_simple_question",
+      "scenario_name": "Happy Path - Simple Question",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 20:30:25.432473",
+      "end_time": "2025-08-03 20:30:25.478091",
+      "duration_seconds": 0.045618,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.346670236318763,
+      "frustration_score": 0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0001_quality_issue_-_poor_response",
+      "scenario_name": "Quality Issue - Poor Response",
+      "customer_personality": "confused",
+      "start_time": "2025-08-03 20:30:25.578468",
+      "end_time": "2025-08-03 20:30:25.640210",
+      "duration_seconds": 0.061742,
+      "escalated_to_human": true,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 4.022666202868712,
+      "frustration_score": 1.4370073215803505,
+      "routing_decision": "skill_based",
+      "assigned_agent": "agent_008",
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0002_impatient_business_customer",
+      "scenario_name": "Impatient Business Customer",
+      "customer_personality": "impatient",
+      "start_time": "2025-08-03 20:30:25.740592",
+      "end_time": "2025-08-03 20:30:25.787973",
+      "duration_seconds": 0.047381,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 6.023655426059791,
+      "frustration_score": 5.054094353710018,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0003_frustrated_customer",
+      "scenario_name": "Frustrated Customer",
+      "customer_personality": "frustrated",
+      "start_time": "2025-08-03 20:30:25.888380",
+      "end_time": "2025-08-03 20:30:25.957202",
+      "duration_seconds": 0.068822,
+      "escalated_to_human": true,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 3.1803126510593875,
+      "frustration_score": 7.668176802070889,
+      "routing_decision": "skill_based",
+      "assigned_agent": "agent_008",
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0004_frustrated_customer",
+      "scenario_name": "Frustrated Customer",
+      "customer_personality": "frustrated",
+      "start_time": "2025-08-03 20:30:26.057585",
+      "end_time": "2025-08-03 20:30:26.123155",
+      "duration_seconds": 0.06557,
+      "escalated_to_human": true,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 2.7598336141137576,
+      "frustration_score": 7.630759708473331,
+      "routing_decision": "skill_based",
+      "assigned_agent": "agent_008",
+      "errors": []
+    }
+  ],
+  "decision_details": {
+    "quality_decisions": [
+      {
+        "cycle_id": "cycle_0000_happy_path_-_simple_question",
+        "decision": "adequate",
+        "score": 8.346670236318763,
+        "confidence": 0.7826567848676216,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0001_quality_issue_-_poor_response",
+        "decision": "human_intervention",
+        "score": 4.022666202868712,
+        "confidence": 0.7666934104229508,
+        "next_action": "escalate_to_human"
+      },
+      {
+        "cycle_id": "cycle_0002_impatient_business_customer",
+        "decision": "needs_adjustment",
+        "score": 6.023655426059791,
+        "confidence": 0.7566061232448885,
+        "next_action": "adjust_response"
+      },
+      {
+        "cycle_id": "cycle_0003_frustrated_customer",
+        "decision": "human_intervention",
+        "score": 3.1803126510593875,
+        "confidence": 0.8974624960199173,
+        "next_action": "escalate_to_human"
+      },
+      {
+        "cycle_id": "cycle_0004_frustrated_customer",
+        "decision": "human_intervention",
+        "score": 2.7598336141137576,
+        "confidence": 0.8958179303896778,
+        "next_action": "escalate_to_human"
+      }
+    ],
+    "frustration_decisions": [
+      {
+        "cycle_id": "cycle_0000_happy_path_-_simple_question",
+        "score": 0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.8316805088473331
+      },
+      {
+        "cycle_id": "cycle_0001_quality_issue_-_poor_response",
+        "score": 1.4370073215803505,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.7282287658935671
+      },
+      {
+        "cycle_id": "cycle_0002_impatient_business_customer",
+        "score": 5.054094353710018,
+        "level": "moderate",
+        "intervention_needed": false,
+        "confidence": 0.8273461126598668
+      },
+      {
+        "cycle_id": "cycle_0003_frustrated_customer",
+        "score": 7.668176802070889,
+        "level": "high",
+        "intervention_needed": true,
+        "confidence": 0.7567505690874057
+      },
+      {
+        "cycle_id": "cycle_0004_frustrated_customer",
+        "score": 7.630759708473331,
+        "level": "high",
+        "intervention_needed": true,
+        "confidence": 0.8476648218902969
+      }
+    ],
+    "routing_decisions": [
+      {
+        "cycle_id": "cycle_0001_quality_issue_-_poor_response",
+        "strategy": "skill_based",
+        "agent_id": "agent_008",
+        "match_score": 93.85623780100937,
+        "confidence": 0.865827067103888
+      },
+      {
+        "cycle_id": "cycle_0003_frustrated_customer",
+        "strategy": "skill_based",
+        "agent_id": "agent_008",
+        "match_score": 89.23929279398028,
+        "confidence": 0.8879111734277779
+      },
+      {
+        "cycle_id": "cycle_0004_frustrated_customer",
+        "strategy": "skill_based",
+        "agent_id": "agent_008",
+        "match_score": 92.80535666913266,
+        "confidence": 0.897396595512699
+      }
+    ]
+  }
+}

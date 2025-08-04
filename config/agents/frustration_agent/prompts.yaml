@@ -126,23 +126,3 @@ intervention_recommendation: |
   Reasoning: [justification for recommendations]
   Priority Level: [low/medium/high/critical]
 
-employee_protection: |
-  Assess the impact of routing this frustrated customer to human agents.
-  
-  Frustration Level: {frustration_level}
-  Available Agents: {agent_availability}
-  Recent Frustration Assignments: {recent_assignments}
-  
-  Consider:
-  - Which agents have high frustration tolerance
-  - Who has handled fewer difficult cases recently  
-  - Whether any agents need a break from frustrated customers
-  - If this case requires specific expertise vs. emotional resilience
-  
-  Provide guidance on:
-  1. Agent Selection Priorities
-  2. Support Needed for Assigned Agent
-  3. Escalation Path if Agent Becomes Overwhelmed
-  4. Post-Interaction Support Requirements
-  
-  Employee Wellbeing Considerations: [recommendations for protecting agent wellbeing]

@@ -1,0 +1,123 @@
+{
+  "trace_id": "trace_20250803_210911_44243fcd",
+  "session_id": "demo_20250803_210911_915",
+  "user_id": "demo_customer_demo_20250803_210911_915",
+  "query_id": "demo_20250803_210911_915_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:09:11.127943",
+    "end_time": "2025-08-03T21:09:11.183975",
+    "total_duration_ms": 56.032,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "I need help setting up SSO for my enterprise account I've already checked the documentation and tried basic troubleshooting.",
+    "customer_personality": "technical",
+    "frustration_level": 2,
+    "scenario": "complex_integration",
+    "scenario_name": "Escalation - Technical Issue"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:09:11.136967",
+      "end_time": "2025-08-03T21:09:11.136989",
+      "duration_ms": 0.022,
+      "input": {
+        "query": "I need help setting up SSO for my enterprise account I've already checked the documentation and tried basic troubleshooting.",
+        "customer_personality": "technical",
+        "initial_frustration": 2
+      },
+      "output": {
+        "overall_score": 2.3877572516147176,
+        "overall_level": "low",
+        "confidence": 0.7565420595337617,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "technical_personality",
+          "initial_query_tone"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "simulated"
+      },
+      "next_action": "continue"
+    },
+    {
+      "agent_name": "automation_agent",
+      "interaction_id": "automation_agent_002",
+      "sequence_number": 2,
+      "start_time": "2025-08-03T21:09:11.147992",
+      "end_time": "2025-08-03T21:09:11.148015",
+      "duration_ms": 0.023,
+      "input": {
+        "query": "I need help setting up SSO for my enterprise account I've already checked the documentation and tried basic troubleshooting.",
+        "customer_personality": "technical"
+      },
+      "output": {
+        "can_handle": false,
+        "task_type": "complex_query",
+        "confidence": 0.17944919177948632,
+        "reasoning": "Query classified as complex_query with 0.18 confidence"
+      },
+      "response_metadata": {
+        "agent_type": "simulated"
+      },
+      "next_action": "continue_to_chatbot"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:09:11.127943",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.136989",
+      "duration_from_start_ms": 9.046
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.148015",
+      "duration_from_start_ms": 20.072
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.148015",
+      "duration_from_start_ms": 20.072
+    },
+    {
+      "stage": "chatbot_response_complete",
+      "timestamp": "2025-08-03T21:09:11.167747",
+      "duration_from_start_ms": 39.804
+    },
+    {
+      "stage": "quality_assessment_complete",
+      "timestamp": "2025-08-03T21:09:11.176014",
+      "duration_from_start_ms": 48.071000000000005
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 56.032,
+    "ai_processing_time_ms": 0.045,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 2,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}

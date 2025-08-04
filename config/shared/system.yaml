@@ -61,6 +61,46 @@ monitoring:
   performance_tracking: true   # Track response times and throughput
   enable_tracing: true        # Enable detailed tracing
   
+  # Full interaction trace collection - captures complete HITL workflow
+  trace_collection:
+    enabled: true                      # Enable comprehensive trace collection
+    max_traces_in_memory: 1000        # Maximum number of traces to keep in memory
+    auto_export: true                  # Automatically export traces to files
+    
+    # Default export settings
+    export:
+      format: "detailed_json"          # Default format: detailed_json, summary_json, csv_timeline, performance_only
+      output_directory: "traces"       # Directory to store trace files
+      auto_export_interval: 300        # Export traces every 5 minutes
+      compress_exports: true           # Compress exported trace files
+      
+    # Trace retention policy
+    retention:
+      max_age_days: 30                 # Keep traces for 30 days
+      cleanup_interval: 3600           # Clean up old traces every hour
+      archive_before_cleanup: true     # Archive traces before deletion
+      archive_directory: "traces/archive"
+      
+    # Performance optimization for trace collection
+    optimization:
+      async_collection: true           # Collect traces asynchronously
+      batch_size: 50                   # Batch size for export operations
+      enable_sampling: false           # Disable sampling - collect all traces
+      sampling_rate: 1.0               # Sample 100% of traces when enabled
+      
+    # Trace output customization
+    output_options:
+      include_context_data: true       # Include conversation context in traces
+      include_metadata: true           # Include agent metadata (model info, costs)
+      include_performance_metrics: true # Include detailed performance metrics
+      redact_sensitive_data: true      # Remove sensitive information from traces
+      
+    # Integration with existing systems
+    integration:
+      langsmith_sync: true             # Sync traces to LangSmith
+      session_tracker_sync: true      # Sync with session tracking system
+      export_to_analytics: false      # Export to external analytics systems
+  
   # LangSmith integration - external monitoring service
   langsmith:
     enabled: true                           # Enable LangSmith tracing

@@ -1,0 +1,122 @@
+{
+  "trace_id": "trace_20250803_212410_73451931",
+  "session_id": "demo_20250803_212410_263",
+  "user_id": "demo_customer_demo_20250803_212410_263",
+  "query_id": "demo_20250803_212410_263_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:24:10.777564",
+    "end_time": "2025-08-03T21:24:34.716152",
+    "total_duration_ms": 23938.588,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "Can you tell me my policy number?",
+    "customer_personality": "polite",
+    "frustration_level": 0,
+    "scenario": "simple_question",
+    "scenario_name": "Automation - Balance Inquiry"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:24:10.795398",
+      "end_time": "2025-08-03T21:24:21.082497",
+      "duration_ms": 10287.099,
+      "input": {
+        "query": "Can you tell me my policy number?",
+        "customer_personality": "polite",
+        "initial_frustration": 0
+      },
+      "output": {
+        "overall_score": 1.0,
+        "overall_level": "low",
+        "confidence": 0.8,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "strong_negative_sentiment"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "real_llm"
+      },
+      "next_action": "continue"
+    },
+    {
+      "agent_name": "automation_agent",
+      "interaction_id": "automation_agent_002",
+      "sequence_number": 2,
+      "start_time": "2025-08-03T21:24:21.091415",
+      "end_time": "2025-08-03T21:24:21.091874",
+      "duration_ms": 0.45899999999999996,
+      "input": {
+        "query": "Can you tell me my policy number?",
+        "customer_personality": "polite"
+      },
+      "output": {
+        "can_handle": false,
+        "task_type": "unknown",
+        "confidence": 0.0,
+        "reasoning": "Real automation agent assessment"
+      },
+      "response_metadata": {
+        "agent_type": "real_automation"
+      },
+      "next_action": "continue_to_chatbot"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:24:10.777564",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:24:21.082497",
+      "duration_from_start_ms": 10304.933
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:24:21.091874",
+      "duration_from_start_ms": 10314.310000000001
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:24:21.091874",
+      "duration_from_start_ms": 10314.310000000001
+    },
+    {
+      "stage": "chatbot_response_complete",
+      "timestamp": "2025-08-03T21:24:24.359440",
+      "duration_from_start_ms": 13581.876
+    },
+    {
+      "stage": "quality_assessment_complete",
+      "timestamp": "2025-08-03T21:24:34.708414",
+      "duration_from_start_ms": 23930.85
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 23938.588,
+    "ai_processing_time_ms": 10287.558,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 2,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}

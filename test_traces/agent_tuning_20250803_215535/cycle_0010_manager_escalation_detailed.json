@@ -1,0 +1,91 @@
+{
+  "trace_id": "trace_20250803_215854_e2c426e8",
+  "session_id": "demo_20250803_215854_286",
+  "user_id": "demo_customer_demo_20250803_215854_286",
+  "query_id": "demo_20250803_215854_286_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:58:54.686001",
+    "end_time": "2025-08-03T21:59:12.836087",
+    "total_duration_ms": 18150.086000000003,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "Hello, I'm reaching out regarding a business matter. I'm considering switching insurers due to poor service - can a supervisor call me? Please advise on the appropriate next steps.",
+    "customer_personality": "business",
+    "frustration_level": 5,
+    "scenario": "escalation_request",
+    "scenario_name": "Manager Escalation"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:58:54.694573",
+      "end_time": "2025-08-03T21:59:00.868666",
+      "duration_ms": 6174.093,
+      "input": {
+        "query": "Hello, I'm reaching out regarding a business matter. I'm considering switching insurers due to poor service - can a supervisor call me? Please advise on the appropriate next steps.",
+        "customer_personality": "business",
+        "initial_frustration": 5
+      },
+      "output": {
+        "overall_score": 5.0,
+        "overall_level": "moderate",
+        "confidence": 0.7,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "escalation_language",
+          "strong_negative_sentiment"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "real_llm"
+      },
+      "next_action": "continue"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:58:54.686001",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:59:00.868666",
+      "duration_from_start_ms": 6182.665
+    },
+    {
+      "stage": "chatbot_response_complete",
+      "timestamp": "2025-08-03T21:59:04.551620",
+      "duration_from_start_ms": 9865.619
+    },
+    {
+      "stage": "quality_assessment_complete",
+      "timestamp": "2025-08-03T21:59:12.825971",
+      "duration_from_start_ms": 18139.97
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 18150.086000000003,
+    "ai_processing_time_ms": 6174.093,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 1,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}

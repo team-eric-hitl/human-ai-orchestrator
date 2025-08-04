@@ -1,0 +1,23 @@
+I want the simulation to run through the entire process from initial query to completed interaction:
+
+simulated user asks a support question (related to insurance industry)
+
+frustration agent evaluates the question looking of signs of too much frustration
+
+If frustration threshold is surpassed, the query is sent to the escalation router rather than the chatbot.
+
+the chatbot generates a reply to the query, but before being sent back to the user, the quality agent evaluates the reply
+
+If the quality agent detects a problem with the generated answer, it directes the user query to the esclation agent instead 
+
+The esclation agent evaluates the question and uses context and employee profiles to direct the query to the best available human, and the simulated human answers the query, ending the interaction
+
+For simple queries - check my balance owed - the chatbot directs the query to the automation simulator for a simulated result, and then the interaction ends.
+
+As long as the user and the chatbot go back and forth without ecalation, then the interaction continues
+
+I want the trace files to include all of these steps, the user and chatbot interactions, and a summary of the evaluations made by the agents where appropriate.
+
+I also want to make sure that the actual agents in source, not just for this simulation, notify the user when they are being redirected - something like "Please wait a moment while I direct you to a representive" or whatver is appropriate
+
+One of the main goals of the simulator once it is working is to generate a bunch of mock data for the demo and for the context manager agent to use.

@@ -1,0 +1,108 @@
+{
+  "trace_id": "trace_20250803_210801_e6c42e34",
+  "session_id": "demo_20250803_210801_542",
+  "user_id": "demo_customer_demo_20250803_210801_542",
+  "query_id": "demo_20250803_210801_542_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:08:01.086754",
+    "end_time": "2025-08-03T21:08:18.176094",
+    "total_duration_ms": 17089.34,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+    "customer_personality": "confused",
+    "frustration_level": 1,
+    "scenario": "simple_question",
+    "scenario_name": "Quality Issue - Poor Response"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:08:01.100299",
+      "end_time": "2025-08-03T21:08:07.377763",
+      "duration_ms": 6277.464,
+      "input": {
+        "query": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+        "customer_personality": "confused",
+        "initial_frustration": 1
+      },
+      "output": {
+        "overall_score": 2.0,
+        "overall_level": "low",
+        "confidence": 0.6,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "escalation_language",
+          "strong_negative_sentiment"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "real_llm"
+      },
+      "next_action": "continue"
+    },
+    {
+      "agent_name": "automation_agent",
+      "interaction_id": "automation_agent_002",
+      "sequence_number": 2,
+      "start_time": "2025-08-03T21:08:07.388164",
+      "end_time": "2025-08-03T21:08:07.388980",
+      "duration_ms": 0.816,
+      "input": {
+        "query": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+        "customer_personality": "confused"
+      },
+      "output": {
+        "can_handle": false,
+        "task_type": "unknown",
+        "confidence": 0.0,
+        "reasoning": "Real automation agent assessment"
+      },
+      "response_metadata": {
+        "agent_type": "real_automation"
+      },
+      "next_action": "continue_to_chatbot"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:08:01.086754",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:08:07.377763",
+      "duration_from_start_ms": 6291.009
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:08:07.388980",
+      "duration_from_start_ms": 6302.226
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 17089.34,
+    "ai_processing_time_ms": 6278.28,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 2,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}

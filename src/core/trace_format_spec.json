@@ -1,0 +1,295 @@
+{
+  "trace_format_version": "1.0",
+  "description": "Full trace format specification for HITL system interactions",
+  "example_trace": {
+    "trace_id": "trace_20250803_143025_abc123",
+    "session_id": "session_xyz789",
+    "user_id": "customer_456",
+    "query_id": "query_001",
+    "trace_metadata": {
+      "start_time": "2025-08-03T14:30:25.123Z",
+      "end_time": "2025-08-03T14:30:45.789Z",
+      "total_duration_ms": 20666,
+      "trace_version": "1.0",
+      "system_version": "hitl-system-v2.1.0",
+      "environment": "production"
+    },
+    "initial_query": {
+      "timestamp": "2025-08-03T14:30:25.123Z",
+      "query_text": "I can't access my account and it's really frustrating",
+      "query_metadata": {
+        "channel": "chat",
+        "user_agent": "Mozilla/5.0...",
+        "ip_address": "192.168.1.1",
+        "customer_tier": "premium"
+      }
+    },
+    "agent_interactions": [
+      {
+        "agent_name": "frustration_agent",
+        "interaction_id": "frustration_001",
+        "sequence_number": 1,
+        "start_time": "2025-08-03T14:30:25.234Z",
+        "end_time": "2025-08-03T14:30:26.567Z",
+        "duration_ms": 1333,
+        "input": {
+          "query": "I can't access my account and it's really frustrating",
+          "previous_context": [],
+          "analysis_type": "sentiment_and_frustration"
+        },
+        "output": {
+          "frustration_score": 7.2,
+          "frustration_level": "high",
+          "sentiment": "negative",
+          "key_indicators": ["explicit_frustration", "access_issue"],
+          "intervention_needed": true,
+          "confidence": 0.89
+        },
+        "response_metadata": {
+          "model_used": "claude-3-sonnet-20240229",
+          "tokens_input": 45,
+          "tokens_output": 78,
+          "cost_usd": 0.002,
+          "provider": "anthropic",
+          "temperature": 0.1
+        },
+        "next_action": "priority_routing"
+      },
+      {
+        "agent_name": "chatbot_agent",
+        "interaction_id": "chatbot_001", 
+        "sequence_number": 2,
+        "start_time": "2025-08-03T14:30:26.678Z",
+        "end_time": "2025-08-03T14:30:29.123Z",
+        "duration_ms": 2445,
+        "input": {
+          "query": "I can't access my account and it's really frustrating",
+          "customer_context": {
+            "frustration_level": "high",
+            "customer_tier": "premium",
+            "previous_interactions": 2
+          },
+          "response_mode": "empathetic_support"
+        },
+        "output": {
+          "response": "I understand how frustrating account access issues can be, especially when you need to get things done. Let me help you resolve this right away. I'll check your account status and guide you through the recovery process.",
+          "response_type": "empathetic_support",
+          "confidence": 0.85,
+          "suggested_next_steps": ["account_verification", "password_reset"]
+        },
+        "response_metadata": {
+          "model_used": "gpt-4-turbo-2024-04-09",
+          "tokens_input": 134,
+          "tokens_output": 89,
+          "cost_usd": 0.005,
+          "provider": "openai",
+          "temperature": 0.3
+        },
+        "next_action": "quality_check"
+      },
+      {
+        "agent_name": "quality_agent",
+        "interaction_id": "quality_001",
+        "sequence_number": 3,
+        "start_time": "2025-08-03T14:30:29.234Z",
+        "end_time": "2025-08-03T14:30:31.567Z",
+        "duration_ms": 2333,
+        "input": {
+          "original_query": "I can't access my account and it's really frustrating",
+          "chatbot_response": "I understand how frustrating account access issues can be...",
+          "customer_context": {
+            "frustration_level": "high",
+            "customer_tier": "premium"
+          }
+        },
+        "output": {
+          "quality_score": 8.2,
+          "quality_level": "good",
+          "decision": "adequate_with_monitoring",
+          "evaluation_criteria": {
+            "empathy": 9.0,
+            "accuracy": 8.0,
+            "completeness": 7.0,
+            "appropriateness": 9.0
+          },
+          "improvement_suggestions": ["provide specific troubleshooting steps"],
+          "confidence": 0.78
+        },
+        "response_metadata": {
+          "model_used": "claude-3-sonnet-20240229",
+          "tokens_input": 198,
+          "tokens_output": 156,
+          "cost_usd": 0.004,
+          "provider": "anthropic",
+          "temperature": 0.0
+        },
+        "next_action": "deliver_response"
+      },
+      {
+        "agent_name": "escalation_router",
+        "interaction_id": "router_001",
+        "sequence_number": 4,
+        "start_time": "2025-08-03T14:30:35.123Z",
+        "end_time": "2025-08-03T14:30:36.789Z",
+        "duration_ms": 1666,
+        "input": {
+          "frustration_analysis": {
+            "score": 7.2,
+            "level": "high",
+            "intervention_needed": true
+          },
+          "quality_assessment": {
+            "score": 8.2,
+            "decision": "adequate_with_monitoring"
+          },
+          "customer_context": {
+            "tier": "premium",
+            "previous_escalations": 0,
+            "account_age_days": 365
+          }
+        },
+        "output": {
+          "routing_decision": "escalate_to_human",
+          "priority": "high",
+          "assigned_agent": {
+            "id": "agent_sarah_123",
+            "name": "Sarah Chen",
+            "specialization": "account_support",
+            "current_workload": 3,
+            "avg_resolution_time": 8.5
+          },
+          "routing_reasoning": "High frustration premium customer with account access issue",
+          "estimated_wait_time": 2,
+          "confidence": 0.94
+        },
+        "response_metadata": {
+          "routing_algorithm": "frustration_priority_v2",
+          "available_agents": 7,
+          "queue_length": 2
+        },
+        "next_action": "human_handoff"
+      }
+    ],
+    "system_decisions": [
+      {
+        "decision_point": "frustration_intervention",
+        "timestamp": "2025-08-03T14:30:26.567Z",
+        "decision": "monitor_and_prioritize",
+        "reasoning": "High frustration detected (7.2/10), customer should be prioritized",
+        "factors": ["frustration_score", "customer_tier", "explicit_language"]
+      },
+      {
+        "decision_point": "quality_gate",
+        "timestamp": "2025-08-03T14:30:31.567Z", 
+        "decision": "approve_with_monitoring",
+        "reasoning": "Response meets quality threshold but customer frustration requires monitoring",
+        "factors": ["quality_score", "empathy_rating", "frustration_context"]
+      },
+      {
+        "decision_point": "escalation_routing",
+        "timestamp": "2025-08-03T14:30:36.789Z",
+        "decision": "escalate_to_specialist",
+        "reasoning": "Combination of high frustration and premium tier requires human intervention",
+        "factors": ["frustration_level", "customer_tier", "issue_complexity"]
+      }
+    ],
+    "workflow_progression": [
+      {
+        "stage": "query_received",
+        "timestamp": "2025-08-03T14:30:25.123Z",
+        "duration_from_start_ms": 0
+      },
+      {
+        "stage": "frustration_analysis_complete",
+        "timestamp": "2025-08-03T14:30:26.567Z",
+        "duration_from_start_ms": 1444
+      },
+      {
+        "stage": "chatbot_response_generated",
+        "timestamp": "2025-08-03T14:30:29.123Z",
+        "duration_from_start_ms": 4000
+      },
+      {
+        "stage": "quality_assessment_complete",
+        "timestamp": "2025-08-03T14:30:31.567Z",
+        "duration_from_start_ms": 6444
+      },
+      {
+        "stage": "customer_response_delivered",
+        "timestamp": "2025-08-03T14:30:33.789Z",
+        "duration_from_start_ms": 8666
+      },
+      {
+        "stage": "escalation_routing_complete",
+        "timestamp": "2025-08-03T14:30:36.789Z",
+        "duration_from_start_ms": 11666
+      },
+      {
+        "stage": "human_agent_assigned",
+        "timestamp": "2025-08-03T14:30:38.456Z",
+        "duration_from_start_ms": 13333
+      }
+    ],
+    "performance_metrics": {
+      "total_processing_time_ms": 20666,
+      "ai_processing_time_ms": 6777,
+      "routing_time_ms": 1666,
+      "queue_wait_time_ms": 2000,
+      "total_tokens_used": 700,
+      "total_cost_usd": 0.011,
+      "agents_involved": 4,
+      "escalation_occurred": true,
+      "quality_interventions": 0,
+      "customer_satisfaction_predicted": 8.5
+    },
+    "outcome": {
+      "final_resolution": "escalated_to_human",
+      "human_agent_assigned": "agent_sarah_123",
+      "resolution_time_estimate_min": 8.5,
+      "customer_journey_stage": "human_support",
+      "intervention_effectiveness": "proactive_success",
+      "system_performance": "optimal"
+    },
+    "context_data": {
+      "conversation_history": [
+        {
+          "role": "customer",
+          "message": "I can't access my account and it's really frustrating",
+          "timestamp": "2025-08-03T14:30:25.123Z"
+        },
+        {
+          "role": "assistant", 
+          "message": "I understand how frustrating account access issues can be...",
+          "timestamp": "2025-08-03T14:30:33.789Z"
+        }
+      ],
+      "customer_profile": {
+        "tier": "premium",
+        "account_age_days": 365,
+        "previous_interactions": 2,
+        "satisfaction_history": [8, 9, 7]
+      },
+      "technical_context": {
+        "session_data": {},
+        "browser_info": "Chrome 120.0",
+        "feature_flags": ["frustration_detection_v2", "quality_gate_enabled"]
+      }
+    }
+  },
+  "field_definitions": {
+    "trace_id": "Unique identifier for this complete interaction trace",
+    "agent_interactions": "Ordered list of all AI agent processing steps with timing",
+    "system_decisions": "Key decision points where the system chose a path",
+    "workflow_progression": "Timeline of major workflow milestones",
+    "performance_metrics": "Aggregated performance and cost data",
+    "duration_ms": "Processing time in milliseconds for precise performance analysis",
+    "confidence": "AI agent confidence score (0.0-1.0)",
+    "next_action": "What the system decided to do after this agent's processing"
+  },
+  "output_formats": {
+    "detailed_json": "Complete trace with all fields (for analysis)",
+    "summary_json": "Key metrics and decisions only (for dashboards)", 
+    "csv_timeline": "Chronological events in CSV format (for spreadsheet analysis)",
+    "performance_only": "Just timing and cost data (for optimization)"
+  }
+}

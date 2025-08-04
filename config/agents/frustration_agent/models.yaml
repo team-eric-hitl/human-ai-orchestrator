@@ -1,4 +1,4 @@
-primary_model: "deepinfra_general_standard"
+primary_model: "anthropic_general_budget"
 
 model_overrides:
   temperature: 0.1          # Very low temperature for fast, deterministic responses

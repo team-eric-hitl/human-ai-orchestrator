@@ -3,12 +3,16 @@ Employee Simulator
 Simulates human employees (agents) handling escalated customer interactions
 """
 
+import asyncio
 import random
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from ..core.logging import get_logger
+from ..interfaces.human_agents import HumanAgent, HumanAgentRepository, HumanAgentService, Specialization
+from ..data.human_agents_repository import SQLiteHumanAgentRepository
+from ..services.human_agent_service import DefaultHumanAgentService
 
 
 class EmployeeType(Enum):
@@ -19,13 +23,15 @@ class EmployeeType(Enum):
     MANAGER = "manager"
 
 
-class EmployeeSkill(Enum):
-    GENERAL_SUPPORT = "general_support"
-    TECHNICAL = "technical"
-    BILLING = "billing"
-    ACCOUNT_MANAGEMENT = "account_management"
-    CONFLICT_RESOLUTION = "conflict_resolution"
-    PRODUCT_EXPERTISE = "product_expertise"
+# Map simulation skills to current Specialization interface
+SKILL_TO_SPECIALIZATION = {
+    "general_support": Specialization.GENERAL,
+    "technical": Specialization.TECHNICAL,
+    "billing": Specialization.BILLING,
+    "policy": Specialization.POLICY,
+    "claims": Specialization.CLAIMS,
+    "escalation": Specialization.ESCALATION,
+}
 
 
 class EmployeePersonality(Enum):
@@ -39,10 +45,19 @@ class EmployeePersonality(Enum):
 class EmployeeSimulator:
     """Simulates human employee responses to escalated customer cases"""
 
-    def __init__(self):
+    def __init__(self, repository: Optional[HumanAgentRepository] = None, agent_service: Optional[HumanAgentService] = None):
         self.logger = get_logger(__name__)
-        self.employees = self._create_employee_roster()
+        
+        # Use provided repository or create default
+        self.repository = repository or SQLiteHumanAgentRepository()
+        self.agent_service = agent_service or DefaultHumanAgentService(self.repository)
+        
+        # Fallback employees for simulation when database is empty
+        self.fallback_employees = self._create_employee_roster()
         self.active_cases = {}
+        
+        # Initialize database agents on first use
+        self._db_initialized = False
 
     def _create_employee_roster(self) -> list[dict[str, Any]]:
         """Create a roster of simulated employees"""
@@ -53,7 +68,7 @@ class EmployeeSimulator:
                 "name": "Sarah Chen",
                 "type": EmployeeType.SENIOR_SUPPORT,
                 "personality": EmployeePersonality.EMPATHETIC,
-                "skills": [EmployeeSkill.GENERAL_SUPPORT, EmployeeSkill.CONFLICT_RESOLUTION],
+                "skills": ["general_support", "escalation"],
                 "skill_level": "senior",
                 "frustration_tolerance": "high",
                 "years_experience": 5,
@@ -69,7 +84,7 @@ class EmployeeSimulator:
                 "name": "Marcus Johnson",
                 "type": EmployeeType.TECHNICAL_SPECIALIST,
                 "personality": EmployeePersonality.THOROUGH,
-                "skills": [EmployeeSkill.TECHNICAL, EmployeeSkill.PRODUCT_EXPERTISE],
+                "skills": ["technical", "general_support"],
                 "skill_level": "senior",
                 "frustration_tolerance": "medium",
                 "years_experience": 7,
@@ -85,7 +100,7 @@ class EmployeeSimulator:
                 "name": "Lisa Rodriguez",
                 "type": EmployeeType.BILLING_SPECIALIST,
                 "personality": EmployeePersonality.EFFICIENT,
-                "skills": [EmployeeSkill.BILLING, EmployeeSkill.ACCOUNT_MANAGEMENT],
+                "skills": ["billing", "policy"],
                 "skill_level": "intermediate",
                 "frustration_tolerance": "high",
                 "years_experience": 3,
@@ -101,7 +116,7 @@ class EmployeeSimulator:
                 "name": "David Kim",
                 "type": EmployeeType.JUNIOR_SUPPORT,
                 "personality": EmployeePersonality.PATIENT,
-                "skills": [EmployeeSkill.GENERAL_SUPPORT],
+                "skills": ["general_support"],
                 "skill_level": "junior",
                 "frustration_tolerance": "medium",
                 "years_experience": 1,
@@ -117,7 +132,7 @@ class EmployeeSimulator:
                 "name": "Jennifer Walsh",
                 "type": EmployeeType.MANAGER,
                 "personality": EmployeePersonality.DIRECT,
-                "skills": [EmployeeSkill.CONFLICT_RESOLUTION, EmployeeSkill.GENERAL_SUPPORT, EmployeeSkill.ACCOUNT_MANAGEMENT],
+                "skills": ["escalation", "general_support", "policy"],
                 "skill_level": "senior",
                 "frustration_tolerance": "very_high",
                 "years_experience": 10,
@@ -132,6 +147,73 @@ class EmployeeSimulator:
 
         return employees
 
+    async def _ensure_database_agents(self):
+        """Ensure database has agents for simulation"""
+        if self._db_initialized:
+            return
+            
+        try:
+            # Check if database has agents
+            existing_agents = await self.repository.get_all()
+            
+            # If database is empty or has very few agents, we might want to add some
+            # But we'll respect existing data and only log what we find
+            self.logger.info(f"Found {len(existing_agents)} agents in database for simulation")
+            
+            self._db_initialized = True
+            
+        except Exception as e:
+            self.logger.warning(f"Could not check database agents: {e}")
+            self._db_initialized = True  # Don't retry on errors
+
+    async def get_database_agents(self) -> list[HumanAgent]:
+        """Get agents from database"""
+        await self._ensure_database_agents()
+        try:
+            return await self.repository.get_all()
+        except Exception as e:
+            self.logger.warning(f"Could not get database agents: {e}")
+            return []
+
+    def _convert_to_simulation_format(self, agent: HumanAgent) -> dict[str, Any]:
+        """Convert HumanAgent to simulation format"""
+        return {
+            "id": agent.id,
+            "name": agent.name,
+            "type": self._map_specialization_to_type(agent.specializations),
+            "personality": EmployeePersonality.EMPATHETIC,  # Default
+            "skills": [str(spec) for spec in agent.specializations],
+            "skill_level": self._map_experience_to_level(agent.experience_level),
+            "frustration_tolerance": "medium",  # Default
+            "years_experience": agent.experience_level,
+            "customer_satisfaction": agent.workload.satisfaction_score,
+            "avg_resolution_time": agent.workload.avg_response_time_minutes or 20,
+            "current_workload": agent.workload.active_conversations,
+            "max_concurrent": agent.max_concurrent_conversations,
+            "working_hours": {"start": agent.shift_start or "09:00", "end": agent.shift_end or "17:00"},
+            "timezone": "PST",  # Default
+        }
+
+    def _map_specialization_to_type(self, specializations: list[Specialization]) -> EmployeeType:
+        """Map specializations to employee type"""
+        if Specialization.TECHNICAL in specializations:
+            return EmployeeType.TECHNICAL_SPECIALIST
+        elif Specialization.BILLING in specializations:
+            return EmployeeType.BILLING_SPECIALIST
+        elif Specialization.ESCALATION in specializations:
+            return EmployeeType.MANAGER
+        else:
+            return EmployeeType.SENIOR_SUPPORT
+
+    def _map_experience_to_level(self, experience: int) -> str:
+        """Map experience level to skill level"""
+        if experience >= 4:
+            return "senior"
+        elif experience >= 2:
+            return "intermediate"
+        else:
+            return "junior"
+
     def handle_escalated_case(
         self,
         assigned_employee_id: str,
@@ -142,6 +224,7 @@ class EmployeeSimulator:
     ) -> dict[str, Any]:
         """Simulate employee handling an escalated customer case"""
 
+        # Try to get employee from database first, then fallback
         employee = self._get_employee(assigned_employee_id)
         if not employee:
             return self._handle_employee_not_available(customer_context)
@@ -157,8 +240,17 @@ class EmployeeSimulator:
         # Calculate resolution metrics
         resolution_metrics = self._calculate_resolution_metrics(employee, case_analysis)
 
-        # Update employee workload
+        # Update employee workload (both simulation and database)
         self._update_employee_workload(employee["id"], 1)
+        
+        # Try to update database workload too
+        try:
+            asyncio.create_task(self.agent_service.assign_conversation(
+                assigned_employee_id, 
+                customer_context.get("session_id", f"sim_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            ))
+        except Exception as e:
+            self.logger.warning(f"Could not update database workload: {e}")
 
         case_id = f"case_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{random.randint(100, 999)}"
         self.active_cases[case_id] = {
@@ -212,8 +304,23 @@ class EmployeeSimulator:
         }
 
     def _get_employee(self, employee_id: str) -> dict[str, Any]:
-        """Get employee by ID"""
-        return next((emp for emp in self.employees if emp["id"] == employee_id), None)
+        """Get employee by ID from database or fallback roster"""
+        # Try database first
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If already in an async context, we can't await, so use fallback
+                return next((emp for emp in self.fallback_employees if emp["id"] == employee_id), None)
+            else:
+                # Run async call
+                agent = loop.run_until_complete(self.repository.get_by_id(employee_id))
+                if agent:
+                    return self._convert_to_simulation_format(agent)
+        except Exception as e:
+            self.logger.warning(f"Could not get agent from database: {e}")
+        
+        # Fallback to simulation roster
+        return next((emp for emp in self.fallback_employees if emp["id"] == employee_id), None)
 
     def _analyze_case(
         self, customer_context: dict[str, Any], escalation_reason: str, customer_query: str
@@ -227,16 +334,20 @@ class EmployeeSimulator:
         elif "billing" in escalation_reason.lower() or "frustrated" in escalation_reason.lower():
             complexity = "medium"
 
-        # Determine required skills
+        # Determine required skills using current specializations
         required_skills = []
         if "technical" in customer_query.lower() or "api" in customer_query.lower():
-            required_skills.append(EmployeeSkill.TECHNICAL)
+            required_skills.append("technical")
         if "billing" in customer_query.lower() or "payment" in customer_query.lower():
-            required_skills.append(EmployeeSkill.BILLING)
+            required_skills.append("billing")
+        if "policy" in customer_query.lower() or "coverage" in customer_query.lower():
+            required_skills.append("policy")
+        if "claim" in customer_query.lower():
+            required_skills.append("claims")
         if "frustrated" in escalation_reason.lower() or "angry" in escalation_reason.lower():
-            required_skills.append(EmployeeSkill.CONFLICT_RESOLUTION)
+            required_skills.append("escalation")
         if not required_skills:
-            required_skills.append(EmployeeSkill.GENERAL_SUPPORT)
+            required_skills.append("general_support")
 
         # Determine urgency
         urgency = "medium"
@@ -256,12 +367,12 @@ class EmployeeSimulator:
             "estimated_effort": self._estimate_effort(complexity, required_skills),
         }
 
-    def _estimate_effort(self, complexity: str, required_skills: list[EmployeeSkill]) -> str:
+    def _estimate_effort(self, complexity: str, required_skills: list[str]) -> str:
         """Estimate effort required for case"""
 
         if complexity == "high" or len(required_skills) > 2:
             return "high"
-        elif complexity == "medium" or EmployeeSkill.TECHNICAL in required_skills:
+        elif complexity == "medium" or "technical" in required_skills:
             return "medium"
         else:
             return "low"
@@ -452,8 +563,17 @@ class EmployeeSimulator:
         complexity_factor = {"low": 0.1, "medium": 0.0, "high": -0.2}[case["case_analysis"]["complexity"]]
         satisfaction = min(5.0, base_satisfaction + complexity_factor + random.uniform(-0.2, 0.2))
 
-        # Update employee workload
+        # Update employee workload (both simulation and database)
         self._update_employee_workload(employee["id"], -1)
+        
+        # Try to update database workload too
+        try:
+            asyncio.create_task(self.agent_service.complete_conversation(
+                employee["id"], 
+                case["customer_context"].get("session_id", f"sim_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            ))
+        except Exception as e:
+            self.logger.warning(f"Could not update database completion: {e}")
 
         # Remove from active cases
         del self.active_cases[case_id]
@@ -467,8 +587,8 @@ class EmployeeSimulator:
         }
 
     def _update_employee_workload(self, employee_id: str, change: int):
-        """Update employee workload"""
-        for employee in self.employees:
+        """Update employee workload in simulation roster"""
+        for employee in self.fallback_employees:
             if employee["id"] == employee_id:
                 employee["current_workload"] = max(0, employee["current_workload"] + change)
                 break
@@ -483,19 +603,43 @@ class EmployeeSimulator:
         }
 
     def get_employee_status(self) -> list[dict[str, Any]]:
-        """Get current status of all employees"""
-        return [
-            {
-                "id": emp["id"],
-                "name": emp["name"],
-                "type": emp["type"].value,
-                "current_workload": emp["current_workload"],
-                "max_concurrent": emp["max_concurrent"],
-                "availability": "available" if emp["current_workload"] < emp["max_concurrent"] else "busy",
-                "utilization": emp["current_workload"] / emp["max_concurrent"],
-            }
-            for emp in self.employees
-        ]
+        """Get current status of all employees (database + fallback)"""
+        employees = []
+        
+        # Try to get from database first
+        try:
+            loop = asyncio.get_event_loop()
+            if not loop.is_running():
+                db_agents = loop.run_until_complete(self.get_database_agents())
+                for agent in db_agents:
+                    employees.append({
+                        "id": agent.id,
+                        "name": agent.name,
+                        "type": self._map_specialization_to_type(agent.specializations).value,
+                        "current_workload": agent.workload.active_conversations,
+                        "max_concurrent": agent.max_concurrent_conversations,
+                        "availability": "available" if agent.workload.active_conversations < agent.max_concurrent_conversations else "busy",
+                        "utilization": agent.workload.active_conversations / agent.max_concurrent_conversations,
+                    })
+        except Exception as e:
+            self.logger.warning(f"Could not get database agents for status: {e}")
+        
+        # Fallback to simulation employees if database is empty
+        if not employees:
+            employees = [
+                {
+                    "id": emp["id"],
+                    "name": emp["name"],
+                    "type": emp["type"].value,
+                    "current_workload": emp["current_workload"],
+                    "max_concurrent": emp["max_concurrent"],
+                    "availability": "available" if emp["current_workload"] < emp["max_concurrent"] else "busy",
+                    "utilization": emp["current_workload"] / emp["max_concurrent"],
+                }
+                for emp in self.fallback_employees
+            ]
+        
+        return employees
 
     def get_active_cases_summary(self) -> dict[str, Any]:
         """Get summary of active cases"""

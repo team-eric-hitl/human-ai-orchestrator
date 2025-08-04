@@ -28,7 +28,7 @@ quality_assessment: |
   
   Provide your assessment in this format:
   Score: [overall score 1-10]
-  Reasoning: [detailed explanation of your assessment]
+  Reasoning: [brief explanation of your assessment]
   
   Consider any red flags such as:
   - Potentially incorrect information

@@ -1,0 +1,29 @@
+# Simulation Test Results - quick_validation_20250803_203025
+Run Time: 2025-08-03 20:30:25.432128 to 2025-08-03 20:30:26.223612
+Duration: 0.8 seconds
+
+## System Performance
+- Total Cycles: 5
+- Average Customer Satisfaction: 0.00/10
+- Escalation Rate: 60.0%
+- Average Resolution Time: 0.1 seconds
+
+## Agent Decision Quality
+- Quality Agent Accuracy: 100.0%
+- Frustration Detection Precision: 100.0%
+- Routing Success Rate: 100.0%
+
+## System Interventions
+- Quality Interventions: 4
+- Frustration Interventions: 2
+- Failed Routes: 0
+
+## Individual Agent Performance
+### Agent agent_008 (agent_008)
+- Cases Handled: 3
+- Avg Resolution Time: 0.1 seconds
+- Customer Satisfaction: 0.00/10
+- Success Rate: 0.0%
+
+## Recommendations
+- 🔴 Customer satisfaction below target (7.0). Consider tuning chatbot quality or agent training.

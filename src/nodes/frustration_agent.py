@@ -161,6 +161,20 @@ class FrustrationAgentNode:
 
         analysis_query = analysis_prompt.format(customer_query=query)
 
+        # Log the LLM call at agent level
+        self.logger.info(
+            "Frustration Agent calling LLM",
+            extra={
+                "agent": "frustration_agent",
+                "model_name": self.llm_provider.model_name,
+                "provider_type": self.llm_provider.provider_type,
+                "prompt_length": len(analysis_query),
+                "system_prompt_length": len(system_prompt),
+                "compact_mode": compact,
+                "operation": "agent_llm_call"
+            }
+        )
+
         llm_response = self.llm_provider.generate_response(
             prompt=analysis_query,
             system_prompt=system_prompt

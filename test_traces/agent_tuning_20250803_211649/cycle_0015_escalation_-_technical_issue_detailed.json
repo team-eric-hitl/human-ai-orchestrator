@@ -1,0 +1,123 @@
+{
+  "trace_id": "trace_20250803_212301_a9d9ae9b",
+  "session_id": "demo_20250803_212301_991",
+  "user_id": "demo_customer_demo_20250803_212301_991",
+  "query_id": "demo_20250803_212301_991_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:23:01.105477",
+    "end_time": "2025-08-03T21:23:24.540176",
+    "total_duration_ms": 23434.698999999997,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "Can you help with our multi-tenant setup? I've already checked the documentation and tried basic troubleshooting.",
+    "customer_personality": "technical",
+    "frustration_level": 2,
+    "scenario": "complex_integration",
+    "scenario_name": "Escalation - Technical Issue"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:23:01.118079",
+      "end_time": "2025-08-03T21:23:10.001891",
+      "duration_ms": 8883.812,
+      "input": {
+        "query": "Can you help with our multi-tenant setup? I've already checked the documentation and tried basic troubleshooting.",
+        "customer_personality": "technical",
+        "initial_frustration": 2
+      },
+      "output": {
+        "overall_score": 2.9999999999999996,
+        "overall_level": "low",
+        "confidence": 0.7,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "escalation_language",
+          "strong_negative_sentiment"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "real_llm"
+      },
+      "next_action": "continue"
+    },
+    {
+      "agent_name": "automation_agent",
+      "interaction_id": "automation_agent_002",
+      "sequence_number": 2,
+      "start_time": "2025-08-03T21:23:10.010085",
+      "end_time": "2025-08-03T21:23:10.010537",
+      "duration_ms": 0.45199999999999996,
+      "input": {
+        "query": "Can you help with our multi-tenant setup? I've already checked the documentation and tried basic troubleshooting.",
+        "customer_personality": "technical"
+      },
+      "output": {
+        "can_handle": false,
+        "task_type": "unknown",
+        "confidence": 0.0,
+        "reasoning": "Real automation agent assessment"
+      },
+      "response_metadata": {
+        "agent_type": "real_automation"
+      },
+      "next_action": "continue_to_chatbot"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:23:01.105477",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:23:10.001891",
+      "duration_from_start_ms": 8896.414
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:23:10.010537",
+      "duration_from_start_ms": 8905.060000000001
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:23:10.010537",
+      "duration_from_start_ms": 8905.060000000001
+    },
+    {
+      "stage": "chatbot_response_complete",
+      "timestamp": "2025-08-03T21:23:14.376783",
+      "duration_from_start_ms": 13271.305999999999
+    },
+    {
+      "stage": "quality_assessment_complete",
+      "timestamp": "2025-08-03T21:23:24.532279",
+      "duration_from_start_ms": 23426.802
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 23434.698999999997,
+    "ai_processing_time_ms": 8884.264,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 2,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}
