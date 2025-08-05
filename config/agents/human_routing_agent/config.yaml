@@ -2,7 +2,7 @@
 # Responsibility: Select the best human agent for escalations, balancing workload and employee experience
 
 agent:
-  name: "routing_agent"
+  name: "human_routing_agent"
   version: "1.0.0"
   type: "human_routing"
   description: "Select the best human agent for escalations, balancing workload and employee experience"

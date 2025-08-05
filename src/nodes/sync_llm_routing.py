@@ -320,6 +320,7 @@ class SyncLLMRoutingAgent:
                 "id": selected_agent.id,
                 "name": selected_agent.name,
                 "email": selected_agent.email,
+                "status": "available",  # Add required status field
                 "experience_level": selected_agent.experience_level,
                 "specializations": [
                     s.value if hasattr(s, 'value') else str(s) 

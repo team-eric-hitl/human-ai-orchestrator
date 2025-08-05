@@ -126,7 +126,7 @@
         "next_action": "deliver_response"
       },
       {
-        "agent_name": "escalation_router",
+        "agent_name": "human_routing_agent",
         "interaction_id": "router_001",
         "sequence_number": 4,
         "start_time": "2025-08-03T14:30:35.123Z",

@@ -22,7 +22,7 @@ class TestHybridWorkflow:
         assert workflow.context_provider is not None
         assert workflow.answer_agent is not None
         assert workflow.evaluator_agent is not None
-        assert workflow.escalation_router is not None
+        assert workflow.human_routing_agent is not None
 
     def test_process_simple_query(self, workflow):
         """Test processing a simple query"""

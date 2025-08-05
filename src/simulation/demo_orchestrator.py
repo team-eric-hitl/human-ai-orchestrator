@@ -25,7 +25,7 @@ from ..nodes.chatbot_agent import ChatbotAgentNode
 from ..nodes.quality_agent import QualityAgentNode
 from ..nodes.frustration_agent import FrustrationAgentNode
 from ..nodes.mock_automation_agent import MockAutomationAgent
-from ..nodes.escalation_router import EscalationRouterNode
+from ..nodes.human_routing_agent import HumanRoutingAgentNode
 from ..interfaces.core.state_schema import HybridSystemState
 
 
@@ -63,7 +63,7 @@ class DemoOrchestrator:
             self.quality_agent = QualityAgentNode(self.config_manager, self.context_provider)
             self.frustration_agent = FrustrationAgentNode(self.config_manager, self.context_provider)
             self.automation_agent = MockAutomationAgent(self.config_manager, self.context_provider)
-            self.escalation_router = EscalationRouterNode(self.config_manager)
+            self.human_routing_agent = HumanRoutingAgentNode(self.config_manager, self.context_provider)
             
             self.logger.info("Real LLM agents initialized successfully")
         except Exception as e:
@@ -73,7 +73,7 @@ class DemoOrchestrator:
             self.quality_agent = None
             self.frustration_agent = None
             self.automation_agent = None
-            self.escalation_router = None
+            self.human_routing_agent = None
 
     def _create_demo_scenarios(self) -> list[dict[str, Any]]:
         """Create predefined demonstration scenarios"""

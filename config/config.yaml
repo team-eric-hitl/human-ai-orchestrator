@@ -59,7 +59,7 @@ agents:
     - "mock_automation_agent"  # Handles routine automated tasks (first priority)
     - "chatbot_agent"          # Main customer service agent
     - "evaluator_agent"        # Quality assessment agent
-    - "escalation_router"      # Routes complex issues to humans
+    - "human_routing_agent"    # Routes complex issues to humans
     - "human_interface"        # Manages human-AI handoffs
     - "feedback_processor"     # Processes customer feedback
     - "quality_monitor"        # Monitors conversation quality

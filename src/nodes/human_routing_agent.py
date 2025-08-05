@@ -11,6 +11,7 @@ from langsmith import traceable
 
 from ..core.config import ConfigManager
 from ..core.logging import get_logger
+from ..core.agent_field_mapper import AgentFieldMapper
 from ..integrations.llm_providers import LLMProviderFactory
 from ..interfaces.core.context import ContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
@@ -33,15 +34,18 @@ class AgentStatus(Enum):
     OFFLINE = "offline"
 
 
-class RoutingAgentNode:
+class HumanRoutingAgentNode:
     """LangGraph node for intelligent routing of escalations to human agents"""
 
     def __init__(self, config_manager: ConfigManager, context_provider: ContextProvider):
         self.config_manager = config_manager
-        self.agent_config = config_manager.get_agent_config("routing_agent")
+        self.agent_config = config_manager.get_agent_config("human_routing_agent")
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
+
+        # Initialize field mapper for database to agent format conversion
+        self.field_mapper = AgentFieldMapper()
 
         # Initialize synchronous LLM routing agent with database integration
         self.sync_llm_routing_agent = SyncLLMRoutingAgent()
@@ -1012,52 +1016,59 @@ class RoutingAgentNode:
         return priority_escalation.get(current_priority, current_priority)
 
     def _convert_to_legacy_format(self, agent_info: dict[str, Any]) -> dict[str, Any]:
-        """Convert new agent format to legacy format for compatibility"""
-        
-        # Map specializations back to skills
-        specialization_to_skills = {
-            "claims": ["technical", "billing"],
-            "billing": ["billing", "account_management"],
-            "policy": ["account_management", "general"],
-            "technical": ["technical", "product_support"],
-            "escalation": ["technical", "compliance"],
-            "general": ["general", "product_support"]
-        }
-        
-        specializations = agent_info.get("specializations", [])
-        skills = []
-        for spec in specializations:
-            skills.extend(specialization_to_skills.get(spec, ["general"]))
-        
-        # Remove duplicates
-        skills = list(set(skills))
-        
-        # Map experience level to skill level
-        experience_to_skill_level = {
-            1: "junior",
-            2: "junior", 
-            3: "intermediate",
-            4: "senior",
-            5: "senior"
-        }
-        
-        skill_level = experience_to_skill_level.get(agent_info.get("experience_level", 1), "junior")
-        
-        return {
-            "id": agent_info["id"],
-            "name": agent_info["name"],
-            "email": agent_info["email"],
-            "status": "available",  # Simplified for now
-            "skills": skills,
-            "skill_level": skill_level,
-            "languages": agent_info.get("languages", ["english"]),
-            "current_workload": int(agent_info.get("current_workload", "0/5").split("/")[0]),
-            "max_concurrent": int(agent_info.get("current_workload", "0/5").split("/")[1]),
-            "frustration_tolerance": "high" if agent_info.get("experience_level", 1) >= 4 else "medium",
-            "specializations": specializations,
-            "performance_metrics": {
-                "avg_resolution_time": 20,  # Default values
-                "customer_satisfaction": 4.5,
-                "escalation_rate": 0.15,
+        """Convert new agent format to legacy format for compatibility using field mapper"""
+        try:
+            # Use field mapper to convert database format to agent format
+            # This handles all the complex field mappings and transformations
+            legacy_format = self.field_mapper.map_database_to_agent(agent_info, include_computed=True)
+            
+            # Ensure required fields are present with safe defaults
+            required_defaults = {
+                "id": agent_info.get("id", "unknown"),
+                "name": agent_info.get("name", "Unknown Agent"),
+                "email": agent_info.get("email", "unknown@company.com"),
+                "status": "available",
+                "skills": ["general"],
+                "skill_level": "junior",
+                "languages": ["english"],
+                "current_workload": 0,
+                "max_concurrent": 3,
+                "frustration_tolerance": "medium",
+                "specializations": [],
+                "shift_start": "09:00",
+                "shift_end": "17:00"
             }
-        }
+            
+            # Fill in any missing required fields with defaults
+            for field, default_value in required_defaults.items():
+                if field not in legacy_format or legacy_format[field] is None:
+                    legacy_format[field] = default_value
+            
+            # Handle current_workload parsing if it's in "X/Y" format
+            current_workload = legacy_format.get("current_workload", 0)
+            if isinstance(current_workload, str) and "/" in current_workload:
+                try:
+                    parts = current_workload.split("/")
+                    legacy_format["current_workload"] = int(parts[0])
+                    legacy_format["max_concurrent"] = int(parts[1])
+                except (ValueError, IndexError):
+                    legacy_format["current_workload"] = 0
+                    legacy_format["max_concurrent"] = 3
+            
+            self.logger.debug(
+                "Successfully converted agent to legacy format",
+                extra={
+                    "agent_id": legacy_format.get("id"),
+                    "mapped_fields": list(legacy_format.keys())
+                }
+            )
+            
+            return legacy_format
+            
+        except Exception as e:
+            self.logger.error(
+                f"Failed to convert agent to legacy format: {e}",
+                extra={"agent_id": agent_info.get("id", "unknown")}
+            )
+            # Return fallback format from field mapper
+            return self.field_mapper._get_fallback_agent_record(agent_info)

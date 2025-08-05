@@ -4,7 +4,9 @@ Responsibility: Retrieve and manage context from SQL database, web search, and o
 """
 
 import json
-from datetime import datetime
+import hashlib
+import time
+from datetime import datetime, timedelta
 from typing import Any
 
 from langsmith import traceable
@@ -25,6 +27,13 @@ class ContextManagerAgentNode:
         self.context_provider = context_provider
         self.logger = get_logger(__name__)
         self.llm_provider = self._initialize_llm_provider()
+        
+        # Initialize context cache
+        self._context_cache = {}
+        self._cache_enabled = self.agent_config.settings.get("optimization", {}).get("cache_context_summaries", True)
+        self._cache_duration_minutes = self.agent_config.settings.get("optimization", {}).get("cache_duration_minutes", 15)
+        
+        self.logger.info(f"Context cache initialized - enabled: {self._cache_enabled}, duration: {self._cache_duration_minutes}min")
 
     def _initialize_llm_provider(self):
         """Initialize LLM provider for context analysis and summarization"""
@@ -64,6 +73,18 @@ class ContextManagerAgentNode:
         user_id = state["user_id"]
         session_id = state["session_id"]
 
+        # Check cache first
+        cache_key = self._generate_cache_key(query, user_id, session_id)
+        cached_result = self._get_cached_context(cache_key)
+        
+        if cached_result:
+            self.logger.info("Using cached context for query", extra={
+                "cache_key": cache_key[:16] + "...",
+                "user_id": user_id,
+                "operation": "context_cache_hit"
+            })
+            return {**state, **cached_result}
+
         # Gather context from multiple sources
         context_data = self._gather_comprehensive_context(
             query, user_id, session_id, state
@@ -83,29 +104,66 @@ class ContextManagerAgentNode:
         # Log context gathering
         self._log_context_gathering(state, context_analysis)
 
-        return {
-            **state,
+        result = {
             "context_data": context_data,
             "context_analysis": context_analysis,
             "context_summaries": context_summaries,
             "enriched_context": True,
         }
+        
+        # Cache the result
+        self._cache_context(cache_key, result)
+
+        return {**state, **result}
 
     def _gather_comprehensive_context(
         self, query: str, user_id: str, session_id: str, state: HybridSystemState
     ) -> dict[str, Any]:
-        """Gather context from all available sources"""
+        """Gather context from all available sources based on configuration"""
 
-        context_data = {
-            "interaction_history": self._get_interaction_history(user_id, session_id),
-            "user_profile": self._get_user_profile(user_id),
-            "similar_cases": self._find_similar_cases(query, user_id),
-            "escalation_history": self._get_escalation_history(user_id),
-            "product_context": self._get_product_context(query),
-            "web_search_results": self._perform_web_search(query),
-            "knowledge_base": self._search_knowledge_base(query),
-            "system_status": self._check_system_status(),
-        }
+        context_data = {}
+        data_sources = self.agent_config.settings.get("data_sources", {})
+        
+        # Only gather context from enabled sources
+        if data_sources.get("interaction_history", True):
+            context_data["interaction_history"] = self._get_interaction_history(user_id, session_id)
+        else:
+            context_data["interaction_history"] = {"recent_interactions": [], "session_context": None, "broader_history": []}
+            
+        if data_sources.get("user_profile", True):
+            context_data["user_profile"] = self._get_user_profile(user_id)
+        else:
+            context_data["user_profile"] = {"user_id": user_id, "total_interactions": 0, "escalation_rate": 0}
+            
+        if data_sources.get("similar_cases", True):
+            context_data["similar_cases"] = self._find_similar_cases(query, user_id)
+        else:
+            context_data["similar_cases"] = []
+            
+        if data_sources.get("escalation_history", True):
+            context_data["escalation_history"] = self._get_escalation_history(user_id)
+        else:
+            context_data["escalation_history"] = {"total_escalations": 0, "escalation_reasons": [], "avg_resolution_time": None}
+            
+        if data_sources.get("product_context", True):
+            context_data["product_context"] = self._get_product_context(query)
+        else:
+            context_data["product_context"] = {"related_products": [], "product_info": {}, "query_classification": "unknown"}
+            
+        if data_sources.get("web_search", False):
+            context_data["web_search_results"] = self._perform_web_search(query)
+        else:
+            context_data["web_search_results"] = {"enabled": False, "search_performed": False, "results": []}
+            
+        if data_sources.get("knowledge_base", True):
+            context_data["knowledge_base"] = self._search_knowledge_base(query)
+        else:
+            context_data["knowledge_base"] = {"relevant_entries": [], "search_performed": False}
+            
+        if data_sources.get("system_status", True):
+            context_data["system_status"] = self._check_system_status()
+        else:
+            context_data["system_status"] = {"operational": True, "known_issues": [], "maintenance_info": []}
 
         return context_data
 
@@ -882,3 +940,69 @@ class ContextManagerAgentNode:
                 "recommendations_count": len(analysis["recommendations"]),
             },
         )
+
+    def _generate_cache_key(self, query: str, user_id: str, session_id: str) -> str:
+        """Generate cache key based on query, user, and session"""
+        # Create a hash that includes query content and user context but is time-aware
+        cache_content = f"{query.lower().strip()}|{user_id}|{session_id}"
+        
+        # Add current time window to make cache expire naturally
+        current_window = int(time.time()) // (self._cache_duration_minutes * 60)
+        cache_content += f"|{current_window}"
+        
+        return hashlib.md5(cache_content.encode()).hexdigest()
+
+    def _get_cached_context(self, cache_key: str) -> dict[str, Any] | None:
+        """Retrieve cached context if available and not expired"""
+        if not self._cache_enabled:
+            return None
+            
+        if cache_key not in self._context_cache:
+            return None
+            
+        cached_data = self._context_cache[cache_key]
+        cache_time = cached_data.get("cached_at", 0)
+        
+        # Check if cache has expired
+        cache_age_minutes = (time.time() - cache_time) / 60
+        if cache_age_minutes > self._cache_duration_minutes:
+            # Remove expired cache entry
+            del self._context_cache[cache_key]
+            return None
+            
+        return cached_data["data"]
+
+    def _cache_context(self, cache_key: str, context_result: dict[str, Any]) -> None:
+        """Cache context result for future use"""
+        if not self._cache_enabled:
+            return
+            
+        # Clean up old cache entries periodically
+        self._cleanup_expired_cache()
+        
+        self._context_cache[cache_key] = {
+            "data": context_result,
+            "cached_at": time.time()
+        }
+        
+        self.logger.debug(f"Cached context result", extra={
+            "cache_key": cache_key[:16] + "...",
+            "cache_size": len(self._context_cache),
+            "operation": "context_cache_store"
+        })
+
+    def _cleanup_expired_cache(self) -> None:
+        """Remove expired cache entries"""
+        current_time = time.time()
+        expired_keys = []
+        
+        for cache_key, cached_data in self._context_cache.items():
+            cache_age_minutes = (current_time - cached_data.get("cached_at", 0)) / 60
+            if cache_age_minutes > self._cache_duration_minutes:
+                expired_keys.append(cache_key)
+        
+        for key in expired_keys:
+            del self._context_cache[key]
+            
+        if expired_keys:
+            self.logger.debug(f"Cleaned up {len(expired_keys)} expired cache entries")

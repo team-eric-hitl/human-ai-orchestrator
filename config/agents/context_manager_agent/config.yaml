@@ -14,14 +14,14 @@ agent:
 settings:
   # Data source configuration
   data_sources:
-    interaction_history: true
-    user_profile: true
-    similar_cases: true
-    escalation_history: true
-    product_context: true
-    web_search: false              # Enable when web search API available
-    knowledge_base: true
-    system_status: true
+    interaction_history: true      # Database search - ENABLED
+    user_profile: false            # Disabled for performance
+    similar_cases: false           # Disabled for performance
+    escalation_history: false     # Disabled for performance
+    product_context: false        # Disabled for performance
+    web_search: false             # Enable when web search API available
+    knowledge_base: false         # Disabled for performance
+    system_status: false          # Disabled for performance
     
   # Context analysis settings
   analysis:
@@ -52,26 +52,26 @@ context_sources:
     time_window_days: 30
     
   user_profile:
-    enabled: true
+    enabled: false              # Disabled for performance
     include_behavior_patterns: true
     include_preferences: true
     include_interaction_frequency: true
     
   similar_cases:
-    enabled: true
+    enabled: false              # Disabled for performance
     similarity_threshold: 0.3
     max_similar_cases: 5
     include_resolution_info: true
     cross_user_search: true
     
   escalation_history:
-    enabled: true
+    enabled: false              # Disabled for performance
     max_escalations: 10
     include_resolution_times: true
     include_satisfaction_scores: true
     
   knowledge_base:
-    enabled: true
+    enabled: false              # Disabled for performance
     max_entries: 10
     relevance_threshold: 0.2
     include_entry_types: ["response", "resolution", "faq", "documentation"]
@@ -83,7 +83,7 @@ context_sources:
     relevance_threshold: 0.4
     
   system_status:
-    enabled: true
+    enabled: false              # Disabled for performance
     include_known_issues: true
     include_maintenance_info: true
     check_api_status: true
