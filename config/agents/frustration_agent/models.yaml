@@ -1,23 +1,23 @@
-primary_model: "anthropic_general_budget"
+primary_model: "llm_demo_speed"
 
 model_overrides:
   temperature: 0.1          # Very low temperature for fast, deterministic responses
-  max_tokens: 150           # Reduced for compact responses
+  max_tokens: 30           # Further reduced for ultra-fast responses
   
   # Task-specific overrides
   per_model:
     frustration_analysis_compact:
       temperature: 0.1      # Very low for objective sentiment analysis
-      max_tokens: 50        # Compact format: "7.5|0.9|angry language, demands manager"
+      max_tokens: 30        # Ultra-compact: "7.5|0.9|angry language"
       
     frustration_analysis:
       temperature: 0.1      # Very low for objective sentiment analysis
-      max_tokens: 500       # Keep full tokens for verbose mode
+      max_tokens: 30       # Keep full tokens for verbose mode
       
     pattern_detection:
       temperature: 0.1      # Reduced for consistency
-      max_tokens: 150       # Reduced from 300
+      max_tokens: 100       # Further reduced for speed
       
     trend_analysis:
-      temperature: 0.2      # Reduced from 0.3
-      max_tokens: 200       # Reduced from 400
+      temperature: 0.1      # Further reduced for speed
+      max_tokens: 150       # Further reduced from 200

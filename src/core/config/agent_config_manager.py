@@ -304,6 +304,11 @@ class AgentConfigManager:
 
     def _apply_environment_overrides(self) -> None:
         """Apply environment-specific configuration overrides"""
+        # Check if environment overrides should be ignored
+        if os.getenv('HYBRID_SYSTEM_IGNORE_ENV_OVERRIDES', '').lower() in ('true', '1', 'yes'):
+            self.logger.info("Environment overrides disabled via HYBRID_SYSTEM_IGNORE_ENV_OVERRIDES")
+            return
+            
         env_file = self.config_dir / "environments" / f"{self.environment}.yaml"
 
         if not env_file.exists():

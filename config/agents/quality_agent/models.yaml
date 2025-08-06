@@ -1,23 +1,23 @@
-primary_model: "anthropic_general_standard"
+primary_model: "llm_demo_speed"
 
 model_overrides:
   temperature: 0.1          # Very low temperature for fast, deterministic responses
-  max_tokens: 150           # Reduced for compact responses
+  max_tokens: 100           # Further reduced for ultra-fast responses
   
   # Task-specific overrides
   per_model:
     quality_assessment_compact:
       temperature: 0.1      # Very low for objective assessment
-      max_tokens: 50        # Compact format: "8.2|0.85|accurate, concise, slightly impersonal"
+      max_tokens: 30        # Ultra-compact: "8.2|0.85|accurate, concise"
       
     quality_assessment:
       temperature: 0.2      # Very low for objective assessment
       max_tokens: 500       # Keep full tokens for verbose mode
       
     response_adjustment:
-      temperature: 0.4      # Reduced from 0.5, still creative for improvement
-      max_tokens: 600       # Reduced from 800
+      temperature: 0.3      # Further reduced for speed
+      max_tokens: 400       # Further reduced for speed
       
     context_analysis:
-      temperature: 0.2      # Reduced from 0.3
-      max_tokens: 200       # Reduced from 300
+      temperature: 0.1      # Further reduced for speed
+      max_tokens: 150       # Further reduced for speed

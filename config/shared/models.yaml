@@ -1,30 +1,10 @@
 model_aliases:
-  anthropic_general_budget: claude-3-5-haiku-20241022
-  anthropic_general_standard: claude-3-5-sonnet-20241022
-  anthropic_reasoning_premium: claude-3-5-sonnet-20241022
-  anthropic_coding_premium: claude-3-5-sonnet-20241022
-  anthropic_flagship: claude-3-5-sonnet-20241022
-
-  deepinfra_general_budget: meta-llama-3.3-70b-instruct-turbo
-  deepinfra_general_budget_2: qwen3-14b
-  deepinfra_general_budget_3: meta-llama-3-8b-instruct
-  deepinfra_general_standard: kimi-k2-instruct
-  deepinfra_general_standard_2: qwen3-32b
-  deepinfra_general_standard_3: gemini-2.5-flash 
-  deepinfra_coding_standard: meta-llama-3.1-8b-instruct
-  deepinfra_coding_standard_2: llama4-maverick-17b
-  deepinfra_reasoning_premium: mistral-7b-instruct-v0.3
-  deepinfra_reasoning_premium_2: deepseek-v3-turbo
-
-  openai_general_standard: gpt-4
-  openai_general_budget: gpt-3.5-turbo
-  openai_coding_standard: gpt-4
-  
-  
-  local_general_standard: llama-7b
-  local_general_premium: llama-13b
-  local_coding_standard: codellama-7b
-  local_general_budget: mistral-7b
+  # New simplified alias structure
+  llm_fast_budget: gemini-2.5-flash
+  llm_fast_premium: gemini-2.5-flash
+  llm_general_premium: claude-3-5-sonnet-20241022
+  # Ultra-fast alias for demos - optimized for <1 second response
+  llm_demo_speed: gemini-2.5-flash
 models:
   llama-7b:
     path: models/llama-7b.gguf
@@ -167,55 +147,62 @@ models:
     repetition_penalty: 1.2
     top_p: 0.9
     description: Llama 3.3 70B Instruct Turbo - high-performance instruction model via DeepInfra
-  gemini-2.5-flash:
-    type: deepinfra
-    model_id: google/gemini-2.5-flash
+  # Native Gemini models (using Google's direct API)
+  gemini-1.5-flash:
+    type: gemini
+    model_name: gemini-1.5-flash
+    temperature: 0.7
+    max_tokens: 1000      # Reduced from 2000 for faster responses
+    description: Google Gemini 1.5 Flash - very fast, cost-effective multimodal model
+  
+  gemini-1.5-pro:
+    type: gemini
+    model_name: gemini-1.5-pro
     temperature: 0.7
     max_tokens: 2000
-    repetition_penalty: 1.2
-    top_p: 0.9
-    description: Google Gemini 2.5 Flash - fast multimodal model via DeepInfra
+    description: Google Gemini 1.5 Pro - high-quality reasoning and multimodal capabilities
+  
+  gemini-2.0-flash-exp:
+    type: gemini
+    model_name: gemini-2.0-flash-exp
+    temperature: 0.7
+    max_tokens: 2000
+    description: Google Gemini 2.0 Flash Experimental - latest experimental fast model
+
+  gemini-2.5-flash:
+    type: gemini
+    model_name: gemini-2.5-flash
+    temperature: 0.7
+    max_tokens: 800       # Reduced from 2000 for speed
+    description: Google Gemini 2.5 Flash - fast multimodal model via Google API
 use_cases:
   general:
-    recommended: local_general_standard
+    recommended: llm_general_premium
     alternatives:
-    - deepinfra_general_standard
-    - deepinfra_general_standard_2
-    - local_general_budget
-    - anthropic_general_standard
-    - openai_general_standard
+    - llm_fast_premium
+    - llm_fast_budget
   code:
-    recommended: local_coding_standard
+    recommended: llm_general_premium
     alternatives:
-    - deepinfra_coding_standard
-    - deepinfra_coding_standard_2
-    - anthropic_coding_premium
-    - openai_coding_standard
-    - local_general_budget
+    - llm_fast_premium
+    - llm_fast_budget 
   fast:
-    recommended: anthropic_general_budget
+    recommended: llm_fast_premium
     alternatives:
-    - deepinfra_general_budget
-    - deepinfra_general_budget_2
-    - deepinfra_budget_3
-    - openai_general_budget
-    - local_general_standard
+    - llm_fast_budget
+    - llm_general_premium
   high_quality:
-    recommended: openai_general_standard
+    recommended: llm_general_premium
     alternatives:
-    - deepinfra_reasoning_premium
-    - deepinfra_reasoning_premium_2
-    - deepinfra_standard_3
-    - anthropic_reasoning_premium
-    - anthropic_general_standard
-    - local_general_budget
-    - local_general_premium
+    - llm_fast_premium
+    - llm_fast_budget
 fallback_strategy:
   enabled: true
   max_retries: 3
   retry_delay: 5
   default_fallback:
-  # Prioritize working DeepInfra models first (fast, serverless)
-  - deepinfra_general_standard_2    # moonshotai/Kimi-K2-Instruct (verified working)
-  - deepinfra_general_standard_3    # qwen3-32b
+  # Prioritize the new alias structure
+  - llm_fast_premium    # gemini-2.5-flash via DeepInfra (verified working)
+  - llm_fast_budget     # gemini-2.5-flash native (reliable fallback)
+  - llm_general_premium # claude-3-5-sonnet (high quality fallback)
  

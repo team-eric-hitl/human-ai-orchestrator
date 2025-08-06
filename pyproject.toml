@@ -35,6 +35,8 @@ dependencies = [
     "jupyter-contrib-nbextensions>=0.7.0",
     "ruamel-yaml>=0.18.14",
     "streamlit>=1.28.0",
+    "gradio>=5.40.0",
+    "langchain-google-genai>=2.1.9",
 ]
 
 [project.optional-dependencies]

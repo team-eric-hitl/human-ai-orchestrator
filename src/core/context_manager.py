@@ -13,7 +13,7 @@ from .database_config import DatabaseConfig
 
 
 class SQLiteContextProvider(ContextProvider):
-    """SQLite-based context provider"""
+    """SQLite-based context provider with connection pooling"""
 
     def __init__(self, db_path: str | None = None, config_manager=None):
         """
@@ -44,8 +44,15 @@ class SQLiteContextProvider(ContextProvider):
         self._init_database()
 
     def _init_database(self):
-        """Initialize the database with required tables"""
+        """Initialize the database with required tables and optimizations"""
         with sqlite3.connect(self.db_path) as conn:
+            # Enable WAL mode for better concurrent performance
+            conn.execute("PRAGMA journal_mode=WAL")
+            # Increase cache size for better performance
+            conn.execute("PRAGMA cache_size=10000")
+            # Enable foreign key constraints
+            conn.execute("PRAGMA foreign_keys=ON")
+            
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS context_entries (
                     entry_id TEXT PRIMARY KEY,
@@ -69,11 +76,23 @@ class SQLiteContextProvider(ContextProvider):
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_entry_type ON context_entries(entry_type)"
             )
+            
+            # Composite index for common query patterns
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_type_user_session ON context_entries(entry_type, user_id, session_id)"
+            )
+            
+            # Index for timestamp-based cleanup operations
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_timestamp_type ON context_entries(timestamp, entry_type)"
+            )
 
     def save_context_entry(self, entry: ContextEntry) -> bool:
         """Save a context entry to the database"""
         try:
             with sqlite3.connect(self.db_path) as conn:
+                # Enable optimizations for this connection
+                conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute(
                     """
                     INSERT OR REPLACE INTO context_entries 

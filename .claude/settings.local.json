@@ -43,7 +43,15 @@
       "WebFetch(domain:huggingface.co)",
       "WebFetch(domain:deepinfra.com)",
       "Bash(sqlite3:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(PYTHONPATH=/workspace python -c \"\nfrom src.core.agent_config_manager import AgentConfigManager\nfrom src.core.database_config import DatabaseConfig\n\n# Test config loading\ntry:\n    config_manager = AgentConfigManager()\n    print(''✅ Configuration loaded successfully'')\n    \n    # Test database config\n    db_config = DatabaseConfig()\n    print(''✅ Database configuration loaded successfully'')\n    \n    # Check if Gemini models are available\n    shared_models = config_manager.get_shared_config(''models'')\n    if ''gemini-1.5-flash'' in shared_models.get(''models'', {}):\n        print(''✅ Gemini models found in configuration'')\n    else:\n        print(''❌ Gemini models not found in configuration'')\n        \n    # Check if fast_model alias works\n    aliases = shared_models.get(''model_aliases'', {})\n    if ''fast_model'' in aliases:\n        print(f''✅ fast_model alias found: {aliases[\"\"fast_model\"\"]}'')\n    else:\n        print(''❌ fast_model alias not found'')\n        \n    # Check agents using the fast model\n    agents_using_fast = []\n    for agent_type in [''chatbot_agent'', ''quality_agent'', ''frustration_agent'', ''context_manager_agent'', ''evaluator_agent'', ''human_routing_agent'', ''human_interface'']:\n        try:\n            agent_config = config_manager.get_agent_config(agent_type)\n            model_config = agent_config.get(''models'', {})\n            if model_config.get(''primary_model'') == ''fast_model'':\n                agents_using_fast.append(agent_type)\n        except Exception as e:\n            print(f''⚠️  Error loading {agent_type}: {e}'')\n            \n    print(f''✅ {len(agents_using_fast)} agents configured to use fast_model: {agents_using_fast}'')\n    \nexcept Exception as e:\n    print(f''❌ Configuration error: {e}'')\n    import traceback\n    traceback.print_exc()\n\")",
+      "Bash(source:*)",
+      "Bash(PYTHONPATH=/workspace python:*)",
+      "WebFetch(domain:artificialanalysis.ai)",
+      "WebFetch(domain:docsbot.ai)",
+      "WebFetch(domain:llm-stats.com)",
+      "Bash(PYTHONPATH=/workspace timeout 60 uv run python test_speed_optimization.py)"
     ],
     "deny": []
   }

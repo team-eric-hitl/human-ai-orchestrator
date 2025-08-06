@@ -1,17 +1,17 @@
-primary_model: "anthropic_reasoning_premium"
+primary_model: "llm_fast_premium"
 
 model_preferences:
   evaluation_tasks:
-    primary: "anthropic_reasoning_premium"
-    fallback: ["openai_general_standard", "anthropic_general_budget"]
+    primary: "llm_general_premium"
+    fallback: ["llm_fast_premium", "llm_fast_budget"]
     
   complex_evaluation:
-    primary: "openai_general_standard"
-    fallback: ["anthropic_general_standard", "local_general_budget"]
+    primary: "llm_general_premium"
+    fallback: ["llm_fast_premium", "llm_fast_budget"]
     
   quick_evaluation:
-    primary: "anthropic_general_budget"
-    fallback: ["openai_general_budget", "local_general_budget"]
+    primary: "llm_fast_premium"
+    fallback: ["llm_fast_budget", "llm_general_premium"]
 
 model_overrides:
   temperature: 0.3

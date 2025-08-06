@@ -58,23 +58,20 @@ def test_basic_llm_integration():
         print(f"Demo started: {demo_result['demo_id']}")
         print(f"Customer query: {demo_result['customer_query']}")
         
-        # Test chatbot response with real LLM
-        print("\nGenerating chatbot response with real LLM...")
-        chatbot_result = orchestrator.simulate_chatbot_response(demo_result['demo_id'])
-        print(f"Chatbot response: {chatbot_result['chatbot_response'][:100]}...")
-        print(f"Response metadata: {chatbot_result['response_metadata']}")
+        # Test chatbot response with real LLM (with progressive display)
+        print("\n📍 Step 1: Chatbot Response")
+        print("-" * 40)
+        chatbot_result = orchestrator.simulate_chatbot_response(demo_result['demo_id'], show_progress=True)
         
-        # Test quality assessment with real LLM
-        print("\nPerforming quality assessment with real LLM...")
-        quality_result = orchestrator.simulate_quality_assessment(demo_result['demo_id'])
-        print(f"Quality decision: {quality_result['quality_assessment']['decision']}")
-        print(f"Quality score: {quality_result['quality_assessment'].get('overall_score', 'N/A')}")
+        # Test quality assessment with real LLM (with progressive display)
+        print("\n📍 Step 2: Quality Assessment")
+        print("-" * 40)
+        quality_result = orchestrator.simulate_quality_assessment(demo_result['demo_id'], show_progress=True)
         
-        # Test frustration analysis with real LLM
-        print("\nPerforming frustration analysis with real LLM...")
-        frustration_result = orchestrator.simulate_frustration_analysis(demo_result['demo_id'])
-        print(f"Frustration level: {frustration_result['frustration_analysis']['overall_level']}")
-        print(f"Intervention needed: {frustration_result['intervention_needed']}")
+        # Test frustration analysis with real LLM (with progressive display)
+        print("\n📍 Step 3: Frustration Analysis")
+        print("-" * 40)
+        frustration_result = orchestrator.simulate_frustration_analysis(demo_result['demo_id'], show_progress=True)
         
         print("\n✅ Basic LLM integration test completed successfully!")
         return True

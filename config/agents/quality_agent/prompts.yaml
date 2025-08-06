@@ -44,17 +44,11 @@ quality_assessment: |
   - Signs the customer may become frustrated
 
 quality_assessment_compact: |
-  Assess chatbot response quality (1-10 scale):
+  Rate response quality 1-10: "{chatbot_response}"
   
-  Query: "{customer_query}"
-  Response: "{chatbot_response}"
+  Format: [score]|[confidence]|[issue 3 words max]
   
-  Rate: accuracy, completeness, clarity, tone, usefulness
-  
-  Respond in exact format:
-  [score]|[confidence 0.1-1.0]|[brief issue/strength, max 6 words]
-  
-  Example: 8.2|0.85|accurate, concise, slightly impersonal
+  Example: 8.2|0.85|slightly impersonal
 
 response_adjustment: |
   The following chatbot response has been identified as needing improvement.

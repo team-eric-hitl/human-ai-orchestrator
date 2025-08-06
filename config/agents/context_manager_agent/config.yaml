@@ -8,13 +8,13 @@ agent:
   description: "Retrieve and manage context from SQL database, web search, and other sources"
   created: "2025-01-17"
   last_modified: "2025-01-17"
-  enabled: true
+  enabled: false
 
 # Context gathering settings
 settings:
   # Data source configuration
   data_sources:
-    interaction_history: true      # Database search - ENABLED
+    interaction_history: false     # Database search - DISABLED
     user_profile: false            # Disabled for performance
     similar_cases: false           # Disabled for performance
     escalation_history: false     # Disabled for performance
@@ -25,17 +25,17 @@ settings:
     
   # Context analysis settings
   analysis:
-    use_llm_summarization: true
+    use_llm_summarization: false   # Disabled for performance - use simple summaries
     relevance_threshold: 0.3       # Minimum relevance score to include context
-    max_context_entries: 20        # Maximum context entries to analyze
-    context_freshness_days: 30     # How far back to look for context
+    max_context_entries: 5         # Reduced from 20 for faster processing
+    context_freshness_days: 7      # Reduced from 30 days to 7 for faster queries
     
   # Performance optimization
   optimization:
     cache_context_summaries: true
     cache_duration_minutes: 15
     parallel_data_gathering: true
-    timeout_per_source_seconds: 5
+    timeout_per_source_seconds: 2    # Reduced from 5 to 2 seconds for faster timeouts
     
   # Privacy and security
   privacy:

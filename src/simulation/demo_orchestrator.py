@@ -232,7 +232,7 @@ class DemoOrchestrator:
             "next_step": "chatbot_response",
         }
 
-    def simulate_chatbot_response(self, demo_id: str) -> dict[str, Any]:
+    def simulate_chatbot_response(self, demo_id: str, show_progress: bool = True) -> dict[str, Any]:
         """Generate chatbot response using real LLM agent or simulation"""
 
         if demo_id not in self.active_demonstrations:
@@ -242,7 +242,14 @@ class DemoOrchestrator:
         scenario = demo["scenario"]
         customer_interaction = demo["customer_interaction"]
 
+        if show_progress:
+            print(f"💬 Generating chatbot response for: '{customer_interaction['initial_query']}'")
+            print(f"👤 Customer personality: {customer_interaction['personality']}")
+            print(f"📋 Expected quality level: {scenario.get('chatbot_quality', 'unknown')}")
+
         if self.use_real_agents and self.chatbot_agent:
+            if show_progress:
+                print("🤖 Using real LLM chatbot agent...")
             # Use real LLM chatbot agent
             chatbot_response = self._generate_real_chatbot_response(
                 customer_interaction["initial_query"],
@@ -250,6 +257,8 @@ class DemoOrchestrator:
                 customer_interaction
             )
         else:
+            if show_progress:
+                print("🎭 Using simulated chatbot response...")
             # Fallback to simulated response
             chatbot_response = self._generate_simulated_chatbot_response(
                 customer_interaction["initial_query"],
@@ -271,6 +280,13 @@ class DemoOrchestrator:
         # Record workflow stage
         self._record_workflow_stage_trace(demo_id, "chatbot_response_complete")
 
+        if show_progress:
+            print(f"✅ Chatbot response generated!")
+            print(f"💬 Response: {chatbot_response['response'][:150]}{'...' if len(chatbot_response['response']) > 150 else ''}")
+            print(f"🎯 Confidence: {chatbot_response.get('confidence', 0):.2f}")
+            print(f"⏱️ Response time: {chatbot_response.get('response_time', 0):.2f}s")
+            print(f"🎯 Next step: Quality assessment")
+
         return {
             "demo_id": demo_id,
             "chatbot_response": chatbot_response["response"],
@@ -278,7 +294,7 @@ class DemoOrchestrator:
             "next_step": "quality_assessment",
         }
 
-    def simulate_quality_assessment(self, demo_id: str) -> dict[str, Any]:
+    def simulate_quality_assessment(self, demo_id: str, show_progress: bool = True) -> dict[str, Any]:
         """Perform quality assessment using real LLM agent or simulation"""
 
         demo = self.active_demonstrations[demo_id]
@@ -286,7 +302,14 @@ class DemoOrchestrator:
         chatbot_response = demo["chatbot_responses"][-1]
         customer_interaction = demo["customer_interaction"]
 
+        if show_progress:
+            print(f"🔍 Starting quality assessment...")
+            print(f"❓ Original query: '{customer_interaction['initial_query']}'")
+            print(f"💬 Response to assess: '{chatbot_response['response'][:100]}{'...' if len(chatbot_response['response']) > 100 else ''}'")
+
         if self.use_real_agents and self.quality_agent:
+            if show_progress:
+                print("🤖 Using real LLM quality agent...")
             # Use real LLM quality agent
             quality_assessment = self._perform_real_quality_assessment(
                 customer_interaction["initial_query"],
@@ -294,6 +317,8 @@ class DemoOrchestrator:
                 demo_id
             )
         else:
+            if show_progress:
+                print("🎭 Using simulated quality assessment...")
             # Fallback to simulated assessment
             quality_assessment = self._simulate_quality_agent_decision(
                 customer_interaction["initial_query"],
@@ -309,29 +334,47 @@ class DemoOrchestrator:
         # Record workflow stage
         self._record_workflow_stage_trace(demo_id, "quality_assessment_complete")
 
+        if show_progress:
+            print(f"✅ Quality assessment complete!")
+            print(f"📊 Overall score: {quality_assessment.get('overall_score', 0):.1f}/10")
+            print(f"🎯 Decision: {quality_assessment.get('decision', 'unknown')}")
+            print(f"💯 Confidence: {quality_assessment.get('confidence', 0):.2f}")
+            if quality_assessment.get("reasoning"):
+                print(f"🤔 Reasoning: {quality_assessment['reasoning']}")
+            print(f"🎯 Next step: {quality_assessment.get('next_action', 'continue')}")
+
         return {
             "demo_id": demo_id,
             "quality_assessment": quality_assessment,
             "next_step": quality_assessment.get("next_action", "continue"),
         }
 
-    def simulate_frustration_analysis(self, demo_id: str) -> dict[str, Any]:
+    def simulate_frustration_analysis(self, demo_id: str, show_progress: bool = True) -> dict[str, Any]:
         """Perform frustration analysis using real LLM agent or simulation"""
 
         demo = self.active_demonstrations[demo_id]
         scenario = demo["scenario"]
         customer_interaction = demo["customer_interaction"]
         
+        if show_progress:
+            print(f"🔍 Starting frustration analysis for query: '{customer_interaction['initial_query']}'" )
+            print(f"📊 Customer personality: {customer_interaction['personality']}")
+            print(f"📈 Initial frustration level: {customer_interaction['initial_frustration_level']}")
+        
         # Record start time for trace
         start_time = datetime.now()
 
         if self.use_real_agents and self.frustration_agent:
+            if show_progress:
+                print("🤖 Using real LLM frustration agent...")
             # Use real LLM frustration agent
             frustration_analysis = self._perform_real_frustration_analysis(
                 customer_interaction["initial_query"],
                 demo_id
             )
         else:
+            if show_progress:
+                print("🎭 Using simulated frustration analysis...")
             # Fallback to simulated analysis
             frustration_analysis = self._simulate_frustration_agent_analysis(
                 customer_interaction["initial_query"],
@@ -373,6 +416,15 @@ class DemoOrchestrator:
 
         self._log_demo_event(demo_id, "frustration_analysis", frustration_analysis)
         self._save_to_context(demo_id, "frustration_analysis", frustration_analysis)
+
+        if show_progress:
+            print(f"✅ Frustration analysis complete!")
+            print(f"😤 Frustration level: {frustration_analysis.get('overall_level', 'unknown')}")
+            print(f"📊 Frustration score: {frustration_analysis.get('overall_score', 0):.1f}/10")
+            print(f"🚨 Intervention needed: {'Yes' if frustration_analysis.get('intervention_needed', False) else 'No'}")
+            if frustration_analysis.get("contributing_factors"):
+                print(f"🔍 Contributing factors: {', '.join(frustration_analysis['contributing_factors'][:3])}")
+            print(f"🎯 Next step: {'Routing decision' if frustration_analysis.get('intervention_needed', False) else 'Respond to customer'}")
 
         return {
             "demo_id": demo_id,

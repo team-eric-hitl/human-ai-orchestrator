@@ -439,7 +439,7 @@ class QualityAgentNode:
                 return performance_mode in ["Fast (Compact)", "Fastest (Parallel)"]
         except Exception:
             pass  # Not in Streamlit context or no session state
-        return False  # Default to verbose mode
+        return True  # Default to compact mode for better performance
 
     def _log_quality_assessment(
         self, state: HybridSystemState, assessment: dict[str, Any]

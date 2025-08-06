@@ -297,3 +297,5 @@ Set these for full functionality:
 - `ANTHROPIC_API_KEY` - Anthropic API access
 - `LANGCHAIN_API_KEY` - LangSmith tracing (optional)
 - `LANGCHAIN_TRACING_V2` - Enable LangSmith tracing
+- `HYBRID_SYSTEM_ENV` - Environment selection (development, testing, production)
+- `HYBRID_SYSTEM_IGNORE_ENV_OVERRIDES` - Set to 'true' to bypass environment-specific configuration files (useful for debugging)

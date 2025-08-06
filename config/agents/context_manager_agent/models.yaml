@@ -1,4 +1,4 @@
-primary_model: "anthropic_general_standard"
+primary_model: "llm_fast_premium"
 
 model_overrides:
   temperature: 0.3
