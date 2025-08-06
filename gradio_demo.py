@@ -306,6 +306,73 @@ def format_agent_profile(agent: Dict[str, Any]) -> str:
     
     return result
 
+def format_context_display(context_data: Dict[str, Any], context_summaries: Dict[str, str]) -> str:
+    """Format context information being passed to agents"""
+    if not context_data and not context_summaries:
+        return "**🔍 Context Information**\n\nNo context data available"
+    
+    result = "**🔍 Context Information**\n\n"
+    
+    # Display context summaries for different audiences
+    if context_summaries:
+        result += "**📋 Context Summaries:**\n\n"
+        
+        if "for_ai_agents" in context_summaries:
+            result += f"**🤖 For AI Agents:**\n{context_summaries['for_ai_agents']}\n\n"
+        
+        if "for_human_agents" in context_summaries:
+            result += f"**👤 For Human Agents:**\n{context_summaries['for_human_agents'][:300]}{'...' if len(context_summaries['for_human_agents']) > 300 else ''}\n\n"
+        
+        if "for_quality_assessment" in context_summaries:
+            result += f"**✅ For Quality Assessment:**\n{context_summaries['for_quality_assessment']}\n\n"
+        
+        if "for_routing_decision" in context_summaries:
+            result += f"**🎯 For Routing Decision:**\n{context_summaries['for_routing_decision']}\n\n"
+    
+    # Display key context data metrics
+    if context_data:
+        result += "**📊 Context Data Summary:**\n"
+        
+        # User profile info
+        user_profile = context_data.get('user_profile', {})
+        if user_profile.get('total_interactions'):
+            result += f"• User interactions: {user_profile.get('total_interactions', 0)}\n"
+            result += f"• Escalation rate: {user_profile.get('escalation_rate', 0):.1%}\n"
+            result += f"• Behavior pattern: {user_profile.get('user_behavior_pattern', 'unknown')}\n"
+        
+        # Interaction history
+        interaction_history = context_data.get('interaction_history', {})
+        if interaction_history.get('total_interactions'):
+            result += f"• Recent interactions: {interaction_history.get('total_interactions', 0)}\n"
+        
+        # Similar cases
+        similar_cases = context_data.get('similar_cases', [])
+        if similar_cases:
+            result += f"• Similar cases found: {len(similar_cases)}\n"
+            if similar_cases:
+                result += f"• Top similarity: {similar_cases[0].get('similarity_score', 0):.0%}\n"
+        
+        # Product context
+        product_context = context_data.get('product_context', {})
+        related_products = product_context.get('related_products', [])
+        if related_products:
+            result += f"• Related products: {', '.join(related_products)}\n"
+        
+        # Knowledge base results
+        knowledge_base = context_data.get('knowledge_base', {})
+        relevant_entries = knowledge_base.get('relevant_entries', [])
+        if relevant_entries:
+            result += f"• Knowledge base matches: {len(relevant_entries)}\n"
+            if relevant_entries:
+                result += f"• Top relevance: {relevant_entries[0].get('relevance_score', 0):.0%}\n"
+        
+        # Escalation history
+        escalation_history = context_data.get('escalation_history', {})
+        if escalation_history.get('total_escalations', 0) > 0:
+            result += f"• Previous escalations: {escalation_history.get('total_escalations', 0)}\n"
+    
+    return result
+
 def format_escalation_context(context: Dict[str, Any], query: str, conversation_history: List[Dict]) -> str:
     """Format escalation context for human agent"""
     if not context:
@@ -334,23 +401,23 @@ def format_escalation_context(context: Dict[str, Any], query: str, conversation_
     
     return result
 
-def process_user_input_with_realtime_updates(message: str, history: List[Dict], logs_state: List[str]):
+def process_user_input_with_realtime_updates(message: str, history: List[Dict], logs_state: List[str], use_context_manager: bool = False):
     """
     Process user input through the optimized HITL system with real-time UI updates via generator
-    Yields: (msg_input, updated_history, logs, frustration_analysis, quality_analysis, human_roster, agent_profile, escalation_context)
+    Yields: (msg_input, updated_history, logs, frustration_analysis, quality_analysis, context_display, human_roster, agent_profile, escalation_context)
     """
     global system
     
     # Show user input immediately
     new_history = history + [{'role': 'user', 'content': message}]
-    yield ("", new_history, "Processing...", "", "", "", "", "")
+    yield ("", new_history, "Processing...", "", "", "", "", "", "")
     
     if not system or not system.get('initialized'):
         system = initialize_system()
         if not system.get('initialized'):
             error_msg = "System initialization failed. Please refresh and try again."
             error_history = new_history + [{'role': 'assistant', 'content': error_msg}]
-            yield ("", error_history, format_logs_display(logs_state), "", "", "", "", "")
+            yield ("", error_history, format_logs_display(logs_state), "", "", "", "", "", "")
             return
     
     # Generate unique IDs for this session
@@ -369,43 +436,59 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
     frustration_analysis = {}
     quality_analysis = {}
     escalation_context = {}
+    context_data = {}
+    context_summaries = {}
     selected_agent = None
     human_agents = get_human_agents()
     
     try:
         # Add processing start log
         logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Processing: '{message[:50]}...'")
-        yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "")
+        yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "", "")
         
         # Create state for processing
         state = create_state(message, user_id, session_id, conversation_history)
         
-        # Step 1: Context Gathering (TEMPORARILY DISABLED FOR PERFORMANCE)
-        logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ⚠️ Context gathering disabled (performance optimization)")
-        yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "")
+        # Step 1: Context Gathering (configurable via toggle)
+        if use_context_manager:
+            logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 🔍 Gathering context information...")
+            yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "", "")
+            
+            # Use context manager agent
+            context_state = system['context_manager_agent'](state)
+            context_summaries = context_state.get('context_summaries', {})
+            context_data = context_state.get('context_data', {})
+            logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Context gathered ({len(context_summaries)} sources)")
+        else:
+            logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ⚠️ Context gathering disabled (toggle off)")
+            yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "", "")
+            
+            # Skip context gathering - use state directly
+            context_state = state.copy()
+            context_state['context_summaries'] = {}
+            context_summaries = {}
+            context_data = {}
+            logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Context step skipped")
         
-        # Skip context gathering - use state directly
-        context_state = state.copy()
-        context_state['context_summaries'] = {}
-        logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Context step skipped")
-        yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "")
+        yield ("", new_history, format_logs_display(logs_state), "", "", "", "", "", "")
         
         # Step 2: Frustration Analysis
         logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 😠 Analyzing frustration level...")
         analyzing_frustration = format_analysis_display({"status": "Analyzing..."}, "😠 Frustration Analysis", "frustration_agent")
-        yield ("", new_history, format_logs_display(logs_state), analyzing_frustration, "", "", "", "")
+        context_display = format_context_display(context_data, context_summaries)
+        yield ("", new_history, format_logs_display(logs_state), analyzing_frustration, "", context_display, "", "", "")
         
         frustration_state = system['frustration_agent'](context_state)
         frustration_analysis = frustration_state.get('frustration_analysis', {})
         frustration_level = frustration_analysis.get('overall_level', 'low')
         logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Frustration level: {frustration_level}")
         frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis", "frustration_agent")
-        yield ("", new_history, format_logs_display(logs_state), frustration_display, "", "", "", "")
+        yield ("", new_history, format_logs_display(logs_state), frustration_display, "", context_display, "", "", "")
         
         # Step 3: Check for Early Escalation (OPTIMIZATION: Skip chatbot/quality if critical frustration)
         if check_early_escalation(frustration_analysis):
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 🚨 Early escalation triggered - bypassing chatbot/quality")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", "", "", "")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", context_display, "", "", "")
             
             # Skip chatbot and quality analysis, go straight to human routing
             routing_state = system['human_routing_agent'](frustration_state)
@@ -438,24 +521,24 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
         else:
             # Step 4: Generate Chatbot Response (only if no early escalation)
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 🤖 Generating AI response...")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", "", "", "")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", context_display, "", "", "")
             
             chatbot_state = system['chatbot_agent'](frustration_state)
             ai_response = chatbot_state.get('ai_response', 'I apologize, but I encountered an error generating a response.')
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Response generated ({len(ai_response)} chars)")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", "", "", "")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, "", context_display, "", "", "")
             
             # Step 5: Quality Analysis
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Assessing response quality...")
             analyzing_quality = format_analysis_display({"status": "Analyzing..."}, "✅ Quality Analysis", "quality_agent")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, analyzing_quality, "", "", "")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, analyzing_quality, context_display, "", "", "")
             
             quality_state = system['quality_agent'](chatbot_state)
             quality_analysis = quality_state.get('quality_assessment', {})
             quality_decision = quality_analysis.get('decision', 'approve')
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Quality decision: {quality_decision}")
             quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis", "quality_agent")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, quality_display, "", "", "")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, quality_display, context_display, "", "", "")
             
             # Use adjusted response if available
             if quality_analysis.get('adjusted_response'):
@@ -467,7 +550,7 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
             # Step 6: Check for Final Escalation
             if check_final_escalation(frustration_analysis, quality_analysis):
                 logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 🚨 Final escalation triggered")
-                yield ("", new_history, format_logs_display(logs_state), frustration_display, quality_display, "", "", "")
+                yield ("", new_history, format_logs_display(logs_state), frustration_display, quality_display, context_display, "", "", "")
                 
                 # Run human routing
                 routing_state = system['human_routing_agent'](quality_state)
@@ -513,6 +596,8 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
         frustration_analysis = {}
         quality_analysis = {}
         escalation_context = {}
+        context_data = {}
+        context_summaries = {}
         selected_agent = None
         response = error_msg
     
@@ -520,20 +605,21 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
     logs_display = format_logs_display(logs_state)
     frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis", "frustration_agent")
     quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis", "quality_agent")
+    context_display = format_context_display(context_data, context_summaries)
     human_roster_display = format_human_roster(human_agents, selected_agent['id'] if selected_agent else None)
     agent_profile_display = format_agent_profile(selected_agent)
     escalation_context_display = format_escalation_context(escalation_context, message, conversation_history)
     
     # Final yield with all results
-    yield ("", final_history, logs_display, frustration_display, quality_display, human_roster_display, agent_profile_display, escalation_context_display)
+    yield ("", final_history, logs_display, frustration_display, quality_display, context_display, human_roster_display, agent_profile_display, escalation_context_display)
 
-def process_user_input(message: str, history: List[Dict], logs_state: List[str]) -> Tuple[str, List[Dict], str, str, str, str, str]:
+def process_user_input(message: str, history: List[Dict], logs_state: List[str], use_context_manager: bool = False) -> Tuple[str, List[Dict], str, str, str, str, str, str, str]:
     """
     Wrapper function for synchronous processing with real-time updates
     """
     # Get the final result from the generator
     final_result = None
-    for result in process_user_input_with_realtime_updates(message, history, logs_state):
+    for result in process_user_input_with_realtime_updates(message, history, logs_state, use_context_manager):
         final_result = result
     
     return final_result
@@ -584,7 +670,7 @@ def create_interface():
     
     
     with gr.Blocks(css=css, title="HITL System Demo", theme=gr.themes.Soft()) as interface:
-        gr.Markdown("# 🤖 HITL System Demo")
+        gr.Markdown("# 🤖 VIA - Agent Technical Demo")
         gr.Markdown("A 'Behind the Scenes look at the agents working together.")
         gr.Markdown("As proof of concept, foundation LLM models are used to simulate custom models.")
         gr.Markdown("These are not as performant as what specialized, custom models would be.")
@@ -592,9 +678,16 @@ def create_interface():
         # State for logs
         logs_state = gr.State([])
         
-        # Restart conversation button
+        # Configuration controls
         with gr.Row():
-            restart_btn = gr.Button("🔄 Restart New Conversation", size="sm", variant="secondary")
+            with gr.Column():
+                context_toggle = gr.Checkbox(
+                    label="🔍 Enable Context Manager Agent",
+                    value=False,
+                    info="Toggle to enable/disable context gathering for enhanced responses (may increase response time)"
+                )
+            with gr.Column():
+                restart_btn = gr.Button("🔄 Restart New Conversation", size="sm", variant="secondary")
         
         # Main layout: Chat + Logs on top row
         with gr.Row():
@@ -648,6 +741,16 @@ def create_interface():
                     max_lines=12,
                     elem_classes=["analysis-panel"]
                 )
+                
+            with gr.Column():
+                context_display = gr.Textbox(
+                    label="🔍 Context Information",
+                    value=format_context_display({}, {}),
+                    interactive=False,
+                    lines=12,
+                    max_lines=12,
+                    elem_classes=["analysis-panel"]
+                )
         
         # Human routing panels row
         with gr.Row():
@@ -682,25 +785,25 @@ def create_interface():
                 )
         
         # Event handlers with real-time updates
-        def process_with_updates(message, history, logs_state):
+        def process_with_updates(message, history, logs_state, use_context_manager):
             """Process user input with real-time UI updates"""
             # Use the generator function for real-time updates
-            yield from process_user_input_with_realtime_updates(message, history, logs_state)
+            yield from process_user_input_with_realtime_updates(message, history, logs_state, use_context_manager)
         
         # Handle both submit (Enter) and button click
         msg.submit(
             process_with_updates,
-            inputs=[msg, chatbot, logs_state],
+            inputs=[msg, chatbot, logs_state, context_toggle],
             outputs=[msg, chatbot, logs_display, frustration_display, quality_display, 
-                    human_roster_display, agent_profile_display, escalation_context_display],
+                    context_display, human_roster_display, agent_profile_display, escalation_context_display],
             queue=True
         )
         
         submit_btn.click(
             process_with_updates,
-            inputs=[msg, chatbot, logs_state],
+            inputs=[msg, chatbot, logs_state, context_toggle],
             outputs=[msg, chatbot, logs_display, frustration_display, quality_display, 
-                    human_roster_display, agent_profile_display, escalation_context_display],
+                    context_display, human_roster_display, agent_profile_display, escalation_context_display],
             queue=True
         )
         
@@ -721,6 +824,7 @@ def create_interface():
             # Reset all analysis displays
             frustration_init = format_analysis_display({}, "😠 Frustration Analysis", "frustration_agent")
             quality_init = format_analysis_display({}, "✅ Quality Analysis", "quality_agent")
+            context_init = format_context_display({}, {})
             
             # Reset human agent displays
             agents = get_human_agents()
@@ -733,7 +837,8 @@ def create_interface():
                 empty_logs,  # Clear logs state
                 "System ready...",  # Reset logs display
                 frustration_init,
-                quality_init, 
+                quality_init,
+                context_init,
                 human_roster_init,
                 agent_profile_init,
                 escalation_context_init
@@ -746,7 +851,8 @@ def create_interface():
                 logs_state, 
                 logs_display, 
                 frustration_display, 
-                quality_display, 
+                quality_display,
+                context_display,
                 human_roster_display, 
                 agent_profile_display, 
                 escalation_context_display
@@ -759,11 +865,12 @@ def create_interface():
             # Also refresh the analysis panels with model information once system is initialized
             frustration_init = format_analysis_display({}, "😠 Frustration Analysis", "frustration_agent")
             quality_init = format_analysis_display({}, "✅ Quality Analysis", "quality_agent")
-            return format_human_roster(agents), frustration_init, quality_init
+            context_init = format_context_display({}, {})
+            return format_human_roster(agents), frustration_init, quality_init, context_init
         
         interface.load(
             init_display,
-            outputs=[human_roster_display, frustration_display, quality_display]
+            outputs=[human_roster_display, frustration_display, quality_display, context_display]
         )
     
     return interface

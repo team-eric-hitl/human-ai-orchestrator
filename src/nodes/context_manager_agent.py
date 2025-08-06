@@ -128,7 +128,7 @@ class ContextManagerAgentNode:
         if data_sources.get("interaction_history", True):
             context_data["interaction_history"] = self._get_interaction_history(user_id, session_id)
         else:
-            context_data["interaction_history"] = {"recent_interactions": [], "session_context": None, "broader_history": []}
+            context_data["interaction_history"] = {"recent_interactions": [], "session_context": None, "broader_history": [], "total_interactions": 0}
             
         if data_sources.get("user_profile", True):
             context_data["user_profile"] = self._get_user_profile(user_id)
@@ -488,16 +488,20 @@ class ContextManagerAgentNode:
         # Add high-priority context
         for source, data in analysis["priority_context"].items():
             if source == "interaction_history":
-                recent_count = data["data"]["total_interactions"]
-                summary_parts.append(f"User has {recent_count} recent interactions")
+                context_data = data.get("data", {})
+                recent_count = context_data.get("total_interactions", 0)
+                if recent_count > 0:
+                    summary_parts.append(f"User has {recent_count} recent interactions")
 
             elif source == "escalation_history":
-                escalation_count = data["data"]["total_escalations"]
+                context_data = data.get("data", {})
+                escalation_count = context_data.get("total_escalations", 0)
                 if escalation_count > 0:
                     summary_parts.append(f"User has {escalation_count} previous escalations")
 
             elif source == "similar_cases":
-                case_count = len(data["data"])
+                context_data = data.get("data", [])
+                case_count = len(context_data) if isinstance(context_data, list) else len(context_data) if context_data else 0
                 if case_count > 0:
                     summary_parts.append(f"Found {case_count} similar cases")
 

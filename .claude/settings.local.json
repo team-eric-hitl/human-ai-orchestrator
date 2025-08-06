@@ -51,7 +51,13 @@
       "WebFetch(domain:artificialanalysis.ai)",
       "WebFetch(domain:docsbot.ai)",
       "WebFetch(domain:llm-stats.com)",
-      "Bash(PYTHONPATH=/workspace timeout 60 uv run python test_speed_optimization.py)"
+      "Bash(PYTHONPATH=/workspace timeout 60 uv run python test_speed_optimization.py)",
+      "Bash(PYTHONPATH=/workspace timeout 30 uv run python gradio_demo.py)",
+      "Bash(PYTHONPATH=/workspace timeout 30 uv run python test_context_manager_fix.py)",
+      "Bash(PYTHONPATH=/workspace uv run python:*)",
+      "Bash(PYTHONPATH=/workspace timeout 120 uv run python gradio_demo.py)",
+      "Bash(PYTHONPATH=/workspace timeout 60 uv run python gradio_demo.py)",
+      "Bash(PYTHONPATH=/workspace timeout 30 uv run python test_integration.py)"
     ],
     "deny": []
   }
