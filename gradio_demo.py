@@ -1,5 +1,6 @@
 """
 Gradio Demo App for HITL System
+Behind the scenes look at the agents working together.
 Demonstrates ChatbotAgent, FrustrationAgent, and QualityAgent working together
 Optimized processing logic with early escalation detection
 """
@@ -184,16 +185,47 @@ def create_state(query: str, user_id: str, session_id: str, conversation_history
         'next_action': 'process_query'
     }
 
-def format_analysis_display(analysis: Dict[str, Any], title: str) -> str:
+def get_agent_model_info(agent_name: str) -> str:
+    """Get model information for a specific agent"""
+    global system
+    if not system or not system.get('initialized'):
+        return "Model: Loading..."
+    
+    try:
+        config_manager = system.get('config_manager')
+        if not config_manager:
+            return "Model: Not available"
+        
+        # Get the agent's preferred model with alias resolution
+        preferred_model = config_manager.get_agent_preferred_model(agent_name)
+        
+        # Get the actual model name by resolving aliases
+        resolved_model = config_manager.resolve_model_name(preferred_model)
+        
+        if preferred_model != resolved_model:
+            return f"Model: {resolved_model} (alias: {preferred_model})"
+        else:
+            return f"Model: {resolved_model}"
+    except Exception as e:
+        return f"Model: Error loading ({str(e)})"
+
+def format_analysis_display(analysis: Dict[str, Any], title: str, agent_name: str = None) -> str:
     """Format analysis results for display"""
+    result = f"**{title}**\n"
+    
+    # Add model information if agent name is provided
+    if agent_name:
+        model_info = get_agent_model_info(agent_name)
+        result += f"*{model_info}*\n"
+    
+    result += "\n"
+    
     if not analysis:
-        return f"**{title}**\n\nNo analysis available"
+        return result + "No analysis available"
     
     # Handle loading state
     if analysis.get('status') == 'Analyzing...':
-        return f"**{title}**\n\n🔍 Analyzing..."
-    
-    result = f"**{title}**\n\n"
+        return result + "🔍 Analyzing..."
     
     # Extract key metrics
     if 'overall_score' in analysis:
@@ -228,8 +260,8 @@ def format_logs_display(logs: List[str]) -> str:
     if not logs:
         return "No logs yet..."
     
-    # Show last 15 logs for readability
-    recent_logs = logs[-15:]
+    # Show last 20 logs to keep display manageable
+    recent_logs = logs[-20:]
     return "\n".join(recent_logs)
 
 def format_human_roster(agents: List[Dict], selected_agent_id: Optional[str] = None) -> str:
@@ -360,13 +392,14 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
         
         # Step 2: Frustration Analysis
         logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] 😠 Analyzing frustration level...")
-        yield ("", new_history, format_logs_display(logs_state), "🔍 Analyzing...", "", "", "", "")
+        analyzing_frustration = format_analysis_display({"status": "Analyzing..."}, "😠 Frustration Analysis", "frustration_agent")
+        yield ("", new_history, format_logs_display(logs_state), analyzing_frustration, "", "", "", "")
         
         frustration_state = system['frustration_agent'](context_state)
         frustration_analysis = frustration_state.get('frustration_analysis', {})
         frustration_level = frustration_analysis.get('overall_level', 'low')
         logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Frustration level: {frustration_level}")
-        frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis")
+        frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis", "frustration_agent")
         yield ("", new_history, format_logs_display(logs_state), frustration_display, "", "", "", "")
         
         # Step 3: Check for Early Escalation (OPTIMIZATION: Skip chatbot/quality if critical frustration)
@@ -414,13 +447,14 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
             
             # Step 5: Quality Analysis
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Assessing response quality...")
-            yield ("", new_history, format_logs_display(logs_state), frustration_display, "🔍 Analyzing...", "", "", "")
+            analyzing_quality = format_analysis_display({"status": "Analyzing..."}, "✅ Quality Analysis", "quality_agent")
+            yield ("", new_history, format_logs_display(logs_state), frustration_display, analyzing_quality, "", "", "")
             
             quality_state = system['quality_agent'](chatbot_state)
             quality_analysis = quality_state.get('quality_assessment', {})
             quality_decision = quality_analysis.get('decision', 'approve')
             logs_state.append(f"[{datetime.now().strftime('%H:%M:%S')}] Quality decision: {quality_decision}")
-            quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis")
+            quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis", "quality_agent")
             yield ("", new_history, format_logs_display(logs_state), frustration_display, quality_display, "", "", "")
             
             # Use adjusted response if available
@@ -484,8 +518,8 @@ def process_user_input_with_realtime_updates(message: str, history: List[Dict], 
     
     # Format displays
     logs_display = format_logs_display(logs_state)
-    frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis")
-    quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis")
+    frustration_display = format_analysis_display(frustration_analysis, "😠 Frustration Analysis", "frustration_agent")
+    quality_display = format_analysis_display(quality_analysis, "✅ Quality Analysis", "quality_agent")
     human_roster_display = format_human_roster(human_agents, selected_agent['id'] if selected_agent else None)
     agent_profile_display = format_agent_profile(selected_agent)
     escalation_context_display = format_escalation_context(escalation_context, message, conversation_history)
@@ -497,30 +531,17 @@ def process_user_input(message: str, history: List[Dict], logs_state: List[str])
     """
     Wrapper function for synchronous processing with real-time updates
     """
-    # This will store intermediate updates
-    updates = {}
+    # Get the final result from the generator
+    final_result = None
+    for result in process_user_input_with_realtime_updates(message, history, logs_state):
+        final_result = result
     
-    def progress_callback(msg, hist, logs, frust, qual, roster, prof, esc):
-        """Update intermediate results"""
-        if logs is not None:
-            updates['logs'] = logs
-        if frust is not None:
-            updates['frustration'] = frust
-        if qual is not None:
-            updates['quality'] = qual
-        if roster is not None:
-            updates['roster'] = roster
-        if prof is not None:
-            updates['profile'] = prof
-        if esc is not None:
-            updates['escalation'] = esc
-    
-    return process_user_input_async(message, history, logs_state, progress_callback)
+    return final_result
 
 def create_interface():
     """Create the Gradio interface"""
     
-    # Custom CSS for better styling
+    # Custom CSS for better styling with auto-scrolling logs
     css = """
     .chatbot-container .message-wrap .message {
         font-size: 14px !important;
@@ -535,7 +556,7 @@ def create_interface():
     }
     .logs-panel {
         height: 300px;
-        overflow-y: auto;
+        overflow-y: scroll;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 5px;
@@ -543,14 +564,37 @@ def create_interface():
         font-family: monospace;
         font-size: 12px;
     }
+    .logs-panel textarea {
+        height: 100% !important;
+        overflow-y: scroll !important;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f0f2f6;
+    }
+    .logs-panel textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+    .logs-panel textarea::-webkit-scrollbar-track {
+        background: #f0f2f6;
+    }
+    .logs-panel textarea::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 4px;
+    }
     """
+    
     
     with gr.Blocks(css=css, title="HITL System Demo", theme=gr.themes.Soft()) as interface:
         gr.Markdown("# 🤖 HITL System Demo")
-        gr.Markdown("Interactive demonstration of ChatbotAgent, FrustrationAgent, QualityAgent, and HumanRoutingAgent with optimized processing logic")
-        
+        gr.Markdown("A 'Behind the Scenes look at the agents working together.")
+        gr.Markdown("As proof of concept, foundation LLM models are used to simulate custom models.")
+        gr.Markdown("These are not as performant as what specialized, custom models would be.")
+
         # State for logs
         logs_state = gr.State([])
+        
+        # Restart conversation button
+        with gr.Row():
+            restart_btn = gr.Button("🔄 Restart New Conversation", size="sm", variant="secondary")
         
         # Main layout: Chat + Logs on top row
         with gr.Row():
@@ -562,11 +606,14 @@ def create_interface():
                     container=True,
                     type="messages"
                 )
-                msg = gr.Textbox(
-                    placeholder="Ask a question or describe your issue...",
-                    show_label=False,
-                    container=False
-                )
+                with gr.Row():
+                    msg = gr.Textbox(
+                        placeholder="Ask a question or describe your issue...",
+                        show_label=False,
+                        container=False,
+                        scale=4
+                    )
+                    submit_btn = gr.Button("Send", variant="primary", size="sm", scale=1)
                 
             with gr.Column(scale=1):
                 gr.Markdown("### 📋 System Logs")
@@ -574,8 +621,8 @@ def create_interface():
                     value="System ready...",
                     show_label=False,
                     interactive=False,
-                    lines=15,
-                    max_lines=15,
+                    lines=10,
+                    max_lines=45,
                     elem_classes=["logs-panel"]
                 )
                 clear_logs_btn = gr.Button("Clear Logs", size="sm")
@@ -585,7 +632,7 @@ def create_interface():
             with gr.Column():
                 frustration_display = gr.Textbox(
                     label="😠 Frustration Analysis",
-                    value="No analysis yet...",
+                    value=format_analysis_display({}, "😠 Frustration Analysis", "frustration_agent"),
                     interactive=False,
                     lines=12,
                     max_lines=12,
@@ -595,7 +642,7 @@ def create_interface():
             with gr.Column():
                 quality_display = gr.Textbox(
                     label="✅ Quality Analysis", 
-                    value="No analysis yet...",
+                    value=format_analysis_display({}, "✅ Quality Analysis", "quality_agent"),
                     interactive=False,
                     lines=12,
                     max_lines=12,
@@ -640,6 +687,7 @@ def create_interface():
             # Use the generator function for real-time updates
             yield from process_user_input_with_realtime_updates(message, history, logs_state)
         
+        # Handle both submit (Enter) and button click
         msg.submit(
             process_with_updates,
             inputs=[msg, chatbot, logs_state],
@@ -648,7 +696,15 @@ def create_interface():
             queue=True
         )
         
-        def clear_logs(logs_state):
+        submit_btn.click(
+            process_with_updates,
+            inputs=[msg, chatbot, logs_state],
+            outputs=[msg, chatbot, logs_display, frustration_display, quality_display, 
+                    human_roster_display, agent_profile_display, escalation_context_display],
+            queue=True
+        )
+        
+        def clear_logs(_logs_state):
             return [], "Logs cleared..."
         
         clear_logs_btn.click(
@@ -657,14 +713,57 @@ def create_interface():
             outputs=[logs_state, logs_display]
         )
         
-        # Initialize human roster on load
+        def restart_conversation():
+            """Restart the conversation by clearing all state and displays"""
+            # Clear logs state
+            empty_logs = []
+            
+            # Reset all analysis displays
+            frustration_init = format_analysis_display({}, "😠 Frustration Analysis", "frustration_agent")
+            quality_init = format_analysis_display({}, "✅ Quality Analysis", "quality_agent")
+            
+            # Reset human agent displays
+            agents = get_human_agents()
+            human_roster_init = format_human_roster(agents)
+            agent_profile_init = format_agent_profile(None)
+            escalation_context_init = format_escalation_context({}, "", [])
+            
+            return (
+                [],  # Clear chatbot history
+                empty_logs,  # Clear logs state
+                "System ready...",  # Reset logs display
+                frustration_init,
+                quality_init, 
+                human_roster_init,
+                agent_profile_init,
+                escalation_context_init
+            )
+        
+        restart_btn.click(
+            restart_conversation,
+            outputs=[
+                chatbot, 
+                logs_state, 
+                logs_display, 
+                frustration_display, 
+                quality_display, 
+                human_roster_display, 
+                agent_profile_display, 
+                escalation_context_display
+            ]
+        )
+        
+        # Initialize displays on load
         def init_display():
             agents = get_human_agents()
-            return format_human_roster(agents)
+            # Also refresh the analysis panels with model information once system is initialized
+            frustration_init = format_analysis_display({}, "😠 Frustration Analysis", "frustration_agent")
+            quality_init = format_analysis_display({}, "✅ Quality Analysis", "quality_agent")
+            return format_human_roster(agents), frustration_init, quality_init
         
         interface.load(
             init_display,
-            outputs=[human_roster_display]
+            outputs=[human_roster_display, frustration_display, quality_display]
         )
     
     return interface

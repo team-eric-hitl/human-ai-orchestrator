@@ -240,11 +240,11 @@ class QualityAgentNode:
                     }
                 )
 
-            # Use rule-based fallback when compact parsing completely fails
+            # Use rule-based fallback when compact parsing completely fails, but preserve LLM response
             fallback_score, fallback_reasoning = self._rule_based_assessment(query, response)
             return {
                 "overall_score": fallback_score,
-                "reasoning": f"Compact parsing failed, used rule-based assessment: {fallback_reasoning}",
+                "reasoning": f"Compact parsing failed, used rule-based assessment: {fallback_reasoning}. LLM response: {llm_response}",
             }
 
         # Parse verbose format (original logic)

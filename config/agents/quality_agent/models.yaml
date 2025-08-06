@@ -2,22 +2,22 @@ primary_model: "llm_demo_speed"
 
 model_overrides:
   temperature: 0.1          # Very low temperature for fast, deterministic responses
-  max_tokens: 100           # Further reduced for ultra-fast responses
+  max_tokens: 400           # Increased for complete quality assessments
   
   # Task-specific overrides
   per_model:
     quality_assessment_compact:
       temperature: 0.1      # Very low for objective assessment
-      max_tokens: 30        # Ultra-compact: "8.2|0.85|accurate, concise"
+      max_tokens: 100       # Compact but complete: "8.2|0.85|accurate, concise"
       
     quality_assessment:
       temperature: 0.2      # Very low for objective assessment
-      max_tokens: 500       # Keep full tokens for verbose mode
+      max_tokens: 800       # Full tokens for detailed assessments
       
     response_adjustment:
-      temperature: 0.3      # Further reduced for speed
-      max_tokens: 400       # Further reduced for speed
+      temperature: 0.3      # Balanced for speed and quality
+      max_tokens: 600       # Balanced for complete responses
       
     context_analysis:
-      temperature: 0.1      # Further reduced for speed
-      max_tokens: 150       # Further reduced for speed
+      temperature: 0.1      # Low for consistency
+      max_tokens: 500       # Full detailed responses

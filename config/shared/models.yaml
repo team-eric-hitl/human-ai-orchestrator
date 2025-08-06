@@ -152,7 +152,7 @@ models:
     type: gemini
     model_name: gemini-1.5-flash
     temperature: 0.7
-    max_tokens: 1000      # Reduced from 2000 for faster responses
+    max_tokens: 1500      # Balanced for speed and completeness
     description: Google Gemini 1.5 Flash - very fast, cost-effective multimodal model
   
   gemini-1.5-pro:
@@ -173,7 +173,7 @@ models:
     type: gemini
     model_name: gemini-2.5-flash
     temperature: 0.7
-    max_tokens: 800       # Reduced from 2000 for speed
+    max_tokens: 3000      # Increased for comprehensive responses
     description: Google Gemini 2.5 Flash - fast multimodal model via Google API
 use_cases:
   general:
