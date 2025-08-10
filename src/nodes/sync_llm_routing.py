@@ -360,7 +360,7 @@ class SyncLLMRoutingAgent:
         decision: Dict[str, Any],
         conversation_context: Dict[str, Any] = None
     ) -> str:
-        """Generate human-readable explanation of routing decision."""
+        """Generate human-readable explanation of routing decision with detailed factor breakdown."""
         if not decision.get("success"):
             return f"❌ Routing failed: {decision.get('reason', 'Unknown error')}"
         
@@ -368,16 +368,70 @@ class SyncLLMRoutingAgent:
         details = decision["decision_details"]
         
         explanation_parts = [
-            f"✅ Selected: {agent['name']} ({agent['experience_level']} experience)",
-            f"🎯 Confidence: {details['confidence']:.0%}",
-            f"📊 Score: {details['score']:.2f}/1.0"
+            f"✅ **Agent Selected:** {agent['name']}",
+            f"📈 **Overall Score:** {details['score']:.2f}/1.0 ({details['confidence']:.0%} confidence)\n"
         ]
         
-        if details.get("reasoning"):
-            explanation_parts.append(f"💡 Key factors: {', '.join(details['reasoning'][:3])}")
+        # Add detailed scoring breakdown
+        explanation_parts.append("🔍 **Scoring Breakdown:**")
         
+        # Extract specializations for display
+        specializations = agent.get('specializations', [])
+        if isinstance(specializations, list) and specializations:
+            spec_display = ', '.join(specializations[:2])
+        else:
+            spec_display = "General Support"
+            
+        # Add scoring factors with approximate weights
+        if details.get("reasoning"):
+            explanation_parts.append("├── **Primary Factors:**")
+            for i, reason in enumerate(details['reasoning'][:3], 1):
+                explanation_parts.append(f"│   {i}. {reason}")
+            
+            if len(details['reasoning']) > 3:
+                explanation_parts.append(f"│   ... and {len(details['reasoning']) - 3} more factors")
+        
+        # Add agent capabilities summary
+        explanation_parts.append("├── **Agent Capabilities:**")
+        explanation_parts.append(f"│   • Experience: Level {agent.get('experience_level', 'N/A')}/5")
+        explanation_parts.append(f"│   • Specializations: {spec_display}")
+        explanation_parts.append(f"│   • Current Load: {agent.get('current_workload', 'N/A')}")
+        
+        # Add alternatives if available
         if details.get("alternatives"):
-            alt_names = [alt["agent_name"] for alt in details["alternatives"][:2]]
-            explanation_parts.append(f"🔄 Alternatives: {', '.join(alt_names)}")
+            explanation_parts.append("├── **Alternative Agents Considered:**")
+            for alt in details["alternatives"][:2]:
+                alt_score = alt.get('score', 0)
+                explanation_parts.append(f"│   • {alt['agent_name']} (Score: {alt_score:.2f})")
+                if alt.get('reasoning'):
+                    top_reason = alt['reasoning'][0] if alt['reasoning'] else "Standard capability"
+                    explanation_parts.append(f"│     └─ {top_reason}")
+        
+        # Add decision rationale
+        explanation_parts.append("└── **Decision Rationale:**")
+        
+        confidence_level = details['confidence']
+        if confidence_level >= 0.8:
+            rationale = "High confidence match - agent strongly aligned with requirements"
+        elif confidence_level >= 0.6:
+            rationale = "Good match - agent meets most requirements effectively"  
+        elif confidence_level >= 0.4:
+            rationale = "Moderate match - best available option given current constraints"
+        else:
+            rationale = "Limited options available - assigned based on basic capability match"
+            
+        explanation_parts.append(f"    {rationale}")
+        
+        # Add conversation context insights if available
+        if conversation_context:
+            issue_type = conversation_context.get('issue_type', '')
+            complexity = conversation_context.get('complexity_level', 1)
+            if issue_type or complexity > 1:
+                explanation_parts.append(f"\n💭 **Context Considerations:**")
+                if issue_type:
+                    explanation_parts.append(f"• Issue Type: {issue_type.replace('_', ' ').title()}")
+                if complexity > 1:
+                    complexity_desc = {2: "Moderate", 3: "Complex", 4: "High", 5: "Critical"}.get(complexity, "Standard")
+                    explanation_parts.append(f"• Complexity: {complexity_desc} level")
         
         return "\n".join(explanation_parts)

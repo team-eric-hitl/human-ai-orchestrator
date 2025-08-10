@@ -97,10 +97,29 @@ def initialize_system():
         logger.error(f"Failed to initialize system: {str(e)}")
         return {'initialized': False, 'error': str(e)}
 
+async def ensure_database_populated():
+    """Ensure the human agents database is populated with mock data"""
+    try:
+        # Check if database is empty
+        agents = await human_agents_repo.get_all()
+        if len(agents) == 0:
+            logger.info("Database is empty, populating with mock agents...")
+            
+            # Import and run population logic
+            from src.data.populate_agents_db import populate_database
+            await populate_database(reset=True)  # Reset to avoid constraint conflicts
+            logger.info("Database populated successfully")
+        else:
+            logger.info(f"Database already contains {len(agents)} agents")
+    except Exception as e:
+        logger.error(f"Failed to ensure database population: {e}")
+
 def get_human_agents() -> List[Dict[str, Any]]:
     """Fetch all human agents from the database"""
     try:
         async def get_agents():
+            # Ensure database is populated before fetching
+            await ensure_database_populated()
             return await human_agents_repo.get_all()
         
         # Get agents using repository
@@ -265,22 +284,65 @@ def format_logs_display(logs: List[str]) -> str:
     return "\n".join(recent_logs)
 
 def format_human_roster(agents: List[Dict], selected_agent_id: Optional[str] = None) -> str:
-    """Format human agent roster for display"""
+    """Format human agent roster for display - simple list without ranking"""
     if not agents:
         return "No agents available"
     
-    result = "**👥 Available Agents**\n\n"
+    result = "**👥 Human Agent Roster**\n\n"
     
+    # Simple agent list display
     for agent in agents:
-        status_emoji = {"available": "🟢", "busy": "🔴", "break": "🟡", "offline": "⚫"}.get(agent['status'], "⚪")
-        selected_marker = "👉 " if agent['id'] == selected_agent_id else ""
+        selected_marker = "►" if agent['id'] == selected_agent_id else " "
+        status_emoji = _get_status_with_emoji(agent['status'])
         
-        result += f"{selected_marker}**{agent['name']}** {status_emoji}\n"
-        result += f"Status: {agent['status'].title()}\n"
-        result += f"Specializations: {', '.join(agent.get('specializations', []))}\n"
-        result += f"Experience: Level {agent.get('experience_level', 1)}\n\n"
+        # Get workload info
+        current_load = _parse_current_workload(agent)
+        max_load = agent.get('max_concurrent_conversations', 5)
+        
+        result += f"{selected_marker} **{agent['name']}** - {status_emoji} ({current_load}/{max_load})\n"
+        result += f"   Specializations: {', '.join(agent.get('specializations', []))}\n"
+        result += f"   Experience: Level {agent.get('experience_level', 1)}/5\n\n"
+    
+    # Show detailed view only for selected agent
+    if selected_agent_id:
+        selected_agent = next((agent for agent in agents if agent['id'] == selected_agent_id), None)
+        if selected_agent:
+            result += f"**🎯 Selected Agent Details**\n"
+            result += f"**{selected_agent['name']}**\n"
+            result += f"Status: {_get_status_with_emoji(selected_agent['status'])}\n"
+            result += f"Email: {selected_agent['email']}\n"
+            result += f"Specializations: {', '.join(selected_agent.get('specializations', []))}\n"
+            result += f"Experience: Level {selected_agent.get('experience_level', 1)}/5\n"
+            result += f"Languages: {', '.join(selected_agent.get('languages', ['English']))}\n"
+            
+            # Add performance insights
+            metadata = selected_agent.get('metadata', {})
+            if 'certifications' in metadata and metadata['certifications']:
+                result += f"Certifications: {', '.join(metadata['certifications'][:2])}\n"
     
     return result
+
+def _parse_current_workload(agent: Dict[str, Any]) -> int:
+    """Helper function to parse current workload from various formats"""
+    workload = agent.get('current_workload', 0)
+    if isinstance(workload, str) and '/' in workload:
+        try:
+            return int(workload.split('/')[0])
+        except (ValueError, IndexError):
+            return 0
+    elif isinstance(workload, (int, float)):
+        return int(workload)
+    return 0
+
+def _get_status_with_emoji(status: str) -> str:
+    """Helper function to get status with appropriate emoji"""
+    status_mapping = {
+        "available": "🟢 Available",
+        "busy": "🔴 Busy", 
+        "break": "🟡 On Break",
+        "offline": "⚫ Offline"
+    }
+    return status_mapping.get(status, f"⚪ {status.title()}")
 
 def format_agent_profile(agent: Dict[str, Any]) -> str:
     """Format selected agent profile for display"""
@@ -374,7 +436,7 @@ def format_context_display(context_data: Dict[str, Any], context_summaries: Dict
     return result
 
 def format_escalation_context(context: Dict[str, Any], query: str, conversation_history: List[Dict]) -> str:
-    """Format escalation context for human agent"""
+    """Format escalation context for human agent with enhanced routing decision transparency"""
     if not context:
         return "**📋 Escalation Context**\n\nNo escalation context available"
     
@@ -388,6 +450,88 @@ def format_escalation_context(context: Dict[str, Any], query: str, conversation_
     result += f"Complexity: {routing_requirements.get('complexity', 'low')}\n"
     result += f"Est. Resolution: {context.get('estimated_resolution_time', 15)} minutes\n\n"
     
+    # Add agent ranking information when agent is selected
+    agents = get_human_agents()
+    if agents:
+        result += f"**🏆 Agent Performance Ranking**\n"
+        
+        # Calculate performance scores for ranking
+        agents_with_scores = []
+        for agent in agents:
+            # Calculate composite performance score
+            metadata = agent.get('metadata', {})
+            experience_score = agent.get('experience_level', 1) * 20  # 0-100 scale
+            workload_available = agent.get('max_concurrent_conversations', 5) - _parse_current_workload(agent)
+            workload_score = min(workload_available * 20, 100)  # More availability = higher score
+            
+            # Mock satisfaction score from metadata or default
+            satisfaction_score = metadata.get('customer_satisfaction_score', 4.5) * 20  # Convert 1-5 to 0-100 scale
+            
+            composite_score = (experience_score * 0.4 + workload_score * 0.3 + satisfaction_score * 0.3)
+            agents_with_scores.append((agent, composite_score))
+        
+        # Sort by performance score (highest first)
+        agents_with_scores.sort(key=lambda x: x[1], reverse=True)
+        
+        result += "```\nRank  Agent                Score  Load    Satisfaction\n"
+        result += "----  ------------------- ------ ------- ------------\n"
+        
+        rank_emojis = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"]
+        
+        for i, (agent, score) in enumerate(agents_with_scores[:5]):  # Show top 5 agents
+            rank_emoji = rank_emojis[i] if i < len(rank_emojis) else f"{i+1}️⃣"
+            
+            # Format agent name (truncate if too long)
+            agent_name = agent['name']
+            if len(agent_name) > 18:
+                agent_name = agent_name[:15] + "..."
+            
+            # Get workload info
+            current_load = _parse_current_workload(agent)
+            max_load = agent.get('max_concurrent_conversations', 5)
+            
+            # Get satisfaction score
+            metadata = agent.get('metadata', {})
+            satisfaction = metadata.get('customer_satisfaction_score', 4.5)
+            
+            result += f" {rank_emoji} {agent_name:<18} {score:5.1f}  {current_load}/{max_load}     {satisfaction:.1f}⭐\n"
+        
+        result += "```\n\n"
+    
+    # Enhanced routing decision explanation
+    result += f"**🧠 Why This Agent Was Selected**\n"
+    agent_match_score = context.get('agent_match_score', 100.0)
+    result += f"Overall Match Score: {agent_match_score:.1f}%\n\n"
+    
+    # Add LLM reasoning if available
+    llm_explanation = context.get('llm_explanation', '')
+    if llm_explanation:
+        result += f"**🤖 AI Routing Analysis**\n{llm_explanation}\n\n"
+    
+    # Add detailed reasoning factors
+    llm_reasoning = context.get('llm_reasoning', [])
+    if llm_reasoning:
+        result += f"**💡 Key Selection Factors**\n"
+        for i, reason in enumerate(llm_reasoning[:4], 1):  # Show top 4 factors
+            result += f"{i}. {reason}\n"
+        result += "\n"
+    
+    # Show alternative agents considered
+    alternative_agents = context.get('alternative_agents', [])
+    if alternative_agents:
+        result += f"**🔄 Alternative Agents Considered**\n"
+        for alt in alternative_agents[:2]:  # Show top 2 alternatives
+            result += f"• {alt.get('name', 'Unknown Agent')} (ID: {alt.get('id', 'N/A')})\n"
+        result += "\n"
+    
+    # Routing strategy and confidence
+    routing_strategy = context.get('routing_strategy', 'unknown')
+    routing_confidence = context.get('routing_confidence', 0.0)
+    if routing_strategy != 'unknown':
+        result += f"**⚙️ Routing Method:** {routing_strategy.replace('_', ' ').title()}\n"
+    if routing_confidence > 0:
+        result += f"**📊 Confidence Level:** {routing_confidence:.0%}\n\n"
+    
     result += f"**💬 Current Issue**\n{query}\n\n"
     
     if conversation_history:
@@ -396,8 +540,6 @@ def format_escalation_context(context: Dict[str, Any], query: str, conversation_
             role = "Customer" if msg['role'] == 'user' else "AI Assistant"
             content = msg['content'][:150] + '...' if len(msg['content']) > 150 else msg['content']
             result += f"**{role}:** {content}\n\n"
-    
-    result += f"**🎯 Match Score:** {context.get('agent_match_score', 100.0):.1f}%\n"
     
     return result
 
@@ -641,7 +783,7 @@ def create_interface():
         background-color: #f8f9fa;
     }
     .logs-panel {
-        height: 300px;
+        height: 420px;
         overflow-y: scroll;
         padding: 10px;
         border: 1px solid #ddd;
@@ -671,7 +813,7 @@ def create_interface():
     
     with gr.Blocks(css=css, title="HITL System Demo", theme=gr.themes.Soft()) as interface:
         gr.Markdown("# 🤖 VIA - Agent Technical Demo")
-        gr.Markdown("A 'Behind the Scenes look at the agents working together.")
+        gr.Markdown("A 'Behind the Scenes' look at the agents working together.")
         gr.Markdown("As proof of concept, foundation LLM models are used to simulate custom models.")
         gr.Markdown("These are not as performant as what specialized, custom models would be.")
 
@@ -714,8 +856,8 @@ def create_interface():
                     value="System ready...",
                     show_label=False,
                     interactive=False,
-                    lines=10,
-                    max_lines=45,
+                    lines=20,
+                    max_lines=65,
                     elem_classes=["logs-panel"]
                 )
                 clear_logs_btn = gr.Button("Clear Logs", size="sm")

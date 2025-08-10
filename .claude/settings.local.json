@@ -57,7 +57,8 @@
       "Bash(PYTHONPATH=/workspace uv run python:*)",
       "Bash(PYTHONPATH=/workspace timeout 120 uv run python gradio_demo.py)",
       "Bash(PYTHONPATH=/workspace timeout 60 uv run python gradio_demo.py)",
-      "Bash(PYTHONPATH=/workspace timeout 30 uv run python test_integration.py)"
+      "Bash(PYTHONPATH=/workspace timeout 30 uv run python test_integration.py)",
+      "Bash(mount)"
     ],
     "deny": []
   }
