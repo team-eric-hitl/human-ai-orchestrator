@@ -669,7 +669,7 @@ class CustomExperimenter(ExperimentationInterface):
     @property
     def supported_agent_types(self) -> list[str]:
         """Get list of supported agent types for experimentation"""
-        return ["answer_agent", "evaluator_agent", "escalation_router"]
+        return ["answer_agent", "evaluator_agent", "human_routing_agent"]
 
     @property
     def experimenter_name(self) -> str:

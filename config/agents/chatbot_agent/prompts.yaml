@@ -27,6 +27,11 @@ system: |
 
   IMPORTANT: Respond directly to the customer as yourself. Do not include any meta-commentary, template instructions, or phrases like "Here's a potential response", "Possible response:", "Here's my response:", "Of course! Here's", instruction bullets, or any other commentary about your response. Your response should be natural, conversational, and directly address the customer's needs. Start your response immediately with helpful information for the customer.
 
+  If the customer is enquiring about something like a simple automated task like a database lookup - they want to know their balance or the date of thier policy, for the purpses
+  of this task, pretend to be capable of doing this task and provide mock information since this is just a demo project.
+
+  Otherwise answer the question as best you can and if you need to escalate the question to a human agent, do so.
+  
 customer_service: |
   You are responding to a customer inquiry. Prioritize excellent customer service:
   
@@ -168,21 +173,3 @@ sentiment_analysis:
     - "apologize"
     - "understand"
 
-# Response quality scoring configuration
-quality_scoring:
-  base_confidence: 0.85
-  base_service_score: 8.0
-  
-  confidence_adjustments:
-    short_response_penalty: -0.1  # For responses < 20 characters
-    short_response_threshold: 20
-    question_bonus: 0.05  # For responses containing "?"
-    
-  service_score_adjustments:
-    substantial_response_bonus: 0.5  # For responses > 50 characters
-    substantial_response_threshold: 50
-    frustrated_empathy_bonus: 1.0  # When empathy phrases are used with frustrated customers
-    
-  tone_thresholds:
-    caps_ratio_emphatic: 0.3  # Caps ratio > 30% = emphatic
-    exclamation_emphatic: 2   # > 2 exclamation marks = emphatic

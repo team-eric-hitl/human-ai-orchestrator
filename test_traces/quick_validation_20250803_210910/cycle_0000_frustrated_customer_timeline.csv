@@ -1,0 +1,5 @@
+timestamp,event_type,duration_ms,agent_name,stage,decision,details
+2025-08-03T21:09:10.977914,workflow_stage,0.0,,query_received,,
+2025-08-03T21:09:10.986836,workflow_stage,8.921999999999999,,frustration_agent_complete,,
+2025-08-03T21:09:10.986815,agent_interaction,0.020999999999999998,frustration_agent,,,Next: routing_decision
+2025-08-03T21:09:10.987294,system_decision,,,,escalate_for_frustration,Frustration level 7.591834233398721 exceeds threshold

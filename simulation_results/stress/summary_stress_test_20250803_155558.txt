@@ -1,0 +1,24 @@
+# Simulation Test Results - stress_test_20250803_155558
+Run Time: 2025-08-03 15:55:58.301118 to 2025-08-03 16:15:01.167368
+Duration: 1142.9 seconds
+
+## System Performance
+- Total Cycles: 50
+- Average Customer Satisfaction: 0.00/10
+- Escalation Rate: 0.0%
+- Average Resolution Time: 22.8 seconds
+
+## Agent Decision Quality
+- Quality Agent Accuracy: 90.0%
+- Frustration Detection Precision: 100.0%
+- Routing Success Rate: 0.0%
+
+## System Interventions
+- Quality Interventions: 5
+- Frustration Interventions: 0
+- Failed Routes: 0
+
+## Recommendations
+- 🔴 Customer satisfaction below target (7.0). Consider tuning chatbot quality or agent training.
+- 🟡 Low escalation rate - ensure quality and frustration agents are properly calibrated.
+- 🔴 Routing success rate low. Review agent specialization matching.

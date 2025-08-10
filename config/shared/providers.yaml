@@ -63,6 +63,22 @@ llm_providers:
       requests_per_minute: 200              # Max requests per minute
       tokens_per_minute: 100000             # Max tokens per minute
       
+  # Google Gemini provider - requires GEMINI_API_KEY environment variable
+  gemini:
+    enabled: true                          # Enable Gemini provider
+    api_key_env: "GEMINI_API_KEY"          # Environment variable name for API key
+    base_url: "https://generativelanguage.googleapis.com/v1beta"  # Gemini API endpoint
+    timeout: 30                            # Reduced timeout for faster failure/retry
+    max_retries: 2                         # Reduced retries for speed
+    models:                                # Available Gemini models
+      - "gemini-1.5-flash"
+      - "gemini-1.5-pro"
+      - "gemini-2.0-flash-exp"
+      - "gemini-2.5-flash"
+    rate_limits:                           # API rate limits
+      requests_per_minute: 1500            # Max requests per minute (generous for Gemini)
+      tokens_per_minute: 1000000           # Max tokens per minute
+
   # Local provider - runs models on your computer via Ollama
   local:
     enabled: true                          # Enable local model provider

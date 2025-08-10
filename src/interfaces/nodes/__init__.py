@@ -9,8 +9,8 @@ from .automation import AutomationAgentInterface, AutomationResult
 from .base import NodeInterface, NodeResult
 
 __all__ = [
-    "NodeInterface", 
-    "NodeResult", 
-    "AutomationAgentInterface", 
+    "NodeInterface",
+    "NodeResult",
+    "AutomationAgentInterface",
     "AutomationResult"
 ]

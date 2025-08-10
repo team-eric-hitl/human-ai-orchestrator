@@ -6,7 +6,7 @@ in the hybrid AI-human system.
 """
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..core.state_schema import HybridSystemState
@@ -33,7 +33,7 @@ class AutomationAgentInterface(ABC):
         pass
 
     @abstractmethod
-    def get_supported_tasks(self) -> List[str]:
+    def get_supported_tasks(self) -> list[str]:
         """Get list of tasks this automation agent can handle
         
         Returns:
@@ -42,7 +42,7 @@ class AutomationAgentInterface(ABC):
         pass
 
     @abstractmethod
-    def get_task_categories(self) -> List[str]:
+    def get_task_categories(self) -> list[str]:
         """Get list of task categories this agent supports
         
         Returns:
@@ -51,7 +51,7 @@ class AutomationAgentInterface(ABC):
         pass
 
     @abstractmethod
-    def detect_automation_intent(self, query: str) -> Optional[Tuple[str, Dict]]:
+    def detect_automation_intent(self, query: str) -> tuple[str, dict] | None:
         """Detect if a query can be handled by automation
         
         Args:
@@ -86,7 +86,7 @@ class AutomationAgentInterface(ABC):
 
     @property
     @abstractmethod
-    def response_time_range(self) -> Tuple[float, float]:
+    def response_time_range(self) -> tuple[float, float]:
         """Get the expected response time range for this agent
         
         Returns:
@@ -119,18 +119,18 @@ class AutomationResult:
         escalation_reason: Reason for escalation (if applicable)
         metadata: Additional metadata about the processing
     """
-    
+
     def __init__(
         self,
         success: bool,
-        response: Optional[str] = None,
-        task_name: Optional[str] = None,
-        task_category: Optional[str] = None,
-        processing_time: Optional[float] = None,
-        reference_id: Optional[str] = None,
+        response: str | None = None,
+        task_name: str | None = None,
+        task_category: str | None = None,
+        processing_time: float | None = None,
+        reference_id: str | None = None,
         escalation_required: bool = False,
-        escalation_reason: Optional[str] = None,
-        metadata: Optional[Dict] = None,
+        escalation_reason: str | None = None,
+        metadata: dict | None = None,
     ):
         self.success = success
         self.response = response
@@ -142,7 +142,7 @@ class AutomationResult:
         self.escalation_reason = escalation_reason
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for state storage"""
         return {
             "automation_result": "success" if self.success else "failed",

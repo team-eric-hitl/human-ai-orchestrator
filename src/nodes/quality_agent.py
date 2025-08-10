@@ -86,12 +86,12 @@ class QualityAgentNode:
             customer_query, chatbot_response, state
         )
 
-        # Determine if adjustment is needed
+        # Flag if adjustment is needed (but don't actually adjust)
         if quality_assessment["decision"] == QualityDecision.NEEDS_ADJUSTMENT.value:
-            adjusted_response = self._adjust_response(
-                customer_query, chatbot_response, quality_assessment["reasoning"]
-            )
-            quality_assessment["adjusted_response"] = adjusted_response
+            quality_assessment["flag_reason"] = quality_assessment["reasoning"]
+            quality_assessment["adjustment_suggested"] = True
+        else:
+            quality_assessment["adjustment_suggested"] = False
 
         # Determine next action
         next_action = self._determine_next_action(quality_assessment["decision"])
@@ -116,10 +116,13 @@ class QualityAgentNode:
             "adjustment_score": 5.0,
         })
 
+        # Check if running in compact mode (for Streamlit performance optimization)
+        compact_mode = self._should_use_compact_mode()
+
         # Use LLM for quality assessment if available
         if self.llm_provider:
             try:
-                llm_assessment = self._llm_quality_assessment(query, response)
+                llm_assessment = self._llm_quality_assessment(query, response, compact=compact_mode)
                 overall_score = llm_assessment["overall_score"]
                 reasoning = llm_assessment["reasoning"]
 
@@ -154,10 +157,12 @@ class QualityAgentNode:
             "thresholds_used": thresholds,
         }
 
-    def _llm_quality_assessment(self, query: str, response: str) -> dict[str, Any]:
+    def _llm_quality_assessment(self, query: str, response: str, compact: bool = True) -> dict[str, Any]:
         """Use LLM to assess response quality"""
 
-        assessment_prompt = self.agent_config.get_prompt("quality_assessment")
+        # Use compact prompt for faster responses
+        prompt_key = "quality_assessment_compact" if compact else "quality_assessment"
+        assessment_prompt = self.agent_config.get_prompt(prompt_key)
         system_prompt = self.agent_config.get_prompt("system")
 
         evaluation_query = assessment_prompt.format(
@@ -165,12 +170,84 @@ class QualityAgentNode:
             chatbot_response=response
         )
 
+        # Log the LLM call at agent level
+        self.logger.info(
+            "Quality Agent calling LLM",
+            extra={
+                "agent": "quality_agent",
+                "model_name": self.llm_provider.model_name,
+                "provider_type": self.llm_provider.provider_type,
+                "prompt_length": len(evaluation_query),
+                "system_prompt_length": len(system_prompt),
+                "compact_mode": compact,
+                "operation": "agent_llm_call"
+            }
+        )
+
         llm_response = self.llm_provider.generate_response(
             prompt=evaluation_query,
             system_prompt=system_prompt
         )
 
-        # Parse LLM response (simplified - in production would use structured output)
+        # Parse compact format: [score]|[confidence]|[brief assessment]
+        if compact:
+            try:
+                response_text = llm_response.strip()
+
+                # Handle multi-line responses by taking the first line that matches format
+                lines = response_text.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    # Try pipe-separated format
+                    if '|' in line and len(line.split('|')) >= 3:
+                        parts = line.split('|')
+                        try:
+                            score = float(parts[0].strip())
+                            confidence = float(parts[1].strip())
+                            reasoning = parts[2].strip()
+
+                            # Validate score and confidence ranges
+                            if 1.0 <= score <= 10.0 and 0.0 <= confidence <= 1.0:
+                                return {
+                                    "overall_score": score,
+                                    "reasoning": f"LLM assessment: {reasoning}",
+                                }
+                        except (ValueError, IndexError):
+                            continue
+
+                # Fallback: try to extract score from any line
+                import re
+                for line in lines:
+                    score_match = re.search(r'(\d+(?:\.\d+)?)', line.strip())
+                    if score_match:
+                        score = float(score_match.group(1))
+                        if 1.0 <= score <= 10.0:
+                            return {
+                                "overall_score": score,
+                                "reasoning": f"LLM assessment: {response_text}",
+                            }
+
+            except Exception as e:
+                self.logger.warning(
+                    "Compact format parsing failed",
+                    extra={
+                        "error": str(e),
+                        "response_preview": llm_response[:100],
+                        "operation": "compact_parsing",
+                    }
+                )
+
+            # Use rule-based fallback when compact parsing completely fails, but preserve LLM response
+            fallback_score, fallback_reasoning = self._rule_based_assessment(query, response)
+            return {
+                "overall_score": fallback_score,
+                "reasoning": f"Compact parsing failed, used rule-based assessment: {fallback_reasoning}. LLM response: {llm_response}",
+            }
+
+        # Parse verbose format (original logic)
         try:
             import re
 
@@ -337,49 +414,32 @@ class QualityAgentNode:
         else:
             return QualityDecision.HUMAN_INTERVENTION
 
-    def _adjust_response(self, query: str, response: str, reasoning: str) -> str:
-        """Attempt to adjust/improve the response"""
-
-        if not self.llm_provider:
-            return response  # Return original if no LLM available
-
-        try:
-            adjustment_prompt = self.agent_config.get_prompt("response_adjustment")
-            system_prompt = self.agent_config.get_prompt("system")
-
-            adjustment_query = adjustment_prompt.format(
-                customer_query=query,
-                original_response=response,
-                quality_issues=reasoning
-            )
-
-            adjusted_response = self.llm_provider.generate_response(
-                prompt=adjustment_query,
-                system_prompt=system_prompt
-            )
-
-            return adjusted_response
-
-        except Exception as e:
-            self.logger.error(
-                "Failed to adjust response",
-                extra={
-                    "error": str(e),
-                    "operation": "adjust_response",
-                },
-            )
-            return response  # Return original on error
+    # Note: Response adjustment functionality has been removed.
+    # The quality agent now only flags responses that need improvement
+    # rather than automatically adjusting them.
 
     def _determine_next_action(self, decision: str) -> str:
         """Determine the next action based on quality decision"""
 
         action_mapping = {
             QualityDecision.ADEQUATE.value: "respond_to_customer",
-            QualityDecision.NEEDS_ADJUSTMENT.value: "provide_adjusted_response",
+            QualityDecision.NEEDS_ADJUSTMENT.value: "flag_for_review",  # Changed from adjustment to flagging
             QualityDecision.HUMAN_INTERVENTION.value: "escalate_to_human",
         }
 
         return action_mapping.get(decision, "escalate_to_human")
+
+    def _should_use_compact_mode(self) -> bool:
+        """Check if compact mode should be used based on Streamlit session state"""
+        try:
+            import streamlit as st
+            # Check if we're in a Streamlit context and performance mode is set
+            if hasattr(st, 'session_state') and hasattr(st.session_state, 'performance_mode'):
+                performance_mode = st.session_state.performance_mode
+                return performance_mode in ["Fast (Compact)", "Fastest (Parallel)"]
+        except Exception:
+            pass  # Not in Streamlit context or no session state
+        return True  # Default to compact mode for better performance
 
     def _log_quality_assessment(
         self, state: HybridSystemState, assessment: dict[str, Any]

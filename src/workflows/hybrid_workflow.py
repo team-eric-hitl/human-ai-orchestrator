@@ -10,7 +10,7 @@ from ..core.config import ConfigManager
 from ..core.context_manager import SQLiteContextProvider
 from ..interfaces.core.state_schema import HybridSystemState
 from ..nodes.chatbot_agent import ChatbotAgentNode
-from ..nodes.escalation_router import EscalationRouterNode
+from ..nodes.human_routing_agent import HumanRoutingAgentNode
 from ..nodes.evaluator_agent import EvaluatorAgentNode
 from ..nodes.mock_automation_agent import MockAutomationAgent
 
@@ -31,7 +31,7 @@ class HybridSystemWorkflow:
         self.evaluator_agent = EvaluatorAgentNode(
             self.config_provider, self.context_provider
         )
-        self.escalation_router = EscalationRouterNode(self.config_provider)
+        self.human_routing_agent = HumanRoutingAgentNode(self.config_provider, self.context_provider)
 
         # Build workflow
         self.workflow = self._build_workflow()
@@ -61,7 +61,7 @@ class HybridSystemWorkflow:
 
             # Step 5: Route escalation if needed
             if state.get("escalation_decision", False) or state.get("requires_escalation", False):
-                state = self.escalation_router(state)
+                state = self.human_routing_agent(state)
             else:
                 # Step 6: Handle final AI response
                 state = self._ai_response_handler(state)

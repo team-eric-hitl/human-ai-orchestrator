@@ -39,6 +39,47 @@ providers:
 monitoring:
   metrics_collection: true
   performance_tracking: true
+  
+  # Production trace collection - optimized for performance and compliance
+  trace_collection:
+    enabled: true                      # Enable trace collection for production monitoring
+    max_traces_in_memory: 500          # Conservative memory usage
+    auto_export: true                  # Export for compliance and analysis
+    
+    # Production export settings - balance performance with monitoring needs
+    export:
+      format: "summary_json"           # Use summary format for efficiency
+      output_directory: "prod_traces"  # Production trace directory
+      auto_export_interval: 1800       # Export every 30 minutes
+      compress_exports: true           # Compress to save storage
+      
+    # Production retention policy - compliance-focused
+    retention:
+      max_age_days: 90                 # Keep traces for 90 days for compliance
+      cleanup_interval: 3600           # Clean up every hour
+      archive_before_cleanup: true     # Archive for long-term storage
+      archive_directory: "traces/archive/prod"
+      
+    # Production optimization - prioritize performance
+    optimization:
+      async_collection: true           # Asynchronous for performance
+      batch_size: 100                  # Larger batches for efficiency
+      enable_sampling: true            # Enable sampling to reduce load
+      sampling_rate: 0.1               # Sample 10% of traces in production
+      
+    # Production output - balance debugging with security
+    output_options:
+      include_context_data: false      # Exclude context for privacy
+      include_metadata: true           # Include metadata for analysis
+      include_performance_metrics: true # Include performance data
+      redact_sensitive_data: true      # Always redact sensitive data in production
+      
+    # Production integration - full monitoring
+    integration:
+      langsmith_sync: true             # Sync to LangSmith for monitoring
+      session_tracker_sync: true      # Sync with session tracking
+      export_to_analytics: true       # Export to analytics systems
+  
   langsmith:
     enabled: true
     project_name: "hybrid-ai-system-prod"

@@ -27,7 +27,7 @@ class TestAgentSystemStartup:
             # Create directory structure
             (config_dir / "agents" / "answer_agent").mkdir(parents=True)
             (config_dir / "agents" / "evaluator_agent").mkdir(parents=True)
-            (config_dir / "agents" / "escalation_router").mkdir(parents=True)
+            (config_dir / "agents" / "human_routing_agent").mkdir(parents=True)
             (config_dir / "shared").mkdir(parents=True)
             (config_dir / "environments").mkdir(parents=True)
 
@@ -161,9 +161,9 @@ class TestAgentSystemStartup:
                 "fallback": ["gpt-3.5-turbo", "llama-7b"]
             }
 
-            escalation_router = {
+            human_routing_agent = {
                 "agent": {
-                    "name": "escalation_router",
+                    "name": "human_routing_agent",
                     "description": "Routes escalations to appropriate human agents",
                     "type": "routing_agent"
                 },
@@ -183,7 +183,7 @@ class TestAgentSystemStartup:
                 }
             }
 
-            escalation_router_models = {
+            human_routing_agent_models = {
                 "preferred": "gpt-3.5-turbo",
                 "fallback": ["llama-7b"]
             }
@@ -208,10 +208,10 @@ class TestAgentSystemStartup:
             with open(config_dir / "agents" / "evaluator_agent" / "models.yaml", "w") as f:
                 yaml.dump(evaluator_agent_models, f)
 
-            with open(config_dir / "agents" / "escalation_router" / "config.yaml", "w") as f:
-                yaml.dump(escalation_router, f)
-            with open(config_dir / "agents" / "escalation_router" / "models.yaml", "w") as f:
-                yaml.dump(escalation_router_models, f)
+            with open(config_dir / "agents" / "human_routing_agent" / "config.yaml", "w") as f:
+                yaml.dump(human_routing_agent, f)
+            with open(config_dir / "agents" / "human_routing_agent" / "models.yaml", "w") as f:
+                yaml.dump(human_routing_agent_models, f)
 
             yield config_dir
 
@@ -235,7 +235,7 @@ class TestAgentSystemStartup:
         assert len(available_agents) >= 3
         assert "answer_agent" in available_agents
         assert "evaluator_agent" in available_agents
-        assert "escalation_router" in available_agents
+        assert "human_routing_agent" in available_agents
 
         # Test system configuration
         system_config = config_manager.get_system_config()
@@ -277,8 +277,8 @@ class TestAgentSystemStartup:
         assert evaluator_config.get_setting("temperature") == 0.3
         assert evaluator_config.get_setting("criteria.accuracy.weight") == 0.3
 
-        # Test escalation router configuration
-        router_config = config_manager.get_agent_config("escalation_router")
+        # Test human routing agent configuration
+        router_config = config_manager.get_agent_config("human_routing_agent")
         assert router_config is not None
         assert router_config.get_preferred_model() == "gpt-3.5-turbo"
         assert router_config.get_setting("expertise_domains.technical.keywords") == ["code", "programming", "API", "bug", "error"]
@@ -313,7 +313,7 @@ class TestAgentSystemStartup:
         evaluator_model = config_manager.get_primary_model_for_agent("evaluator_agent")
         assert evaluator_model == "gpt-4"
 
-        router_model = config_manager.get_primary_model_for_agent("escalation_router")
+        router_model = config_manager.get_primary_model_for_agent("human_routing_agent")
         assert router_model == "gpt-3.5-turbo"
 
     def test_configuration_summary(self, temp_config_dir):
@@ -333,7 +333,7 @@ class TestAgentSystemStartup:
         assert summary["agents_loaded"] >= 3
         assert "answer_agent" in summary["agent_names"]
         assert "evaluator_agent" in summary["agent_names"]
-        assert "escalation_router" in summary["agent_names"]
+        assert "human_routing_agent" in summary["agent_names"]
 
     def test_environment_configuration(self, temp_config_dir):
         """Test environment-specific configuration"""

@@ -1,0 +1,9 @@
+timestamp,event_type,duration_ms,agent_name,stage,decision,details
+2025-08-03T21:22:20.890422,workflow_stage,0.0,,query_received,,
+2025-08-03T21:22:26.569170,workflow_stage,5678.748,,frustration_agent_complete,,
+2025-08-03T21:22:26.578509,workflow_stage,5688.087,,automation_agent_complete,,
+2025-08-03T21:22:26.578509,workflow_stage,5688.087,,automation_agent_complete,,
+2025-08-03T21:22:28.800522,workflow_stage,7910.1,,chatbot_response_complete,,
+2025-08-03T21:22:40.045235,workflow_stage,19154.813000000002,,quality_assessment_complete,,
+2025-08-03T21:22:20.905439,agent_interaction,5663.731000000001,frustration_agent,,,Next: continue
+2025-08-03T21:22:26.577994,agent_interaction,0.515,automation_agent,,,Next: continue_to_chatbot

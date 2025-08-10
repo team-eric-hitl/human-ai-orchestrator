@@ -8,6 +8,9 @@ This script demonstrates how to use the experimentation module to:
 3. Compare models
 4. Run continuous optimization
 
+UPDATED: Now uses AgentConfigManager and respects agent model configurations
+instead of forcing local models. Uses configured fast models from aliases.
+
 Usage:
     python scripts/experimentation_demo.py
 """
@@ -21,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from datetime import datetime
 from typing import List
 
-from src.core.config import ConfigManager
+from src.core.config.agent_config_manager import AgentConfigManager
 from src.core.session_tracker import SessionTracker
 from src.integrations.experimentation import ExperimentationFactory
 from src.integrations.llm_providers import LLMProviderFactory
@@ -109,7 +112,7 @@ def demo_prompt_experiments():
     print("=" * 50)
     
     # Setup
-    config_manager = ConfigManager("config")
+    config_manager = AgentConfigManager("config")
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory("config")
     
@@ -131,7 +134,7 @@ def demo_prompt_experiments():
         results = experimenter.run_prompt_experiments(
             variants=variants,
             test_cases=test_cases,
-            agent_type="answer_agent",
+            agent_type="chatbot_agent",
             iterations=2
         )
         
@@ -162,7 +165,7 @@ def demo_threshold_experiments():
     print("=" * 50)
     
     # Setup
-    config_manager = ConfigManager("config")
+    config_manager = AgentConfigManager("config")
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory("config")
     
@@ -182,7 +185,7 @@ def demo_threshold_experiments():
     try:
         results = experimenter.run_threshold_experiments(
             experiments=experiments,
-            agent_type="evaluator_agent"
+            agent_type="quality_agent"
         )
         
         # Display results
@@ -206,7 +209,7 @@ def demo_continuous_optimization():
     print("=" * 50)
     
     # Setup
-    config_manager = ConfigManager("config")
+    config_manager = AgentConfigManager("config")
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory("config")
     
@@ -229,7 +232,7 @@ def demo_continuous_optimization():
             target=target,
             test_cases=test_cases,
             iterations=3,
-            agent_type="answer_agent"
+            agent_type="chatbot_agent"
         )
         
         # Display results
@@ -257,7 +260,7 @@ def demo_model_comparison():
     print("=" * 50)
     
     # Setup
-    config_manager = ConfigManager("config")
+    config_manager = AgentConfigManager("config")
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory("config")
     
@@ -265,9 +268,22 @@ def demo_model_comparison():
     factory = ExperimentationFactory(config_manager, session_tracker, llm_factory)
     experimenter = factory.create_auto_experimenter()
     
-    # Get available models
-    available_models = config_manager.get_available_models()
-    model_names = [model.name for model in available_models[:2]]  # Use first 2 models
+    # Get configured models from aliases (fast models that actually work)
+    # This respects the agent configuration instead of forcing local models
+    model_aliases = config_manager.get_model_aliases()
+    # Use the fast models that are actually configured and different from each other
+    available_models = [
+        model_aliases.get('llm_fast_premium', 'gemini-1.5-flash'),
+        model_aliases.get('llm_fast_budget', 'gemini-1.5-flash'),
+        model_aliases.get('llm_general_premium', 'claude-3-5-sonnet-20241022'),
+        model_aliases.get('llm_demo_speed', 'gemini-1.5-flash')
+    ]
+    # Remove duplicates and take first 2 unique models
+    unique_models = []
+    for model in available_models:
+        if model not in unique_models:
+            unique_models.append(model)
+    model_names = unique_models[:2]
     
     if not model_names:
         print("❌ No models available for comparison")
@@ -287,7 +303,7 @@ def demo_model_comparison():
         results = experimenter.run_model_comparison(
             model_names=model_names,
             test_cases=test_cases,
-            agent_type="answer_agent"
+            agent_type="chatbot_agent"
         )
         
         # Display results
@@ -317,7 +333,7 @@ def demo_experiment_history():
     print("=" * 50)
     
     # Setup
-    config_manager = ConfigManager("config")
+    config_manager = AgentConfigManager("config")
     session_tracker = SessionTracker()
     llm_factory = LLMProviderFactory("config")
     

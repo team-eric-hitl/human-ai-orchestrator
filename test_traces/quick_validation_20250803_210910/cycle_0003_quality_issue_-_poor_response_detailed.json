@@ -1,0 +1,147 @@
+{
+  "trace_id": "trace_20250803_210911_37899a31",
+  "session_id": "demo_20250803_210911_214",
+  "user_id": "demo_customer_demo_20250803_210911_214",
+  "query_id": "demo_20250803_210911_214_query",
+  "trace_metadata": {
+    "start_time": "2025-08-03T21:09:11.432384",
+    "end_time": "2025-08-03T21:09:11.479982",
+    "total_duration_ms": 47.598,
+    "trace_version": "1.0"
+  },
+  "initial_query": {
+    "query_text": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+    "customer_personality": "confused",
+    "frustration_level": 1,
+    "scenario": "simple_question",
+    "scenario_name": "Quality Issue - Poor Response"
+  },
+  "agent_interactions": [
+    {
+      "agent_name": "frustration_agent",
+      "interaction_id": "frustration_agent_001",
+      "sequence_number": 1,
+      "start_time": "2025-08-03T21:09:11.441310",
+      "end_time": "2025-08-03T21:09:11.441330",
+      "duration_ms": 0.02,
+      "input": {
+        "query": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+        "customer_personality": "confused",
+        "initial_frustration": 1
+      },
+      "output": {
+        "overall_score": 1.369139739371394,
+        "overall_level": "low",
+        "confidence": 0.8771346023441167,
+        "intervention_needed": false,
+        "contributing_factors": [
+          "confused_personality",
+          "initial_query_tone"
+        ]
+      },
+      "response_metadata": {
+        "agent_type": "simulated"
+      },
+      "next_action": "continue"
+    },
+    {
+      "agent_name": "automation_agent",
+      "interaction_id": "automation_agent_002",
+      "sequence_number": 2,
+      "start_time": "2025-08-03T21:09:11.452028",
+      "end_time": "2025-08-03T21:09:11.452050",
+      "duration_ms": 0.022,
+      "input": {
+        "query": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?",
+        "customer_personality": "confused"
+      },
+      "output": {
+        "can_handle": true,
+        "task_type": "business_info",
+        "confidence": 0.886662505973239,
+        "reasoning": "Query classified as business_info with 0.89 confidence"
+      },
+      "response_metadata": {
+        "agent_type": "simulated"
+      },
+      "next_action": "automation_response"
+    },
+    {
+      "agent_name": "automation_response",
+      "interaction_id": "automation_response_003",
+      "sequence_number": 3,
+      "start_time": "2025-08-03T21:09:11.463836",
+      "end_time": "2025-08-03T21:09:11.463848",
+      "duration_ms": 0.012,
+      "input": {
+        "query": "I'm really confused about something. What are your business hours? Can you explain this in simple terms?"
+      },
+      "output": {
+        "response": "Our customer service hours are Monday-Friday 8AM-8PM EST. You can reach us at 1-800-555-0123.",
+        "data": {
+          "hours": "Mon-Fri 8AM-8PM EST",
+          "phone": "1-800-555-0123"
+        },
+        "response_time": 0.7829122374933741,
+        "success": true
+      },
+      "response_metadata": {
+        "agent_type": "simulated"
+      },
+      "next_action": "complete"
+    }
+  ],
+  "system_decisions": [],
+  "workflow_progression": [
+    {
+      "stage": "query_received",
+      "timestamp": "2025-08-03T21:09:11.432384",
+      "duration_from_start_ms": 0.0
+    },
+    {
+      "stage": "frustration_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.441330",
+      "duration_from_start_ms": 8.946000000000002
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.452050",
+      "duration_from_start_ms": 19.666
+    },
+    {
+      "stage": "automation_agent_complete",
+      "timestamp": "2025-08-03T21:09:11.452050",
+      "duration_from_start_ms": 19.666
+    },
+    {
+      "stage": "automation_response_complete",
+      "timestamp": "2025-08-03T21:09:11.463848",
+      "duration_from_start_ms": 31.464
+    },
+    {
+      "stage": "automation_response_complete",
+      "timestamp": "2025-08-03T21:09:11.472206",
+      "duration_from_start_ms": 39.822
+    }
+  ],
+  "performance_metrics": {
+    "total_processing_time_ms": 47.598,
+    "ai_processing_time_ms": 0.05399999999999999,
+    "routing_time_ms": 0.0,
+    "queue_wait_time_ms": 0.0,
+    "total_tokens_used": 0,
+    "total_cost_usd": 0.0,
+    "agents_involved": 3,
+    "escalation_occurred": false,
+    "quality_interventions": 0,
+    "customer_satisfaction_predicted": null
+  },
+  "outcome": {
+    "final_resolution": "chatbot_direct",
+    "customer_satisfaction": 8.5,
+    "resolution_time_minutes": 3,
+    "case_resolved": true,
+    "escalation_occurred": false
+  },
+  "context_data": {}
+}

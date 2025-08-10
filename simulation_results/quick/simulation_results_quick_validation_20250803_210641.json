@@ -1,0 +1,179 @@
+{
+  "system_metrics": {
+    "run_id": "quick_validation_20250803_210641",
+    "start_time": "2025-08-03 21:06:41.959178",
+    "end_time": "2025-08-03 21:08:18.276886",
+    "total_cycles": 5,
+    "avg_customer_satisfaction": 0.0,
+    "total_escalations": 0,
+    "escalation_rate": 0.0,
+    "quality_agent_accuracy": 1.0,
+    "frustration_detection_precision": 1.0,
+    "routing_success_rate": 0.0,
+    "avg_resolution_time": 19.163104999999998,
+    "system_utilization": 0.0,
+    "failed_routes": 0,
+    "quality_interventions": 0,
+    "frustration_interventions": 0
+  },
+  "agent_metrics": {},
+  "cycle_results": [
+    {
+      "cycle_id": "cycle_0000_automation_-_balance_inquiry",
+      "scenario_name": "Automation - Balance Inquiry",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:06:41.959532",
+      "end_time": "2025-08-03 21:07:00.107033",
+      "duration_seconds": 18.147501,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.5,
+      "frustration_score": 1.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0001_automation_-_balance_inquiry",
+      "scenario_name": "Automation - Balance Inquiry",
+      "customer_personality": "polite",
+      "start_time": "2025-08-03 21:07:00.207408",
+      "end_time": "2025-08-03 21:07:16.828882",
+      "duration_seconds": 16.621474,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.5,
+      "frustration_score": 1.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0002_frustrated_customer",
+      "scenario_name": "Frustrated Customer",
+      "customer_personality": "frustrated",
+      "start_time": "2025-08-03 21:07:16.929194",
+      "end_time": "2025-08-03 21:07:35.782643",
+      "duration_seconds": 18.853449,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.5,
+      "frustration_score": 7.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0003_escalation_-_technical_issue",
+      "scenario_name": "Escalation - Technical Issue",
+      "customer_personality": "technical",
+      "start_time": "2025-08-03 21:07:35.883001",
+      "end_time": "2025-08-03 21:08:00.986232",
+      "duration_seconds": 25.103231,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 7.5,
+      "frustration_score": 2.9999999999999996,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    },
+    {
+      "cycle_id": "cycle_0004_quality_issue_-_poor_response",
+      "scenario_name": "Quality Issue - Poor Response",
+      "customer_personality": "confused",
+      "start_time": "2025-08-03 21:08:01.086648",
+      "end_time": "2025-08-03 21:08:18.176518",
+      "duration_seconds": 17.08987,
+      "escalated_to_human": false,
+      "final_satisfaction": 0.0,
+      "resolution_method": "unknown",
+      "quality_score": 8.5,
+      "frustration_score": 2.0,
+      "routing_decision": "none",
+      "assigned_agent": null,
+      "errors": []
+    }
+  ],
+  "decision_details": {
+    "quality_decisions": [
+      {
+        "cycle_id": "cycle_0000_automation_-_balance_inquiry",
+        "decision": "adequate",
+        "score": 8.5,
+        "confidence": 0.85,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0001_automation_-_balance_inquiry",
+        "decision": "adequate",
+        "score": 7.5,
+        "confidence": 0.75,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0002_frustrated_customer",
+        "decision": "adequate",
+        "score": 7.5,
+        "confidence": 0.75,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0003_escalation_-_technical_issue",
+        "decision": "adequate",
+        "score": 7.5,
+        "confidence": 0.75,
+        "next_action": "respond_to_customer"
+      },
+      {
+        "cycle_id": "cycle_0004_quality_issue_-_poor_response",
+        "decision": "adequate",
+        "score": 8.5,
+        "confidence": 0.85,
+        "next_action": "respond_to_customer"
+      }
+    ],
+    "frustration_decisions": [
+      {
+        "cycle_id": "cycle_0000_automation_-_balance_inquiry",
+        "score": 1.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.9
+      },
+      {
+        "cycle_id": "cycle_0001_automation_-_balance_inquiry",
+        "score": 1.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.7
+      },
+      {
+        "cycle_id": "cycle_0002_frustrated_customer",
+        "score": 7.0,
+        "level": "high",
+        "intervention_needed": false,
+        "confidence": 0.9
+      },
+      {
+        "cycle_id": "cycle_0003_escalation_-_technical_issue",
+        "score": 2.9999999999999996,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.7
+      },
+      {
+        "cycle_id": "cycle_0004_quality_issue_-_poor_response",
+        "score": 2.0,
+        "level": "low",
+        "intervention_needed": false,
+        "confidence": 0.6
+      }
+    ],
+    "routing_decisions": []
+  }
+}

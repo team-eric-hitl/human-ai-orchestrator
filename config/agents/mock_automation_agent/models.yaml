@@ -7,12 +7,12 @@ primary_model: "none"                       # No LLM needed for basic automation
 # Model preferences for optional NLP tasks
 model_preferences:
   intent_classification:
-    primary: "gpt-3.5-turbo"               # Lightweight model for intent detection
-    fallback: ["claude-3-haiku-20240307"]  # Backup for intent classification
+    primary: "llm_fast_budget"             # Lightweight model for intent detection
+    fallback: ["llm_fast_premium"]         # Backup for intent classification
     
   complexity_scoring:
-    primary: "gpt-3.5-turbo"               # Simple model for complexity assessment
-    fallback: ["claude-3-haiku-20240307"]
+    primary: "llm_fast_budget"             # Simple model for complexity assessment  
+    fallback: ["llm_fast_premium"]
     
 # Model settings for NLP tasks (if needed)
 model_settings:

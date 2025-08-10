@@ -11,6 +11,9 @@ from typing import Any
 
 from langchain_anthropic import ChatAnthropic
 
+# Google Gemini
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 # Local LLMs
 from langchain_community.llms import CTransformers, DeepInfra, LlamaCpp
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -123,6 +126,8 @@ class LLMProvider:
             return self._setup_openai()
         elif self.provider_type == "anthropic":
             return self._setup_anthropic()
+        elif self.provider_type == "gemini":
+            return self._setup_gemini()
         elif self.provider_type == "deepinfra":
             return self._setup_deepinfra()
         elif self.provider_type == "llama":
@@ -162,6 +167,22 @@ class LLMProvider:
             temperature=self.model_config.get("temperature", 0.7),
             max_tokens=self.model_config.get("max_tokens", 2000),
             api_key=api_key,
+        )
+
+    def _setup_gemini(self) -> ChatGoogleGenerativeAI:
+        """Setup Google Gemini client"""
+        # Try both GOOGLE_API_KEY and GEMINI_API_KEY for compatibility
+        api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "GOOGLE_API_KEY or GEMINI_API_KEY environment variable is required for Gemini models"
+            )
+
+        return ChatGoogleGenerativeAI(
+            model=self.model_config.get("model_name", "gemini-1.5-flash"),
+            temperature=self.model_config.get("temperature", 0.7),
+            max_tokens=self.model_config.get("max_tokens", 2000),
+            google_api_key=api_key,
         )
 
     def _setup_deepinfra(self) -> DeepInfra:
@@ -311,6 +332,18 @@ class LLMProvider:
         """Generate response using LLM with proper prompt formatting for local models"""
         start_time = time.time()
 
+        # Add prominent LLM call logging
+        self.logger.info(
+            "🤖 INVOKING LLM",
+            extra={
+                "model_name": self.model_name,
+                "provider_type": self.provider_type,
+                "prompt_length": len(prompt),
+                "has_system_prompt": bool(system_prompt),
+                "operation": "llm_call_start"
+            },
+        )
+
         self.logger.debug(
             "Starting response generation",
             extra={
@@ -351,6 +384,19 @@ class LLMProvider:
             else:
                 response_text = str(response)
 
+            # Add prominent completion logging
+            self.logger.info(
+                "✅ LLM RESPONSE COMPLETED",
+                extra={
+                    "model_name": self.model_name,
+                    "provider_type": self.provider_type,
+                    "duration": duration,
+                    "prompt_length": len(prompt),
+                    "response_length": len(response_text),
+                    "operation": "llm_call_completed"
+                },
+            )
+
             self.logger.model_call(
                 model_name=self.model_name,
                 operation="generate_response",
@@ -363,6 +409,17 @@ class LLMProvider:
 
         except Exception as e:
             duration = time.time() - start_time
+            # Add prominent failure logging
+            self.logger.error(
+                "❌ LLM CALL FAILED",
+                extra={
+                    "model_name": self.model_name,
+                    "provider_type": self.provider_type,
+                    "duration": duration,
+                    "error": str(e),
+                    "operation": "llm_call_failed"
+                },
+            )
             self.logger.error(
                 "Response generation failed",
                 exc_info=True,
@@ -493,6 +550,8 @@ class LLMProviderFactory:
             raise ValueError("OPENAI_API_KEY not set for OpenAI model")
         elif model_type == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
             raise ValueError("ANTHROPIC_API_KEY not set for Anthropic model")
+        elif model_type == "gemini" and not (os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")):
+            raise ValueError("GOOGLE_API_KEY or GEMINI_API_KEY not set for Gemini model")
         elif model_type == "deepinfra" and not os.getenv("DEEPINFRA_API_TOKEN"):
             raise ValueError("DEEPINFRA_API_TOKEN not set for DeepInfra model")
 
@@ -566,6 +625,18 @@ class LLMProviderFactory:
                 )
             model_name = list(anthropic_models.keys())[0]
             model_config = anthropic_models[model_name]
+            model_config["model_name"] = model_name
+            return LLMProvider(model_config)
+
+        elif strategy == "gemini":
+            # Force Gemini
+            gemini_models = {k: v for k, v in available_models.items() if v.get("type") == "gemini"}
+            if not gemini_models:
+                raise ValueError(
+                    "No Gemini models are available (check GOOGLE_API_KEY or GEMINI_API_KEY)"
+                )
+            model_name = list(gemini_models.keys())[0]
+            model_config = gemini_models[model_name]
             model_config["model_name"] = model_name
             return LLMProvider(model_config)
 
@@ -714,7 +785,14 @@ class LLMProviderWithFallback:
         try:
             model_name = self.model_chain[self.current_model_index]
             self.current_provider = self.factory.create_provider(model_name)
-            self.logger.info(f"Switched to fallback model: {model_name}")
+            self.logger.info(
+                f"✅ FALLBACK SUCCESS: Switched to model: {model_name}",
+                extra={
+                    "new_model": model_name,
+                    "model_index": self.current_model_index,
+                    "operation": "fallback_success"
+                }
+            )
             return True
         except Exception as e:
             self.logger.warning(f"Failed to switch to fallback model {model_name}: {str(e)}")
@@ -738,6 +816,17 @@ class LLMProviderWithFallback:
         """Generate response with automatic fallback on failure"""
         last_exception = None
 
+        # Log the start of fallback chain
+        self.logger.info(
+            "🔗 STARTING FALLBACK CHAIN",
+            extra={
+                "fallback_chain": self.model_chain,
+                "current_model": self.model_chain[self.current_model_index] if self.current_model_index < len(self.model_chain) else "none",
+                "prompt_length": len(prompt),
+                "operation": "fallback_chain_start"
+            }
+        )
+
         while self.current_provider and self.current_model_index < len(self.model_chain):
             try:
                 # Try current provider (this will do its own retries)
@@ -749,8 +838,13 @@ class LLMProviderWithFallback:
                 current_model = self.model_chain[self.current_model_index] if self.current_model_index < len(self.model_chain) else "unknown"
 
                 self.logger.error(
-                    f"Model {current_model} failed after retries, attempting fallback",
-                    extra={"error": str(e), "model_index": self.current_model_index}
+                    f"🔄 FALLBACK: Model {current_model} failed after retries, attempting fallback",
+                    extra={
+                        "error": str(e), 
+                        "model_index": self.current_model_index,
+                        "failed_model": current_model,
+                        "operation": "fallback_attempt"
+                    }
                 )
 
                 # Try to switch to next provider

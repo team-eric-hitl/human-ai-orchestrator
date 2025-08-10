@@ -107,11 +107,14 @@ class FrustrationAgentNode:
 
         query_lower = query.lower()
 
+        # Check if running in compact mode (for Streamlit performance optimization)
+        compact_mode = self._should_use_compact_mode()
+
         # LLM-based analysis only
         llm_analysis = None
         if self.llm_provider:
             try:
-                llm_analysis = self._llm_frustration_analysis(query)
+                llm_analysis = self._llm_frustration_analysis(query, compact=compact_mode)
             except Exception as e:
                 self.logger.error(
                     "LLM frustration analysis failed",
@@ -119,6 +122,7 @@ class FrustrationAgentNode:
                         "error": str(e),
                         "query_length": len(query),
                         "operation": "llm_frustration_analysis",
+                        "compact_mode": compact_mode,
                     },
                 )
 
@@ -147,20 +151,62 @@ class FrustrationAgentNode:
         }
 
 
-    def _llm_frustration_analysis(self, query: str) -> dict[str, Any]:
+    def _llm_frustration_analysis(self, query: str, compact: bool = True) -> dict[str, Any]:
         """Use LLM to analyze frustration in the query"""
 
-        analysis_prompt = self.agent_config.get_prompt("frustration_analysis")
+        # Use compact prompt for faster responses
+        prompt_key = "frustration_analysis_compact" if compact else "frustration_analysis"
+        analysis_prompt = self.agent_config.get_prompt(prompt_key)
         system_prompt = self.agent_config.get_prompt("system")
 
         analysis_query = analysis_prompt.format(customer_query=query)
+
+        # Log the LLM call at agent level
+        self.logger.info(
+            "Frustration Agent calling LLM",
+            extra={
+                "agent": "frustration_agent",
+                "model_name": self.llm_provider.model_name,
+                "provider_type": self.llm_provider.provider_type,
+                "prompt_length": len(analysis_query),
+                "system_prompt_length": len(system_prompt),
+                "compact_mode": compact,
+                "operation": "agent_llm_call"
+            }
+        )
 
         llm_response = self.llm_provider.generate_response(
             prompt=analysis_query,
             system_prompt=system_prompt
         )
 
-        # Parse LLM response (simplified - would use structured output in production)
+        # Parse compact format: [score]|[confidence]|[brief reason]
+        if compact:
+            try:
+                response = llm_response.strip()
+                if '|' in response:
+                    parts = response.split('|')
+                    if len(parts) >= 3:
+                        score = float(parts[0].strip())
+                        confidence = float(parts[1].strip())
+                        reasoning = parts[2].strip()
+
+                        return {
+                            "score": max(0.0, min(10.0, score)),
+                            "confidence": max(0.1, min(1.0, confidence)),
+                            "reasoning": reasoning,
+                        }
+            except Exception:
+                pass
+
+            # Fallback for compact format parsing failure
+            return {
+                "score": 5.0,
+                "confidence": 0.6,
+                "reasoning": f"Compact parsing failed: {llm_response[:50]}...",
+            }
+
+        # Parse verbose format (original logic)
         try:
             lines = llm_response.strip().split('\n')
             score_line = next((line for line in lines if 'score:' in line.lower()), "score: 5.0")
@@ -400,6 +446,18 @@ class FrustrationAgentNode:
             factors.append("rapid_successive_queries")
 
         return factors
+
+    def _should_use_compact_mode(self) -> bool:
+        """Check if compact mode should be used based on Streamlit session state"""
+        try:
+            import streamlit as st
+            # Check if we're in a Streamlit context and performance mode is set
+            if hasattr(st, 'session_state') and hasattr(st.session_state, 'performance_mode'):
+                performance_mode = st.session_state.performance_mode
+                return performance_mode in ["Fast (Compact)", "Fastest (Parallel)"]
+        except:
+            pass  # Not in Streamlit context or no session state
+        return False  # Default to verbose mode
 
     def _check_intervention_threshold(self, assessment: dict[str, Any]) -> bool:
         """Check if frustration level warrants human intervention"""

@@ -93,25 +93,25 @@ class HybridSystemState(TypedDict):
 
     # Node outputs
     initial_assessment: NotRequired[dict[str, Any]]
-    
+
     # MockAutomationAgent outputs
     automation_response: NotRequired[str]
     automation_metadata: NotRequired[dict[str, Any]]
     requires_escalation: NotRequired[bool]
-    
+
     # ChatbotAgent outputs
     ai_response: NotRequired[str]
     response_metadata: NotRequired[dict[str, Any]]
     customer_analysis: NotRequired[dict[str, Any]]
-    
+
     # QualityAgent outputs
     evaluation_result: NotRequired[EvaluationResult]
-    
+
     # RoutingAgent outputs
     escalation_decision: NotRequired[bool]
     escalation_data: NotRequired[EscalationData]
     human_assignment: NotRequired[dict[str, Any]]
-    
+
     # Human agent outputs
     human_response: NotRequired[str]
     feedback_data: NotRequired[dict[str, Any]]
