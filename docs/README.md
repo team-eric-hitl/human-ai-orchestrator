@@ -26,9 +26,8 @@ Welcome to the comprehensive documentation for the Human-in-the-Loop (HITL) AI S
 ### For Beginners
 1. **Start Here**: [Main README](../README.md) - Project overview and quick start
 2. **HITL Overview**: [HITL_SYSTEM_GUIDE.md](HITL_SYSTEM_GUIDE.md) - Understanding the Human-in-the-Loop approach
-3. **Setup**: [SETUP.md](../SETUP.md) - Step-by-step setup with dev containers
-4. **Tutorial**: [AI Agents Tutorial](../notebooks/AI_Agents_Tutorial.ipynb) - Interactive learning
-5. **Configuration**: [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) - Basic configuration
+3. **Development Guide**: [CLAUDE.md](../CLAUDE.md) - Complete development documentation
+4. **Configuration**: [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) - Basic configuration
 
 ### For Developers
 1. **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) - Understand the system design
@@ -124,7 +123,7 @@ Each document follows a consistent structure:
 
 ### Path 1: Complete Beginner
 ```
-Main README → SETUP.md → Tutorial Notebook → CONFIGURATION_GUIDE.md basics
+Main README → CLAUDE.md → CONFIGURATION_GUIDE.md basics
 ```
 
 ### Path 2: Developer Onboarding

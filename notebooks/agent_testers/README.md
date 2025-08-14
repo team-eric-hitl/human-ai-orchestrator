@@ -69,8 +69,8 @@ quality_results   frustration_results
 - Export questions in JSON format for other testers
 
 **Outputs**:
-- `questions_[timestamp].json` - Generated test questions
-- `question_generation_config_[timestamp].json` - Configuration used
+- `question_exports/questions_[timestamp].json` - Generated test questions
+- `question_exports/question_generation_config_[timestamp].json` - Configuration used
 
 ---
 

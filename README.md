@@ -8,13 +8,13 @@ This system implements a **Human-in-the-Loop (HITL) Architecture** that goes bey
 
 ### Key Features
 
-- **🤖 Automation-First Design**: Routine tasks handled automatically before AI/human intervention
-- **🛡️ Quality Interception**: All AI responses reviewed before customer delivery
-- **😤 Frustration Detection**: Real-time sentiment analysis with escalation triggers  
-- **👥 Employee Protection**: Workload balancing and burnout prevention
-- **🎯 Intelligent Routing**: Smart assignment considering customer needs and employee wellbeing
-- **📊 Comprehensive Analytics**: Customer satisfaction and employee performance metrics
-- **🎭 Realistic Simulation**: Complete customer/employee interaction simulation for testing and demos
+- **🤖 Automation-First Design**: MockAutomationAgent handles routine insurance tasks before AI/human intervention
+- **🛡️ Quality Interception**: All AI responses reviewed and improved before customer delivery
+- **😤 Frustration Detection**: Real-time sentiment analysis with intelligent escalation triggers  
+- **👥 Employee Protection**: Workload balancing and burnout prevention with wellbeing metrics
+- **🎯 Intelligent Routing**: LLM-powered smart assignment considering customer needs and employee wellbeing
+- **📊 Context Management**: Multi-source context aggregation with audience-specific summarization
+- **🎭 Realistic Simulation**: Complete customer/employee interaction simulation with 6 demo scenarios
 
 ## 🏗️ Architecture
 
@@ -96,84 +96,6 @@ ENVIRONMENT=development
 
 **Note**: The `.env` file is automatically loaded by the system and contains only environment variables. System configuration uses an agent-centric approach in the `/config/` directory with separate configurations for each agent and shared global settings.
 
-### Run the System
-
-```bash
-# Run the main application
-make run
-
-# Or with custom configuration
-uv run python -m src.main --config-path config/custom_config.json
-```
-
-### Try the Demo Scenarios
-
-The system includes a comprehensive simulation framework for testing and demonstration:
-
-```python
-from src.simulation.demo_orchestrator import DemoOrchestrator
-
-# Create demo orchestrator
-demo = DemoOrchestrator()
-
-# List available scenarios
-scenarios = demo.list_available_scenarios()
-print("Available scenarios:", [s["name"] for s in scenarios])
-
-# Start a specific demo scenario
-demo_session = demo.start_demo_scenario("Frustrated Customer")
-
-# Step through the interaction
-chatbot_response = demo.simulate_chatbot_response(demo_session["demo_id"])
-quality_check = demo.simulate_quality_assessment(demo_session["demo_id"])
-frustration_analysis = demo.simulate_frustration_analysis(demo_session["demo_id"])
-
-# If escalation needed, route to human
-if frustration_analysis["intervention_needed"]:
-    routing = demo.simulate_routing_decision(demo_session["demo_id"])
-    human_response = demo.simulate_human_agent_response(demo_session["demo_id"])
-
-# Complete the interaction
-resolution = demo.simulate_resolution(demo_session["demo_id"])
-```
-
-**Available Demo Scenarios:**
-1. **Happy Path**: Polite customer → Quality response → Direct resolution
-2. **Technical Escalation**: Complex query → Quality assessment → Specialist routing  
-3. **Frustrated Customer**: Poor experience → Frustration detection → Empathetic human
-4. **Manager Escalation**: Explicit complaint → Direct management routing
-5. **Quality Adjustment**: Inadequate response → Quality improvement → Re-delivery
-6. **Employee Wellbeing**: Multiple difficult cases → Intelligent rotation
-
-## 🎓 Learning Guide
-
-### For Beginners: Start with the Tutorial
-
-We've created comprehensive Jupyter notebooks for different learning paths:
-
-```bash
-# Launch Jupyter to access the notebooks
-jupyter lab
-```
-
-### 📚 AI Agents Tutorial (`notebooks/AI_Agents_Tutorial.ipynb`)
-**The tutorial covers:**
-- What are AI agents? (with real-world analogies)
-- How do they work together?
-- Hands-on examples with working code
-- Build your own simple agent
-- Understanding the real system architecture
-
-### 🧪 Chatbot Agent Tester (`notebooks/chatbot_tester.ipynb`)
-Interactive notebook for testing and optimizing the Chatbot Agent:
-- **Configuration Editor**: Edit agent settings, prompts, and model preferences
-- **Internal Logic Explanation**: Understand how configuration changes affect chatbot behavior
-- **Question Testing**: Load test questions and process them through the agent
-- **Full Conversations**: Simulate realistic customer-AI interactions until resolution
-- **Performance Analysis**: Export results and analyze conversation patterns
-- **Optimization Guidelines**: Learn how to tune settings for different use cases
-
-### For Developers: Explore the Implementation
 
 1. **Core Concepts**: Start with `/src/interfaces/` to understand the system contracts
 2. **Agent Implementation**: Look at `/src/nodes/` for actual agent logic
@@ -203,43 +125,43 @@ Interactive notebook for testing and optimizing the Chatbot Agent:
 - Cultural sensitivity in emotion detection
 - Configurable intervention thresholds based on business needs
 
-### 4. Routing Agent (`routing_agent.py`)
+### 4. Human Routing Agent (`human_routing_agent.py`)
 **Purpose**: Route escalations while optimizing customer outcomes AND employee experience
-- Multi-strategy routing (skill-based, workload-balanced, employee wellbeing)
-- Prevents agent burnout through consecutive difficult case limits
-- Frustration tolerance matching and cooldown period management
-- Real-time capacity management with priority optimization
+- LLM-powered intelligent routing with database integration
+- Employee wellbeing protection through workload analysis and frustration tolerance matching
+- Context-enhanced routing decisions using Context Manager insights
+- Real-time capacity management with priority optimization and cooldown periods
 
 ### 5. Context Manager Agent (`context_manager_agent.py`)
 **Purpose**: Provide comprehensive context to support all decision-making
-- Multi-source context aggregation (SQL database, interaction history, similar cases)
-- Audience-specific summarization (AI agents, human agents, quality assessment)
-- Privacy-aware cross-user pattern analysis
-- Optional web search integration for external knowledge
+- Multi-source context aggregation (SQLite database, interaction history, similar cases)
+- Audience-specific summarization (for routing decisions, quality assessment, human handoff)
+- Privacy-aware cross-user pattern analysis with user behavior profiling
+- Web search integration for external knowledge (configurable)
 
 ## ⚙️ Configuration System
 
-The system uses an **agent-centric configuration approach** with comprehensive versioning support:
+The system uses an **agent-centric configuration approach** with streamlined model management:
 
-### Agent Versioning
-All agents use semantic versioning (MAJOR.MINOR.PATCH) for evolution tracking:
-- **Version validation** on config load
-- **Compatibility management** across system updates
-- **Rollback support** for stable deployments
-- **A/B testing** capabilities for agent improvements
+### Model Configuration Consolidation
+**IMPORTANT**: As of the latest update, model configuration has been consolidated:
+- **models.yaml is the SINGLE SOURCE** for all model preferences per agent
+- **config.yaml files NO LONGER contain model sections** to eliminate duplication
+- **Standardized structure** uses `primary_model` and `model_preferences` across all agents
+- **Fast model alias** (gemini-1.5-flash) configured for speed optimization
 
 ### Configuration Structure
 ```
 config/
 ├── agents/                    # Agent-specific configurations
 │   ├── chatbot_agent/
-│   │   ├── config.yaml       # Agent settings & version info (NO model config)
+│   │   ├── config.yaml       # Agent settings & behavior (NO model config)
 │   │   ├── prompts.yaml      # Agent prompts & templates
 │   │   └── models.yaml       # Agent model preferences (SINGLE SOURCE)
 │   └── ...
 ├── shared/                    # Global configurations
 │   ├── models.yaml           # Master model definitions & aliases
-│   ├── system.yaml           # System-wide settings & versioning
+│   ├── system.yaml           # System-wide settings
 │   └── providers.yaml        # Provider configurations
 └── environments/             # Environment-specific overrides
     ├── development.yaml
@@ -247,80 +169,21 @@ config/
     └── production.yaml
 ```
 
-### 🔄 Model Configuration Consolidation (Latest Update)
-**IMPORTANT CHANGE**: Model configuration has been consolidated for clarity and consistency:
-- **✅ SINGLE SOURCE**: All model preferences now in `models.yaml` files only
-- **❌ REMOVED**: Model sections from all `config.yaml` files (eliminated duplication)
-- **🔧 STANDARDIZED**: Consistent `primary_model` + `model_preferences` structure
-- **🚫 NO CONFLICTS**: No more confusion between config.yaml and models.yaml model settings
 
-### Hierarchical Configuration Loading:
-
-### Model Configuration (`config/shared/models.yaml`)
+### Agent Configuration Example
 ```yaml
-# Semantic model aliases - update these when new models are released
-model_aliases:
-  # Anthropic models - organized by use case and performance tier
-  anthropic_general_budget: "claude-3-5-haiku-20241022"
-  anthropic_general_standard: "claude-3-5-sonnet-20241022"
-  anthropic_reasoning_premium: "claude-3-5-sonnet-20241022"
-  anthropic_coding_premium: "claude-3-5-sonnet-20241022"
+# config/agents/chatbot_agent/config.yaml
+version: "1.2.0"
+settings:
+  customer_service_focus: true
+  empathy_level: "high"
+  response_length: "medium"
   
-  # OpenAI models
-  openai_general_standard: "gpt-4"
-  openai_general_budget: "gpt-3.5-turbo"
-  openai_coding_standard: "gpt-4"
-  
-  # Local models
-  local_general_standard: "llama-7b"
-  local_general_premium: "llama-13b"
-  local_coding_standard: "codellama-7b"
-  local_general_budget: "mistral-7b"
-
-models:
-  # Local Llama models
-  llama-7b:
-    path: "models/llama-7b.gguf"
-    type: "llama"
-    context_length: 2048
-    temperature: 0.7
-    description: "Llama 7B model - good balance of speed and quality"
-    
-  # OpenAI models (cloud)
-  gpt-4:
-    type: "openai"
-    model_name: "gpt-4"
-    temperature: 0.7
-    description: "OpenAI GPT-4 - highest quality, requires API key"
-    
-  # Anthropic models (cloud)
-  claude-3-5-sonnet-20241022:
-    type: "anthropic"
-    model_name: "claude-3-5-sonnet-20241022"
-    temperature: 0.7
-    description: "Anthropic Claude 3.5 Sonnet - balanced performance and reasoning"
-
-# Global model categories for different use cases
-use_cases:
-  general:
-    recommended: "local_general_standard"
-    alternatives: ["local_general_budget", "anthropic_general_standard", "openai_general_standard"]
-```
-
-### Prompts Configuration (`config/prompts.json`)
-```json
-{
-  "chatbot_agent": {
-    "system_prompt": "You are a helpful AI assistant...",
-    "context_integration": "Use previous conversation context..."
-  },
-  "evaluator_agent": {
-    "escalation_thresholds": {
-      "low_score": 4.0,
-      "repeat_query": true
-    }
-  }
-}
+# config/agents/chatbot_agent/models.yaml  
+primary_model: "fast_model"
+model_preferences:
+  temperature: 0.7
+  max_tokens: 1500
 ```
 
 ## 🧪 Testing & Quality
@@ -446,7 +309,7 @@ For development with VSCode/Cursor:
 - **Standard devcontainer**: `.devcontainer/devcontainer.json`
 - **GPU-enabled devcontainer**: `.devcontainer/devcontainer.gpu.json` 
 
-The GPU devcontainer automatically configures NVIDIA GPU access for local LLM models. See [SETUP.md](SETUP.md) for detailed setup instructions.
+The GPU devcontainer automatically configures NVIDIA GPU access for local LLM models.
 
 ### Environment Configuration
 - **Development**: Comprehensive logging, local models
@@ -472,11 +335,11 @@ The GPU devcontainer automatically configures NVIDIA GPU access for local LLM mo
 
 ## 📚 Additional Resources
 
-- **[Tutorial Notebook](notebooks/AI_Agents_Tutorial.ipynb)**: Complete beginner's guide to AI agents
-- **[Chatbot Tester](notebooks/chatbot_tester.ipynb)**: Interactive testing and optimization tool
+- **[CLAUDE.md](CLAUDE.md)**: Complete development guide and architecture documentation
 - **[API Documentation](docs/)**: Detailed interface documentation
-- **[Test Examples](tests/)**: Comprehensive usage examples
-- **[Configuration Guide](config/)**: System setup and customization
+- **[Test Examples](tests/)**: Comprehensive unit and integration tests
+- **[Configuration Guide](config/)**: Agent-centric configuration examples
+- **[Demo Scripts](scripts/)**: Experimentation and demo tools
 
 ## 📄 License
 

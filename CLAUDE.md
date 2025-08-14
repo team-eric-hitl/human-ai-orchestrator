@@ -58,8 +58,8 @@ make type-check # Type checking with mypy
 # Run the main application
 make run
 
-# Run with custom config
-uv run python -m src.main --config-path config/custom_config.json
+# Run demo with experimentation
+uv run python scripts/experimentation_demo.py
 
 # Run in development mode with monitoring
 uv run python -m src.main --env development
@@ -77,7 +77,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 - `ChatbotAgent` (Chatbot) - Customer service-focused response generation with emotional intelligence
 - `QualityAgent` - Reviews all chatbot responses before delivery, with improvement capabilities  
 - `FrustrationAgent` - Real-time customer sentiment analysis and intervention triggers
-- `RoutingAgent` - Employee wellbeing-aware routing with workload balancing
+- `HumanRoutingAgent` - LLM-powered employee wellbeing-aware routing with database integration
 - `ContextManagerAgent` - Multi-source context aggregation and audience-specific summarization
 
 **Simulation Framework** (`src/simulation/`):
@@ -97,7 +97,7 @@ This is a **Human-in-the-Loop (HITL) AI System** - a sophisticated platform desi
 - `config/agents/mock_automation_agent/` - Automation task repertoire, insurance mock data, and response templates
 - `config/agents/quality_agent/` - Quality assessment thresholds and prompts
 - `config/agents/frustration_agent/` - Frustration indicators and intervention settings
-- `config/agents/routing_agent/` - Employee wellbeing and routing strategies
+- `config/agents/human_routing_agent/` - Employee wellbeing and LLM-powered routing strategies
 - `config/agents/context_manager_agent/` - Context sources and relevance scoring
 - `config/agents/chatbot_agent/` - Customer service prompts and service standards
 - `config/shared/` - Global models, providers, and system settings
@@ -170,8 +170,8 @@ The system uses a **centralized database configuration approach** for consistent
 **Database Organization** (`data/`):
 - All database files centralized in `data/` directory
 - Context storage: `data/hybrid_system.db` (SQLite)
-- Backup storage: `data/backups/` with automated migration backups
-- Environment-specific databases: `data/dev/`, `data/test/`, `data/prod/`
+- Human agent database: `data/human_agents.db` (SQLite)
+- Automated cleanup of legacy test databases and backups
 
 **Database Configuration** (`src/core/database_config.py`):
 - `DatabaseConfig` class provides centralized path management
@@ -287,8 +287,8 @@ tests/
 ### Development Files
 - `pyproject.toml` - Project dependencies and tool configuration
 - `Makefile` - Development workflow commands
-- `scripts/configuration_tutorial.py` - Configuration tutorial and examples
-- `config/config.json` - Experimentation settings (legacy format for compatibility)
+- `scripts/experimentation_demo.py` - Main demo and experimentation script
+- `scripts/gradio_demo.py` - Interactive web interface for testing
 
 ## Environment Variables
 
