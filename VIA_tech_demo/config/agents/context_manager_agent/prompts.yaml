@@ -1,0 +1,238 @@
+# Context Manager Agent Prompts
+
+system: |
+  You are a Context Manager Agent responsible for gathering, analyzing, and summarizing relevant context information.
+  Your role is to provide comprehensive background information to support better decision-making by other agents and humans.
+  
+  Focus on:
+  - Identifying relevant historical context
+  - Analyzing patterns and trends
+  - Summarizing information for different audiences
+  - Providing actionable insights and recommendations
+  - Maintaining privacy and security standards
+  
+  Be thorough yet concise, accurate, and protective of sensitive information.
+
+context_summary: |
+  Create a comprehensive context summary for the following customer query.
+  
+  Customer Query: "{query}"
+  Context Data: {context_data}
+  
+  Analyze and summarize the most relevant context information including:
+  
+  1. Customer Background:
+     - Interaction history and patterns
+     - Previous issues and resolutions
+     - User behavior profile
+     - Escalation history
+  
+  2. Current Situation:
+     - Query classification and complexity
+     - Related product/service context
+     - Similar cases and their outcomes
+     - System status and known issues
+  
+  3. Key Insights:
+     - Important patterns or trends
+     - Risk factors or concerns
+     - Opportunities for proactive help
+     - Recommended approach
+  
+  Provide a structured summary that highlights the most actionable information for resolving this customer's query effectively.
+
+relevance_analysis: |
+  Analyze the relevance of context information to the current customer query.
+  
+  Current Query: "{current_query}"
+  Context Information: {context_info}
+  Context Source: {context_source}
+  
+  Evaluate relevance on a scale of 0.0-1.0 considering:
+  
+  1. Content Similarity:
+     - Keyword overlap
+     - Topic relevance
+     - Intent similarity
+  
+  2. Temporal Relevance:
+     - Recency of information
+     - Trend continuation
+     - Pattern relevance
+  
+  3. Contextual Importance:
+     - Impact on current situation
+     - Decision-making value
+     - Risk or opportunity indicators
+  
+  Provide:
+  Relevance Score: [0.0-1.0]
+  Reasoning: [explanation of relevance factors]
+  Priority Level: [high/medium/low]
+  Key Insights: [actionable information from this context]
+
+audience_summary_ai: |
+  Create a context summary optimized for AI agent consumption.
+  
+  Context Analysis: {context_analysis}
+  Priority Context: {priority_context}
+  
+  Create a structured, concise summary that includes:
+  
+  1. Key Facts (bullet points):
+     - User interaction count: [number]
+     - Previous escalations: [number] 
+     - Common query types: [list]
+     - Frustration indicators: [list]
+  
+  2. Relevant Patterns:
+     - Interaction frequency: [pattern]
+     - Issue progression: [trend]
+     - Resolution success rate: [percentage]
+  
+  3. Risk Factors:
+     - Escalation risk: [low/medium/high]
+     - Complexity indicators: [list]
+     - Time sensitivity: [yes/no]
+  
+  4. Recommendations:
+     - Suggested approach: [recommendation]
+     - Priority level: [low/medium/high]
+     - Special considerations: [list]
+  
+  Format: Use structured data that can be easily parsed by other AI systems.
+
+audience_summary_human: |
+  Create a detailed context summary for human agent consumption.
+  
+  Customer Information:
+  - User ID: {user_id}
+  - Session ID: {session_id}
+  - Current Query: {query}
+  
+  Context Analysis: {context_analysis}
+  Priority Context: {priority_context}
+  
+  Create a narrative summary that provides:
+  
+  1. Customer Background:
+     Write a brief paragraph about this customer's history with the service, including their typical interaction patterns, previous issues, and any notable characteristics.
+  
+  2. Current Situation Context:
+     Explain the current query in the context of their history. Are they a repeat visitor for this issue? Is this escalating from previous interactions?
+  
+  3. Relevant History:
+     Highlight the most important previous interactions, especially any unresolved issues, successful resolutions, or patterns that might inform the current approach.
+  
+  4. Recommendations for Agent:
+     Provide specific guidance on how to approach this customer, what to be aware of, and what strategies have worked (or not worked) in the past.
+  
+  5. Quick Reference:
+     - Total interactions: [number]
+     - Last interaction: [date/time]
+     - Previous escalations: [number and brief reasons]
+     - Preferred resolution style: [if identifiable]
+  
+  Format: Natural language narrative that's easy for humans to quickly scan and understand.
+
+similarity_analysis: |
+  Analyze similarity between the current query and historical cases.
+  
+  Current Query: "{current_query}"
+  Historical Case: "{historical_case}"
+  
+  Evaluate similarity across multiple dimensions:
+  
+  1. Content Similarity:
+     - Keyword overlap: [percentage]
+     - Topic similarity: [score 0-1]
+     - Intent alignment: [score 0-1]
+  
+  2. Context Similarity:
+     - User type similarity: [score 0-1]
+     - Complexity level: [same/different]
+     - Product/service area: [same/different]
+  
+  3. Resolution Relevance:
+     - Applicable solution approach: [yes/no]
+     - Resolution complexity: [similar/different]
+     - Success likelihood: [score 0-1]
+  
+  Overall Assessment:
+  Similarity Score: [0.0-1.0]
+  Confidence: [0.0-1.0]
+  Relevance for Current Case: [high/medium/low]
+  Key Learnings: [what can be applied from this historical case]
+  Resolution Insights: [how the historical resolution might inform current approach]
+
+pattern_detection: |
+  Detect patterns in customer interaction history that might inform current handling.
+  
+  Customer History: {interaction_history}
+  Current Query: {current_query}
+  Time Period: {time_period}
+  
+  Analyze for patterns in:
+  
+  1. Interaction Patterns:
+     - Frequency trends: [increasing/stable/decreasing]
+     - Timing patterns: [business hours/off hours/weekends]
+     - Channel preferences: [chat/email/phone]
+  
+  2. Issue Patterns:
+     - Recurring issues: [list common themes]
+     - Escalation triggers: [what leads to escalations]
+     - Resolution preferences: [self-service vs human help]
+  
+  3. Behavior Patterns:
+     - Communication style: [formal/casual/frustrated/patient]
+     - Information depth preference: [brief/detailed]
+     - Follow-up behavior: [engaged/disengaged]
+  
+  4. Success Patterns:
+     - What approaches work well: [strategies]
+     - What causes friction: [anti-patterns]
+     - Optimal interaction timing: [when they're most receptive]
+  
+  Pattern Summary:
+  Key Behavioral Insights: [main patterns identified]
+  Recommended Approach: [how to leverage these patterns]
+  Warning Signs: [what to watch out for]
+  Success Factors: [what increases likelihood of positive outcome]
+
+recommendation_engine: |
+  Generate context-based recommendations for handling this customer interaction.
+  
+  Context Summary: {context_summary}
+  Customer Profile: {customer_profile}
+  Current Query: {current_query}
+  Available Resources: {available_resources}
+  
+  Provide recommendations for:
+  
+  1. Immediate Response Strategy:
+     - Tone and approach: [recommendation]
+     - Information depth: [brief/moderate/detailed]
+     - Proactive elements: [what to address preemptively]
+  
+  2. Resolution Approach:
+     - Recommended solution path: [strategy]
+     - Complexity level to aim for: [simple/moderate/comprehensive]
+     - Resources to leverage: [knowledge base/experts/tools]
+  
+  3. Risk Mitigation:
+     - Potential friction points: [list]
+     - Prevention strategies: [how to avoid common pitfalls]
+     - Escalation triggers to watch: [warning signs]
+  
+  4. Follow-up Considerations:
+     - Follow-up needs: [yes/no and timing]
+     - Success measurement: [how to track resolution success]
+     - Learning opportunities: [what to capture for future]
+  
+  Priority Recommendations:
+  1. [Most important recommendation]
+  2. [Second priority]
+  3. [Third priority]
+  
+  Context-Specific Notes: [any special considerations based on this customer's history]

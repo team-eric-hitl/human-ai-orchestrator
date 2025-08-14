@@ -1,0 +1,167 @@
+# Context Manager Agent Configuration
+# Responsibility: Retrieve and manage context from SQL database, web search, and other sources
+
+agent:
+  name: "context_manager_agent"
+  version: "1.0.0"
+  type: "context_management"
+  description: "Retrieve and manage context from SQL database, web search, and other sources"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
+  enabled: false
+
+# Context gathering settings
+settings:
+  # Data source configuration
+  data_sources:
+    interaction_history: false     # Database search - DISABLED
+    user_profile: false            # Disabled for performance
+    similar_cases: false           # Disabled for performance
+    escalation_history: false     # Disabled for performance
+    product_context: false        # Disabled for performance
+    web_search: false             # Enable when web search API available
+    knowledge_base: false         # Disabled for performance
+    system_status: false          # Disabled for performance
+    
+  # Context analysis settings
+  analysis:
+    use_llm_summarization: false   # Disabled for performance - use simple summaries
+    relevance_threshold: 0.3       # Minimum relevance score to include context
+    max_context_entries: 5         # Reduced from 20 for faster processing
+    context_freshness_days: 7      # Reduced from 30 days to 7 for faster queries
+    
+  # Performance optimization
+  optimization:
+    cache_context_summaries: true
+    cache_duration_minutes: 15
+    parallel_data_gathering: true
+    timeout_per_source_seconds: 2    # Reduced from 5 to 2 seconds for faster timeouts
+    
+  # Privacy and security
+  privacy:
+    anonymize_similar_cases: true
+    redact_sensitive_info: true
+    limit_cross_user_context: true
+    
+# Context source configurations
+context_sources:
+  interaction_history:
+    enabled: true
+    max_entries: 20
+    include_types: ["query", "response", "escalation", "resolution"]
+    time_window_days: 30
+    
+  user_profile:
+    enabled: false              # Disabled for performance
+    include_behavior_patterns: true
+    include_preferences: true
+    include_interaction_frequency: true
+    
+  similar_cases:
+    enabled: false              # Disabled for performance
+    similarity_threshold: 0.3
+    max_similar_cases: 5
+    include_resolution_info: true
+    cross_user_search: true
+    
+  escalation_history:
+    enabled: false              # Disabled for performance
+    max_escalations: 10
+    include_resolution_times: true
+    include_satisfaction_scores: true
+    
+  knowledge_base:
+    enabled: false              # Disabled for performance
+    max_entries: 10
+    relevance_threshold: 0.2
+    include_entry_types: ["response", "resolution", "faq", "documentation"]
+    
+  web_search:
+    enabled: false              # Disabled by default
+    max_results: 5
+    timeout_seconds: 10
+    relevance_threshold: 0.4
+    
+  system_status:
+    enabled: false              # Disabled for performance
+    include_known_issues: true
+    include_maintenance_info: true
+    check_api_status: true
+
+# Product and domain knowledge
+product_keywords:
+  billing:
+    keywords: ["billing", "invoice", "payment", "subscription", "charge", "refund", "price", "plan", "cost", "fee"]
+    complexity_indicators: ["enterprise_billing", "tax_calculation", "prorated_charges"]
+    
+  api:
+    keywords: ["api", "integration", "webhook", "endpoint", "authentication", "ssl", "token", "oauth"]
+    complexity_indicators: ["rate_limiting", "batch_processing", "real_time_sync"]
+    
+  dashboard:
+    keywords: ["dashboard", "analytics", "reporting", "charts", "metrics", "visualization", "export"]
+    complexity_indicators: ["custom_dashboards", "data_pipeline", "real_time_analytics"]
+    
+  account:
+    keywords: ["account", "profile", "settings", "permissions", "users", "roles", "organization", "team"]
+    complexity_indicators: ["sso_integration", "rbac", "multi_tenant"]
+    
+  mobile:
+    keywords: ["mobile", "app", "ios", "android", "phone", "tablet", "notification", "offline"]
+    complexity_indicators: ["device_compatibility", "push_notifications", "offline_sync"]
+
+# Context relevance scoring
+relevance_scoring:
+  interaction_history:
+    recent_interactions: 0.8
+    similar_content: 0.6
+    same_session: 0.9
+    escalation_related: 0.7
+    
+  user_profile:
+    behavior_match: 0.6
+    escalation_prone: 0.8
+    power_user: 0.5
+    
+  similar_cases:
+    high_similarity: 0.9
+    medium_similarity: 0.6
+    with_resolution: 0.8
+    recent_case: 0.7
+    
+  product_context:
+    direct_match: 0.9
+    related_product: 0.6
+    complexity_match: 0.7
+
+# Context summarization
+summarization:
+  max_summary_length: 500        # characters
+  include_priority_factors: true
+  include_recommendations: true
+  audience_specific_summaries: true
+  
+  audience_types:
+    - "ai_agents"               # Concise, structured for AI processing
+    - "human_agents"            # Detailed, narrative for human understanding
+    - "quality_assessment"      # Focused on quality risk factors
+    - "routing_decision"        # Focused on routing considerations
+
+# Integration settings
+integrations:
+  database: true
+  web_search_api: false          # Enable when API available
+  knowledge_base_system: true
+  monitoring_system: true
+  
+# Monitoring and analytics
+monitoring:
+  track_context_gathering_time: true
+  monitor_relevance_accuracy: true
+  track_source_performance: true
+  measure_context_usefulness: true
+  
+  performance_targets:
+    max_gathering_time_seconds: 3
+    min_relevance_score: 0.4
+    context_hit_rate: 0.8

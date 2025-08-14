@@ -1,0 +1,33 @@
+# Mock Automation Agent Models Configuration
+# This agent doesn't use LLM models but may need simple NLP for intent detection
+
+# Primary model preferences (for intent classification only)
+primary_model: "none"                       # No LLM needed for basic automation
+
+# Model preferences for optional NLP tasks
+model_preferences:
+  intent_classification:
+    primary: "llm_fast_budget"             # Lightweight model for intent detection
+    fallback: ["llm_fast_premium"]         # Backup for intent classification
+    
+  complexity_scoring:
+    primary: "llm_fast_budget"             # Simple model for complexity assessment  
+    fallback: ["llm_fast_premium"]
+    
+# Model settings for NLP tasks (if needed)
+model_settings:
+  intent_classification:
+    temperature: 0.1                        # Low temperature for consistent classification
+    max_tokens: 50                          # Short responses for classification
+    timeout: 5                              # Quick classification
+    
+  complexity_scoring:
+    temperature: 0.0                        # Deterministic scoring
+    max_tokens: 10                          # Just a score
+    timeout: 3                              # Very quick scoring
+
+# Features that require LLM assistance
+nlp_features:
+  intent_detection: false                   # Use rule-based matching instead
+  complexity_analysis: false               # Use simple heuristics
+  response_personalization: false          # Use templates only

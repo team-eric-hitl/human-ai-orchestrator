@@ -1,0 +1,162 @@
+# Field Mapping Configuration for Human Routing Agent
+# Maps database schema fields to expected agent interface fields
+
+# Database to Agent Field Mapping
+database_to_agent_mapping:
+  # Core identity fields
+  id: "id"
+  name: "name" 
+  email: "email"
+  status: "status"
+  
+  # Skill and capability fields
+  specializations: "specializations"         # JSON array in DB -> list in agent
+  experience_level: "skill_level"            # Convert numeric to text level
+  languages: "languages"                     # JSON array in DB -> list in agent
+  max_concurrent_conversations: "max_concurrent"
+  
+  # Schedule and availability fields  
+  shift_start: "shift_start"                 # Direct mapping
+  shift_end: "shift_end"                     # Direct mapping
+  
+  # Metadata and tracking fields
+  metadata: "metadata"                       # JSON object -> dict
+  created_at: "created_timestamp"
+  updated_at: "last_updated"
+  last_activity: "last_activity"
+  
+  # Derived/computed fields (not direct mappings)
+  # These are computed from database data or workload tables
+  current_workload: "current_workload"      # From agent_workload table
+  frustration_tolerance: "frustration_tolerance"  # Derived from experience_level
+  performance_metrics: "performance_metrics"      # Computed from agent_metrics
+  schedule: "schedule"                             # Computed from shift times
+
+# Agent to Database Field Mapping (reverse mapping)
+agent_to_database_mapping:
+  id: "id"
+  name: "name"
+  email: "email"
+  status: "status"
+  specializations: "specializations"
+  skill_level: "experience_level"            # Convert text level to numeric
+  languages: "languages"
+  max_concurrent: "max_concurrent_conversations"
+  shift_start: "shift_start"
+  shift_end: "shift_end"
+  metadata: "metadata"
+  created_timestamp: "created_at"
+  last_updated: "updated_at"
+  last_activity: "last_activity"
+
+# Value Transformations
+# Define how to transform values between database and agent formats
+transformations:
+  # Experience level conversion
+  experience_level_to_skill_level:
+    1: "junior"
+    2: "junior"
+    3: "intermediate"
+    4: "senior"
+    5: "senior"
+  
+  skill_level_to_experience_level:
+    "junior": 2
+    "intermediate": 3
+    "senior": 4
+  
+  # JSON field parsing
+  json_fields:
+    - "specializations"
+    - "languages"
+    - "metadata"
+  
+  # Frustration tolerance derivation from experience
+  frustration_tolerance_mapping:
+    1: "low"
+    2: "medium"
+    3: "medium" 
+    4: "high"
+    5: "high"
+
+# Computed Field Definitions
+# Fields that need to be computed from multiple sources or derived
+computed_fields:
+  current_workload:
+    source_table: "agent_workload"
+    source_field: "active_conversations"
+    default_value: 0
+    
+  performance_metrics:
+    sources:
+      avg_resolution_time:
+        table: "agent_metrics"
+        filter: "metric_type = 'response_time'"
+        aggregation: "AVG"
+        default: 20
+      customer_satisfaction:
+        table: "agent_metrics" 
+        filter: "metric_type = 'satisfaction'"
+        aggregation: "AVG"
+        default: 4.5
+      escalation_rate:
+        table: "agent_metrics"
+        filter: "metric_type = 'escalation_rate'"
+        aggregation: "AVG"
+        default: 0.15
+        
+  schedule:
+    computation: "build_schedule_from_shift_times"
+    fields: ["shift_start", "shift_end"]
+    default:
+      timezone: "UTC"
+      working_hours:
+        start: "09:00"
+        end: "17:00"
+      days: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+
+# Legacy Field Support
+# Support for fields that exist in legacy code but not in database
+legacy_fields:
+  consecutive_difficult_cases:
+    default_value: 0
+    source: "computed"
+    computation: "count_recent_difficult_assignments"
+    
+  last_frustration_assignment:
+    default_value: null
+    source: "computed" 
+    computation: "get_last_frustration_timestamp"
+
+# Validation Rules
+# Rules to validate mapped fields
+validation:
+  required_fields:
+    - "id"
+    - "name" 
+    - "email"
+    - "status"
+    
+  field_types:
+    id: "string"
+    name: "string"
+    email: "string"
+    status: "string"
+    specializations: "list"
+    experience_level: "integer"
+    languages: "list"
+    max_concurrent_conversations: "integer"
+    shift_start: "string"
+    shift_end: "string"
+    metadata: "dict"
+    
+  value_constraints:
+    status:
+      allowed_values: ["available", "busy", "break", "offline"]
+    experience_level:
+      min_value: 1
+      max_value: 5
+    shift_start:
+      format: "HH:MM"
+    shift_end:
+      format: "HH:MM"

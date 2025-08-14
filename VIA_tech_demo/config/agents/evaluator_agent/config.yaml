@@ -1,0 +1,48 @@
+agent:
+  name: "evaluator_agent"
+  version: "1.0.0"
+  description: "Response quality evaluation and escalation decision specialist"
+  type: "evaluation_agent"
+  created: "2025-01-17"
+  last_modified: "2025-01-17"
+
+# NOTE: Model selection moved to models.yaml for consistency
+
+settings:
+  temperature: 0.3
+  max_tokens: 1500
+  timeout: 20
+  evaluation_timeout: 15
+
+evaluation:
+  criteria:
+    accuracy:
+      weight: 0.3
+      description: "How correct and factual is the response?"
+    completeness:
+      weight: 0.25
+      description: "Does the response address all aspects of the query?"
+    clarity:
+      weight: 0.25
+      description: "Is the response clear and easy to understand?"
+    user_satisfaction:
+      weight: 0.2
+      description: "How likely is the user to be satisfied with this response?"
+
+escalation:
+  thresholds:
+    low_score: 4.0
+    critical_score: 2.0
+    repeat_query: true
+    escalation_history: 2
+  
+  triggers:
+    - "score_below_threshold"
+    - "user_feedback_negative"
+    - "repeat_escalation"
+    - "critical_domain_detected"
+
+scoring:
+  scale: 10
+  minimum_passing: 6.0
+  confidence_threshold: 0.8

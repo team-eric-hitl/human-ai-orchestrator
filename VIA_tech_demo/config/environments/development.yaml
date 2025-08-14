@@ -1,0 +1,117 @@
+# Development environment configuration overrides
+# This file contains settings that override the default configuration when developing/testing
+#
+# BEGINNER'S GUIDE:
+# This file makes the system easier to develop with: more debugging, relaxed limits, local models.
+# It automatically applies when HYBRID_SYSTEM_ENV=development (which is the default)
+# Key changes: debug mode ON, local models preferred, relaxed timeouts
+
+environment: "development"
+
+# Development-specific system settings - more debugging and logging
+system:
+  debug_mode: true           # Enable detailed debugging information
+  verbose_logging: true      # Log more detailed information
+  log_level: "DEBUG"         # Show all log messages (DEBUG, INFO, WARN, ERROR)
+  
+# Relaxed thresholds for development - make testing easier
+thresholds:
+  escalation_score: 5.0      # Lower threshold for testing escalation (vs 6.0 in production)
+  confidence_threshold: 0.6   # Lower confidence requirement (vs 0.7 in production)
+  response_time_limit: 60     # More generous timeout for debugging (vs 30s in production)
+  max_retries: 5             # More retry attempts for testing (vs 3 in production)
+
+# Development model preferences - favor local models to save API costs
+models:
+  default_model: "llama-7b"  # Use local models for development (no API costs)
+  enable_fallback: true      # Allow fallback to cloud models if local fails
+  
+  # Development-specific overrides - different settings for testing
+  overrides:
+    temperature: 0.8         # More creative responses for testing variety
+    max_tokens: 3000         # Longer responses for development testing
+    
+# Development providers - data storage optimized for development
+providers:
+  # Use separate development database
+  context:
+    storage_directory: "data/dev"    # Separate dev data from production
+    db_name: "hybrid_system.db"      # Database filename
+    backup_enabled: false            # No backups needed in development
+    
+  # Mock external services for development - simulate production services
+  mock_services:
+    enabled: true       # Enable mock services for testing
+    human_agents: true  # Mock human agent responses
+    webhooks: true      # Mock webhook calls
+
+# Development monitoring - track performance during development
+monitoring:
+  metrics_collection: true       # Collect metrics for debugging
+  performance_tracking: true     # Track response times
+  
+  # Development trace collection - optimized for debugging
+  trace_collection:
+    enabled: true                      # Enable trace collection for development
+    max_traces_in_memory: 100          # Smaller memory footprint for development
+    auto_export: true                  # Export traces for debugging
+    
+    # Development export settings - more frequent exports for real-time debugging
+    export:
+      format: "detailed_json"          # Use detailed format for debugging
+      output_directory: "dev_traces"   # Separate directory for dev traces
+      auto_export_interval: 60         # Export every minute for immediate debugging
+      compress_exports: false          # Don't compress for easier reading
+      
+    # Shorter retention for development
+    retention:
+      max_age_days: 7                  # Keep traces for only 1 week in development
+      cleanup_interval: 1800           # Clean up every 30 minutes
+      archive_before_cleanup: false    # No archiving in development
+      
+    # Development optimization settings
+    optimization:
+      async_collection: false          # Synchronous collection for easier debugging
+      batch_size: 10                   # Smaller batches for real-time export
+      enable_sampling: false           # Never sample in development - collect all
+      sampling_rate: 1.0               # 100% sampling when enabled
+      
+    # Full debugging output
+    output_options:
+      include_context_data: true       # Include all context for debugging
+      include_metadata: true           # Include all metadata for debugging
+      include_performance_metrics: true # Include all performance data
+      redact_sensitive_data: false     # Don't redact in development (easier debugging)
+      
+    # Development integration settings
+    integration:
+      langsmith_sync: true             # Sync to LangSmith for debugging
+      session_tracker_sync: true      # Sync with session tracking
+      export_to_analytics: false      # No analytics in development
+  
+  langsmith:
+    enabled: true                           # Enable LangSmith tracing
+    project_name: "hybrid-ai-system-dev"   # Separate dev project
+    tags: ["development", "testing"]        # Tag traces as development
+
+# Development security (relaxed) - easier development, less secure
+security:
+  api_key_rotation: false    # Don't rotate keys during development
+  session_encryption: false # Disable encryption for easier debugging
+  audit_logging: false      # Disable audit logs (reduces noise)
+  rate_limiting:
+    enabled: false           # No rate limiting during development
+
+# Development performance - optimize for debugging over speed
+performance:
+  model_caching: true        # Still cache models for speed
+  cache_size: 1             # Smaller cache to save memory
+  preload_models: false     # Don't preload models at startup
+  parallel_processing: false # Disable parallel processing (easier debugging)
+
+# Development error handling - more forgiving error handling
+error_handling:
+  retry_strategy: "immediate"     # Retry immediately (no backoff delay)
+  max_retry_attempts: 5           # More retry attempts than production
+  circuit_breaker:
+    enabled: false                # Disable circuit breaker (easier debugging)

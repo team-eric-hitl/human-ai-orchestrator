@@ -1,0 +1,143 @@
+# Provider configurations for LLM services and external integrations
+# This file defines how to connect to different AI model providers
+#
+# BEGINNER'S GUIDE:
+# This file configures connections to AI services (OpenAI, Anthropic, local models).
+# Key sections: 'llm_providers' (AI services), 'external_services' (databases, monitoring)
+# To add API keys: Set environment variables (e.g., export OPENAI_API_KEY=your_key)
+
+llm_providers:
+  # OpenAI provider - requires OPENAI_API_KEY environment variable
+  openai:
+    enabled: true                           # Enable OpenAI provider
+    api_key_env: "OPENAI_API_KEY"          # Environment variable name for API key
+    base_url: "https://api.openai.com/v1"  # OpenAI API endpoint
+    timeout: 60                            # Request timeout in seconds
+    max_retries: 3                         # Retry failed requests up to 3 times
+    models:                                # Available OpenAI models
+      - "gpt-4"
+      - "gpt-3.5-turbo"
+      - "gpt-4-turbo"
+    rate_limits:                           # API rate limits
+      requests_per_minute: 500             # Max requests per minute
+      tokens_per_minute: 150000            # Max tokens per minute
+      
+  # Anthropic provider - requires ANTHROPIC_API_KEY environment variable
+  anthropic:
+    enabled: true                          # Enable Anthropic provider
+    api_key_env: "ANTHROPIC_API_KEY"       # Environment variable name for API key
+    base_url: "https://api.anthropic.com"  # Anthropic API endpoint
+    timeout: 60                            # Request timeout in seconds
+    max_retries: 3                         # Retry failed requests
+    models:                                # Available Anthropic models
+      - "claude-4-opus"
+      - "claude-4-sonnet"
+      - "claude-3.5-sonnet"
+      - "claude-3.5-haiku"
+    rate_limits:                           # API rate limits (lower than OpenAI)
+      requests_per_minute: 100             # Max requests per minute
+      tokens_per_minute: 40000             # Max tokens per minute
+      
+  # DeepInfra provider - serverless GPU compute for open-source models
+  deepinfra:
+    enabled: true                           # Enable DeepInfra provider
+    api_key_env: "DEEPINFRA_API_TOKEN"      # Environment variable name for API token
+    base_url: "https://api.deepinfra.com/v1/inference"  # DeepInfra API endpoint
+    timeout: 60                             # Request timeout in seconds
+    max_retries: 3                          # Retry failed requests up to 3 times
+    models:                                 # Available DeepInfra models
+      # Verified working models (primary)
+      - "moonshotai/Kimi-K2-Instruct"
+      - "meta-llama/Meta-Llama-3-8B-Instruct"
+      - "meta-llama/Meta-Llama-3.1-8B-Instruct"
+      - "mistralai/Mistral-7B-Instruct-v0.3"
+      # Alternative models (may have availability issues)
+      - "Qwen/Qwen3-32B"
+      - "Qwen/Qwen3-14B"
+      - "deepseek-ai/DeepSeek-V3-0324-Turbo"
+      - "meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo"
+      - "mistralai/Devstral-Small-2507"
+      - "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+      - "google/gemini-2.5-flash"
+    rate_limits:                            # API rate limits
+      requests_per_minute: 200              # Max requests per minute
+      tokens_per_minute: 100000             # Max tokens per minute
+      
+  # Google Gemini provider - requires GEMINI_API_KEY environment variable
+  gemini:
+    enabled: true                          # Enable Gemini provider
+    api_key_env: "GEMINI_API_KEY"          # Environment variable name for API key
+    base_url: "https://generativelanguage.googleapis.com/v1beta"  # Gemini API endpoint
+    timeout: 30                            # Reduced timeout for faster failure/retry
+    max_retries: 2                         # Reduced retries for speed
+    models:                                # Available Gemini models
+      - "gemini-1.5-flash"
+      - "gemini-1.5-pro"
+      - "gemini-2.0-flash-exp"
+      - "gemini-2.5-flash"
+    rate_limits:                           # API rate limits
+      requests_per_minute: 1500            # Max requests per minute (generous for Gemini)
+      tokens_per_minute: 1000000           # Max tokens per minute
+
+  # Local provider - runs models on your computer via Ollama
+  local:
+    enabled: true                          # Enable local model provider
+    backend: "ollama"                      # Use Ollama as backend
+    base_url: "http://localhost:11434"     # Local Ollama server URL
+    timeout: 120                           # Longer timeout for local models
+    max_retries: 2                         # Fewer retries for local
+    models:                                # Available local models (must be downloaded)
+      - "llama-7b"
+      - "llama-13b"
+      - "mistral-7b"
+      - "codellama-7b"
+    health_check:                          # Check if Ollama is running
+      enabled: true                        # Enable health checks
+      interval: 30                         # Check every 30 seconds
+
+# External service integrations - services beyond AI models
+external_services:
+  # LangSmith - monitoring and tracing for AI workflows
+  langsmith:
+    enabled: true                        # Enable LangSmith integration
+    api_key_env: "LANGCHAIN_API_KEY"     # Environment variable for API key
+    project_name: "hybrid-ai-system"     # Project name in LangSmith
+    tracing_enabled: true                # Enable detailed tracing
+    
+  # Database - stores conversation history and context
+  database:
+    type: "sqlite"                              # Use SQLite database
+    storage_directory: "data"                   # Directory for database files
+    db_name: "hybrid_system.db"                 # Database filename
+    connection_string: "sqlite:///data/hybrid_system.db"  # Full connection string
+    pool_size: 10                               # Connection pool size
+    max_overflow: 20                            # Max additional connections
+    
+  # Redis - optional caching layer (disabled by default)
+  redis:
+    enabled: false                       # Disabled - SQLite is sufficient for most uses
+    host: "localhost"                    # Redis server host
+    port: 6379                          # Redis server port
+    db: 0                               # Redis database number
+    password_env: "REDIS_PASSWORD"       # Environment variable for password
+    
+  # Webhooks - external notifications (disabled by default)
+  webhook:
+    enabled: false                       # Disabled - for advanced users only
+    endpoints:
+      escalation: "https://api.example.com/webhooks/escalation"  # Escalation notifications
+      completion: "https://api.example.com/webhooks/completion"  # Completion notifications
+
+# Service discovery and load balancing - for production deployments
+service_discovery:
+  enabled: false                         # Disabled - for advanced deployments only
+  consul:
+    host: "localhost"                    # Consul server host
+    port: 8500                          # Consul server port
+    service_name: "hybrid-ai-system"     # Service name in Consul
+    health_check_interval: 30            # Health check frequency
+    
+  load_balancing:
+    strategy: "round_robin"              # Load balancing strategy
+    health_check_enabled: true           # Enable health checks
+    circuit_breaker_enabled: true        # Enable circuit breaker pattern

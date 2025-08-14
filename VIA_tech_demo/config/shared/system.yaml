@@ -1,0 +1,141 @@
+# System-wide configuration settings
+# This file contains global settings that apply to the entire AI system
+#
+# BEGINNER'S GUIDE:
+# This file defines system-wide behavior, limits, and thresholds.
+# Key sections: 'thresholds' (when to escalate), 'performance' (speed settings)
+system:
+  name: "Modular LangGraph Hybrid System"
+  version: "1.0.0"
+  config_schema_version: "1.0.0"
+  description: "A flexible AI workflow orchestration platform with human-in-the-loop capabilities"
+
+# Version management - ensures all components work together
+versioning:
+  enabled: true                    # Enable version checking
+  schema_version: "1.0.0"          # Configuration file format version
+  agent_version_required: true     # All agents must declare version
+  strict_validation: true          # Fail on version mismatches
+  
+  # Version compatibility rules - defines which versions work together
+  compatibility:
+    min_agent_version: "1.0.0"     # Minimum allowed agent version
+    max_agent_version: "2.0.0"     # Maximum allowed agent version
+    breaking_changes_allowed: false # Don't allow incompatible changes
+
+# Global thresholds and limits - system-wide behavior settings
+thresholds:
+  escalation_score: 6.0        # Score threshold to escalate to human (0-10 scale)
+  confidence_threshold: 0.7    # Minimum confidence for AI responses (0-1 scale)
+  response_time_limit: 30      # Max seconds for AI to respond
+  max_retries: 3               # Max retry attempts for failed operations
+  session_timeout: 3600        # Session timeout in seconds (1 hour)
+
+# Provider configurations - how the system stores and manages data
+providers:
+  # Configuration provider - how config files are loaded
+  config:
+    type: "file"               # Load configs from files (vs database)
+    config_dir: "config"       # Directory containing config files
+    enable_hot_reload: true    # Automatically reload when files change
+    validation: "strict"       # Validate all config files strictly
+    
+  # Context provider - how conversation history is stored
+  context:
+    type: "sqlite"                  # Use SQLite database
+    storage_directory: "data"       # Directory for database files
+    db_name: "hybrid_system.db"     # Database filename
+    backup_enabled: true            # Create backups of database
+    backup_interval: 3600           # Backup every hour
+    
+  # Session provider - how user sessions are managed
+  session:
+    type: "memory"           # Store sessions in memory
+    persistence: true        # Save sessions to disk
+    max_sessions: 1000       # Maximum concurrent sessions
+
+# Monitoring and observability - tracking system performance
+monitoring:
+  metrics_collection: true     # Collect performance metrics
+  log_level: "INFO"           # Logging level (DEBUG, INFO, WARN, ERROR)
+  performance_tracking: true   # Track response times and throughput
+  enable_tracing: true        # Enable detailed tracing
+  
+  # Full interaction trace collection - captures complete HITL workflow
+  trace_collection:
+    enabled: true                      # Enable comprehensive trace collection
+    max_traces_in_memory: 1000        # Maximum number of traces to keep in memory
+    auto_export: true                  # Automatically export traces to files
+    
+    # Default export settings
+    export:
+      format: "detailed_json"          # Default format: detailed_json, summary_json, csv_timeline, performance_only
+      output_directory: "traces"       # Directory to store trace files
+      auto_export_interval: 300        # Export traces every 5 minutes
+      compress_exports: true           # Compress exported trace files
+      
+    # Trace retention policy
+    retention:
+      max_age_days: 30                 # Keep traces for 30 days
+      cleanup_interval: 3600           # Clean up old traces every hour
+      archive_before_cleanup: true     # Archive traces before deletion
+      archive_directory: "traces/archive"
+      
+    # Performance optimization for trace collection
+    optimization:
+      async_collection: true           # Collect traces asynchronously
+      batch_size: 50                   # Batch size for export operations
+      enable_sampling: false           # Disable sampling - collect all traces
+      sampling_rate: 1.0               # Sample 100% of traces when enabled
+      
+    # Trace output customization
+    output_options:
+      include_context_data: true       # Include conversation context in traces
+      include_metadata: true           # Include agent metadata (model info, costs)
+      include_performance_metrics: true # Include detailed performance metrics
+      redact_sensitive_data: true      # Remove sensitive information from traces
+      
+    # Integration with existing systems
+    integration:
+      langsmith_sync: true             # Sync traces to LangSmith
+      session_tracker_sync: true      # Sync with session tracking system
+      export_to_analytics: false      # Export to external analytics systems
+  
+  # LangSmith integration - external monitoring service
+  langsmith:
+    enabled: true                           # Enable LangSmith tracing
+    project_name: "hybrid-ai-system"       # Project name in LangSmith
+    tags: ["production", "hybrid-system"]  # Tags for organizing traces
+    
+  # Health checks - monitor system components
+  health_check:
+    enabled: true       # Enable health monitoring
+    interval: 60        # Check every 60 seconds
+    endpoints: ["database", "models", "agents"]  # What to monitor
+
+# Security settings - protect the system and user data
+security:
+  api_key_rotation: true       # Automatically rotate API keys
+  session_encryption: true     # Encrypt user session data
+  audit_logging: true          # Log all security-relevant events
+  rate_limiting:
+    enabled: true                # Enable rate limiting
+    requests_per_minute: 60      # Max 60 requests per minute per user
+    burst_limit: 10              # Allow bursts up to 10 requests
+
+# Performance optimization - make the system faster
+performance:
+  model_caching: true            # Cache AI models in memory
+  cache_size: 2                  # Number of models to cache
+  preload_models: false          # Don't load models at startup
+  parallel_processing: true      # Process multiple requests simultaneously
+  max_concurrent_requests: 10    # Max simultaneous requests
+
+# Error handling - how the system deals with failures
+error_handling:
+  retry_strategy: "exponential_backoff"  # Wait longer between each retry
+  max_retry_attempts: 3                  # Try up to 3 times
+  circuit_breaker:
+    enabled: true           # Enable circuit breaker pattern
+    failure_threshold: 5    # Open circuit after 5 failures
+    recovery_timeout: 30    # Wait 30 seconds before trying again
