@@ -1,0 +1,23 @@
+primary_model: "llm_demo_speed"
+
+model_overrides:
+  temperature: 0.1          # Very low temperature for fast, deterministic responses
+  max_tokens: 150          # Increased for complete frustration analysis
+  
+  # Task-specific overrides
+  per_model:
+    frustration_analysis_compact:
+      temperature: 0.1      # Very low for objective sentiment analysis
+      max_tokens: 80        # Compact but complete: "7.5|0.9|angry language"
+      
+    frustration_analysis:
+      temperature: 0.1      # Very low for objective sentiment analysis
+      max_tokens: 200      # Full tokens for detailed analysis
+      
+    pattern_detection:
+      temperature: 0.1      # Reduced for consistency
+      max_tokens: 250       # Adequate for pattern analysis
+      
+    trend_analysis:
+      temperature: 0.1      # Low for consistency
+      max_tokens: 300       # Full trend analysis capacity

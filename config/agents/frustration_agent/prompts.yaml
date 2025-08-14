@@ -1,0 +1,123 @@
+# Frustration Agent Prompts
+
+system: |
+  You are a Frustration Detection Agent responsible for analyzing customer communications to identify frustration levels.
+  Your role is to detect emotional states, particularly frustration, anger, and dissatisfaction that may require human intervention.
+  
+  Focus on:
+  - Emotional tone and language indicators
+  - Escalation patterns in communication
+  - Urgency and desperation signals
+  - Signs of customer patience wearing thin
+  - Context that suggests mounting frustration
+  
+  Be sensitive to emotional nuances and cultural differences in expression.
+  Prioritize customer wellbeing and appropriate escalation timing.
+
+frustration_analysis: |
+  Analyze the following customer message for frustration levels and emotional state.
+  
+  Customer Query: "{customer_query}"
+  
+  Evaluate the frustration level on a scale of 1-10 where:
+  1-2 = Calm, neutral, or positive
+  3-4 = Slightly frustrated or impatient
+  5-6 = Moderately frustrated, showing clear irritation
+  7-8 = Highly frustrated, angry language, demanding attention
+  9-10 = Extremely frustrated, hostile, threatening escalation
+  
+  Look for:
+  - Negative emotional language (angry, upset, frustrated words)
+  - Escalation phrases (manager, supervisor, complaint)
+  - Urgency indicators (urgent, immediately, ASAP)
+  - Repetition or emphasis (caps, exclamation marks)
+  - Threatening language (cancel, refund, lawsuit)
+  - Signs of exhaustion or desperation
+  
+  Provide your analysis in this format:
+  Score: [frustration score 1-10]
+  Confidence: [confidence in assessment 0.1-1.0]
+  Reasoning: [detailed explanation of indicators found]
+  
+  Consider the emotional impact on both customer and support staff.
+
+frustration_analysis_compact: |
+  Rate frustration 1-10: "{customer_query}"
+  
+  Format: [score]|[confidence]|[reason 3 words max]
+  
+  Example: 7.5|0.9|angry demands
+
+pattern_analysis: |
+  Analyze this customer's interaction pattern for escalating frustration trends.
+  
+  Current Query: "{current_query}"
+  Recent Interaction History: {interaction_history}
+  Previous Frustration Scores: {frustration_scores}
+  
+  Assess:
+  1. Is frustration escalating over time?
+  2. Are interactions becoming more frequent (impatience)?
+  3. Is language becoming more demanding or hostile?
+  4. Are there repeat issues or unresolved problems?
+  5. Is the customer showing signs of fatigue or giving up?
+  
+  Pattern Assessment:
+  Trend: [escalating/stable/decreasing/insufficient_data]
+  Risk Level: [low/medium/high/critical]
+  Intervention Recommendation: [continue/monitor/escalate_soon/escalate_immediately]
+  Reasoning: [explanation of pattern and recommendation]
+
+context_integration: |
+  Consider this additional context when analyzing frustration:
+  
+  Customer Profile: {customer_profile}
+  Previous Escalations: {escalation_history}
+  Current System Issues: {system_status}
+  Time Context: {time_context}
+  
+  Adjust your frustration assessment based on:
+  - Customer's typical communication style
+  - Whether this appears to be a new vs recurring issue
+  - Any ongoing system problems that might be affecting experience
+  - Time pressures or deadlines mentioned
+  - Previous successful/unsuccessful resolutions
+
+intervention_recommendation: |
+  Based on the frustration analysis, provide intervention recommendations.
+  
+  Frustration Level: {frustration_level}
+  Frustration Score: {frustration_score}
+  Customer Context: {customer_context}
+  Interaction History: {interaction_history}
+  
+  Provide recommendations for:
+  
+  1. Immediate Action:
+     - Continue with AI assistance
+     - Escalate to human agent
+     - Priority human routing
+     - Emergency escalation
+  
+  2. Communication Approach:
+     - Standard professional tone
+     - Extra empathy and acknowledgment
+     - Proactive apology and ownership
+     - Executive-level attention
+  
+  3. Resolution Strategy:
+     - Standard process
+     - Expedited handling
+     - Management involvement
+     - Compensation consideration
+  
+  4. Follow-up Requirements:
+     - Standard follow-up
+     - Enhanced monitoring
+     - Personal follow-up call
+     - Executive follow-up
+  
+  Recommendation: [specific action plan]
+  Reasoning: [justification for recommendations]
+  Priority Level: [low/medium/high/critical]
+

@@ -1,0 +1,21 @@
+default:
+  availability: 0.2
+  customer_factor: 0.1
+  performance_history: 0.2
+  skill_match: 0.25
+  wellbeing_factor: 0.15
+  workload_balance: 0.1
+emergency:
+  availability: 0.35
+  customer_factor: 0.1
+  performance_history: 0.15
+  skill_match: 0.3
+  wellbeing_factor: 0.05
+  workload_balance: 0.05
+vip:
+  availability: 0.2
+  customer_factor: 0.1
+  performance_history: 0.25
+  skill_match: 0.35
+  wellbeing_factor: 0.05
+  workload_balance: 0.05

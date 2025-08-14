@@ -1,0 +1,208 @@
+model_aliases:
+  # New simplified alias structure
+  llm_fast_budget: gemini-2.5-flash
+  llm_fast_premium: gemini-2.5-flash
+  llm_general_premium: claude-3-5-sonnet-20241022
+  # Ultra-fast alias for demos - optimized for <1 second response
+  llm_demo_speed: gemini-2.5-flash
+models:
+  llama-7b:
+    path: models/llama-7b.gguf
+    type: llama
+    context_length: 2048
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
+    max_tokens: 2000
+    verbose: true
+    description: Llama 7B model - good balance of speed and quality
+  llama-13b:
+    path: models/llama-13b.gguf
+    type: llama
+    context_length: 4096
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
+    max_tokens: 2000
+    description: Llama 13B model - higher quality, slower inference
+  mistral-7b:
+    path: models/mistral-7b.gguf
+    type: mistral
+    context_length: 4096
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.7
+    max_tokens: 2000
+    description: Mistral 7B Instruct - excellent instruction following
+  codellama-7b:
+    path: models/codellama-7b.gguf
+    type: llama
+    context_length: 2048
+    gpu_layers: -1
+    n_batch: 512
+    temperature: 0.2
+    max_tokens: 2000
+    description: CodeLlama 7B - optimized for code generation
+  gpt-4:
+    type: openai
+    model_name: gpt-4
+    temperature: 0.7
+    max_tokens: 2000
+    description: OpenAI GPT-4 - highest quality, requires API key
+  gpt-3.5-turbo:
+    type: openai
+    model_name: gpt-3.5-turbo
+    temperature: 0.7
+    max_tokens: 2000
+    description: OpenAI GPT-3.5 Turbo - fast and cost-effective
+  claude-3-5-sonnet-20241022:
+    type: anthropic
+    model_name: claude-3-5-sonnet-20241022
+    temperature: 0.7
+    max_tokens: 2000
+    description: Anthropic Claude 3.5 Sonnet - balanced performance and reasoning
+  claude-3-5-haiku-20241022:
+    type: anthropic
+    model_name: claude-3-5-haiku-20241022
+    temperature: 0.7
+    max_tokens: 2000
+    description: Anthropic Claude 3.5 Haiku - fast and efficient
+  kimi-k2-instruct:
+    type: deepinfra
+    model_id: moonshotai/Kimi-K2-Instruct
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Kimi K2 Instruct - large-scale MoE language model via DeepInfra
+  meta-llama-3-8b-instruct:
+    type: deepinfra
+    model_id: meta-llama/Meta-Llama-3-8B-Instruct
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Meta Llama 3 8B Instruct - balanced performance model via DeepInfra
+  meta-llama-3.1-8b-instruct:
+    type: deepinfra
+    model_id: meta-llama/Meta-Llama-3.1-8B-Instruct
+    temperature: 0.2
+    max_tokens: 2000
+    repetition_penalty: 1.1
+    top_p: 0.9
+    description: Meta Llama 3.1 8B Instruct - optimized for code and reasoning via DeepInfra
+  mistral-7b-instruct-v0.3:
+    type: deepinfra
+    model_id: mistralai/Mistral-7B-Instruct-v0.3
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Mistral 7B Instruct v0.3 - excellent instruction following via DeepInfra
+  qwen3-32b:
+    type: deepinfra
+    model_id: Qwen/Qwen3-32B
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Qwen3 32B - high-quality conversational model via DeepInfra
+  qwen3-14b:
+    type: deepinfra
+    model_id: Qwen/Qwen3-14B
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Qwen3 14B - balanced performance model via DeepInfra
+  deepseek-v3-turbo:
+    type: deepinfra
+    model_id: deepseek-ai/DeepSeek-V3-0324-Turbo
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: DeepSeek V3 Turbo - fast and efficient model via DeepInfra
+  llama4-maverick-17b:
+    type: deepinfra
+    model_id: meta-llama/Llama-4-Maverick-17B-128E-Instruct-Turbo
+    temperature: 0.2
+    max_tokens: 2000
+    repetition_penalty: 1.1
+    top_p: 0.9
+    description: Llama 4 Maverick 17B - specialized instruction model via DeepInfra
+  devstral-small:
+    type: deepinfra
+    model_id: mistralai/Devstral-Small-2507
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Devstral Small - developer-focused model via DeepInfra
+  meta-llama-3.3-70b-instruct-turbo:
+    type: deepinfra
+    model_id: meta-llama/Llama-3.3-70B-Instruct-Turbo
+    temperature: 0.7
+    max_tokens: 2000
+    repetition_penalty: 1.2
+    top_p: 0.9
+    description: Llama 3.3 70B Instruct Turbo - high-performance instruction model via DeepInfra
+  # Native Gemini models (using Google's direct API)
+  gemini-1.5-flash:
+    type: gemini
+    model_name: gemini-1.5-flash
+    temperature: 0.7
+    max_tokens: 1500      # Balanced for speed and completeness
+    description: Google Gemini 1.5 Flash - very fast, cost-effective multimodal model
+  
+  gemini-1.5-pro:
+    type: gemini
+    model_name: gemini-1.5-pro
+    temperature: 0.7
+    max_tokens: 2000
+    description: Google Gemini 1.5 Pro - high-quality reasoning and multimodal capabilities
+  
+  gemini-2.0-flash-exp:
+    type: gemini
+    model_name: gemini-2.0-flash-exp
+    temperature: 0.7
+    max_tokens: 2000
+    description: Google Gemini 2.0 Flash Experimental - latest experimental fast model
+
+  gemini-2.5-flash:
+    type: gemini
+    model_name: gemini-2.5-flash
+    temperature: 0.7
+    max_tokens: 3000      # Increased for comprehensive responses
+    description: Google Gemini 2.5 Flash - fast multimodal model via Google API
+use_cases:
+  general:
+    recommended: llm_general_premium
+    alternatives:
+    - llm_fast_premium
+    - llm_fast_budget
+  code:
+    recommended: llm_general_premium
+    alternatives:
+    - llm_fast_premium
+    - llm_fast_budget 
+  fast:
+    recommended: llm_fast_premium
+    alternatives:
+    - llm_fast_budget
+    - llm_general_premium
+  high_quality:
+    recommended: llm_general_premium
+    alternatives:
+    - llm_fast_premium
+    - llm_fast_budget
+fallback_strategy:
+  enabled: true
+  max_retries: 3
+  retry_delay: 5
+  default_fallback:
+  # Prioritize the new alias structure
+  - llm_fast_premium    # gemini-2.5-flash via DeepInfra (verified working)
+  - llm_fast_budget     # gemini-2.5-flash native (reliable fallback)
+  - llm_general_premium # claude-3-5-sonnet (high quality fallback)
+ 

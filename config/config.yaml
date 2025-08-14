@@ -1,0 +1,139 @@
+# Main configuration file for the Modular LangGraph Hybrid System
+# This file coordinates the new agent-centric configuration structure
+#
+# BEGINNER'S GUIDE:
+# This file acts as the "control center" for the entire AI system configuration.
+# It defines how configuration files are loaded, merged, and validated.
+# If you're new to the system, focus on the 'agents' and 'merging' sections below.
+
+# System versioning - tracks compatibility between components
+versioning:
+  system_version: "1.0.0"           # Overall system version
+  config_schema_version: "1.0.0"    # Configuration file format version
+  enabled: true                     # Enable version checking
+  
+  # Version validation settings - ensures all components are compatible
+  validation:
+    enforce_version_compatibility: true  # Fail if versions don't match
+    require_agent_versions: true         # All agents must declare their version
+    
+  # Default version for new agents - used when creating new agent configs
+  defaults:
+    agent_version: "1.0.0"     # Default version for new agents
+    config_format: "yaml-v1"   # Configuration file format to use
+
+# Configuration loading strategy - defines how configs are discovered and loaded
+config_loader:
+  # Base configuration directory - where all config files are stored
+  base_dir: "config"
+  
+  # Configuration hierarchy (loaded in order, later overrides earlier)
+  # This is the "loading order" - files loaded later can override earlier settings
+  hierarchy:
+    - "shared/system.yaml"          # System-wide settings (loaded first)
+    - "shared/models.yaml"          # Global model definitions
+    - "shared/providers.yaml"       # Provider configurations (API keys, URLs)
+    - "agents/*/config.yaml"        # Agent-specific configurations
+    - "environments/${ENV}.yaml"    # Environment-specific overrides (loaded last)
+    
+  # Environment variable for environment selection
+  # Set HYBRID_SYSTEM_ENV=production to use production.yaml overrides
+  environment_var: "HYBRID_SYSTEM_ENV"
+  default_environment: "development"  # Default to development environment
+  
+  # Validation settings - ensures configuration files are correct
+  validation:
+    enabled: true                 # Enable configuration validation
+    strict_mode: true            # Fail on any validation errors
+    fail_on_missing_refs: true   # Fail if referenced configs don't exist
+
+# Agent registry and discovery - controls which AI agents are available
+agents:
+  # Auto-discovery of agents from config/agents/ directory
+  # When true, automatically loads all agents found in config/agents/
+  auto_discovery: true
+  
+  # Agent loading order (for dependency resolution)
+  # Some agents depend on others, so order matters
+  load_order:
+    - "mock_automation_agent"  # Handles routine automated tasks (first priority)
+    - "chatbot_agent"          # Main customer service agent
+    - "evaluator_agent"        # Quality assessment agent
+    - "human_routing_agent"    # Routes complex issues to humans
+    - "human_interface"        # Manages human-AI handoffs
+    - "feedback_processor"     # Processes customer feedback
+    - "quality_monitor"        # Monitors conversation quality
+    
+  # Agent configuration inheritance - allows agents to share common settings
+  inheritance:
+    enabled: true                        # Enable inheritance
+    base_config: "shared/agent_base.yaml" # Base config that all agents inherit
+
+# Configuration merging strategy - how settings are combined
+merging:
+  # How to handle configuration conflicts when same setting exists in multiple files
+  strategy: "deep_merge"  # Merge nested objects deeply (recommended)
+  
+  # Special handling for arrays/lists in config files
+  array_strategy: "replace"  # "replace", "merge", or "append"
+  
+  # Agent-specific override behavior
+  agent_overrides:
+    enabled: true         # Allow agents to override shared settings
+    # Agent configs take precedence over shared configs
+    precedence: "agent_first"  # Agents win conflicts with shared configs
+
+# Dynamic configuration reloading - automatically reload config changes
+hot_reload:
+  enabled: true  # Enable automatic reloading when config files change
+  watch_directories:
+    - "config/agents"       # Watch all agent configurations
+    - "config/shared"       # Watch shared configurations
+    - "config/environments" # Watch environment overrides
+  
+  # File patterns to watch for changes
+  watch_patterns:
+    - "*.yaml"  # Watch YAML files
+    - "*.yml"   # Watch YML files
+    - "*.json"  # Watch JSON files
+  
+  # Reload debounce (seconds) - wait this long after last change before reloading
+  debounce: 2  # Prevents rapid multiple reloads
+
+# Configuration validation schema - defines what fields are required
+validation_schema:
+  # Required fields for agent configurations
+  agent_config:
+    required_fields:
+      - "agent.name"           # Agent must have a name
+      - "agent.type"           # Agent must declare its type
+      - "agent.version"        # Agent must declare its version
+      - "models.preferred"     # Agent must specify preferred model
+      - "settings.temperature" # Agent must specify temperature
+      - "settings.max_tokens"  # Agent must specify token limit
+    
+  # Required fields for shared configurations
+  shared_config:
+    required_fields:
+      - "system.name"                    # System must have a name
+      - "system.version"                 # System must have a version
+      - "thresholds.escalation_score"    # Must define escalation threshold
+
+# Development mode settings - useful during development
+development:
+  # Skip legacy support since system is in development
+  enforce_latest_versions: true      # Only allow latest config versions
+  
+  # Fail fast on version mismatches
+  strict_version_validation: true    # Immediately fail on version problems
+
+# Configuration documentation - auto-generate docs from configs
+documentation:
+  # Generate configuration documentation automatically
+  auto_generate_docs: true           # Create docs from config files
+  
+  # Documentation output directory
+  docs_output: "docs/configuration"  # Where to save generated docs
+  
+  # Include examples in documentation
+  include_examples: true             # Include example configs in docs

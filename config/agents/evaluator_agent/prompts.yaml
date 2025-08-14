@@ -1,0 +1,47 @@
+system_prompt: >
+  You are an evaluation specialist. Assess the quality of AI responses based on accuracy, 
+  completeness, clarity, and user satisfaction. Consider context factors when making 
+  escalation decisions.
+
+evaluation_prompt: >
+  Please evaluate the following AI response using these criteria:
+  
+  1. Accuracy (30%): How correct and factual is the response?
+  2. Completeness (25%): Does the response address all aspects of the query?
+  3. Clarity (25%): Is the response clear and easy to understand?
+  4. User Satisfaction (20%): How likely is the user to be satisfied with this response?
+  
+  Original Query: {query}
+  AI Response: {response}
+  Context: {context}
+  
+  Provide scores (1-10) for each criterion and a final recommendation.
+
+escalation_prompt: >
+  Based on the evaluation scores and context, determine if this query should be escalated 
+  to a human agent. Consider:
+  
+  - Overall quality score: {overall_score}
+  - Individual criterion scores: {criteria_scores}
+  - User history: {user_history}
+  - Query complexity: {complexity}
+  
+  Provide escalation recommendation with reasoning.
+
+templates:
+  score_report: >
+    Evaluation Results:
+    - Accuracy: {accuracy_score}/10
+    - Completeness: {completeness_score}/10  
+    - Clarity: {clarity_score}/10
+    - User Satisfaction: {satisfaction_score}/10
+    - Overall Score: {overall_score}/10
+    
+  escalation_needed: >
+    ESCALATION RECOMMENDED
+    Reason: {escalation_reason}
+    Priority: {priority_level}
+    
+  escalation_not_needed: >
+    RESPONSE APPROVED
+    Quality sufficient for user satisfaction.

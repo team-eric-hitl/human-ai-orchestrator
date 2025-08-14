@@ -1,0 +1,32 @@
+{
+    "experimentation": {
+        "provider": "custom",
+        "max_workers": 4,
+        "default_iterations": 3,
+        "timeout_seconds": 300,
+        "storage": {
+            "type": "memory",
+            "persist_results": true,
+            "max_history": 100
+        },
+        "optimization": {
+            "default_target": "overall_score",
+            "max_iterations": 10,
+            "convergence_threshold": 0.01
+        },
+        "evaluation": {
+            "metrics": [
+                "accuracy",
+                "completeness",
+                "clarity",
+                "user_satisfaction"
+            ],
+            "weights": {
+                "accuracy": 0.3,
+                "completeness": 0.25,
+                "clarity": 0.25,
+                "user_satisfaction": 0.2
+            }
+        }
+    }
+}

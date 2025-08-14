@@ -1,0 +1,125 @@
+# Production environment configuration overrides
+environment: "production"
+
+# Production system settings
+system:
+  debug_mode: false
+  verbose_logging: false
+  log_level: "INFO"
+  
+# Production thresholds (strict)
+thresholds:
+  escalation_score: 6.5  # Higher threshold for production
+  confidence_threshold: 0.8
+  response_time_limit: 20  # Stricter timeout
+  max_retries: 3
+
+# Production model preferences (high quality)
+models:
+  default_model: "gpt-4"
+  enable_fallback: true
+  
+  overrides:
+    temperature: 0.7
+    max_tokens: 2000
+
+# Production providers
+providers:
+  context:
+    storage_directory: "data/prod"
+    db_name: "hybrid_system.db"
+    backup_enabled: true
+    backup_interval: 1800  # 30 minutes
+    
+  # Real external services
+  mock_services:
+    enabled: false
+
+# Production monitoring (comprehensive)
+monitoring:
+  metrics_collection: true
+  performance_tracking: true
+  
+  # Production trace collection - optimized for performance and compliance
+  trace_collection:
+    enabled: true                      # Enable trace collection for production monitoring
+    max_traces_in_memory: 500          # Conservative memory usage
+    auto_export: true                  # Export for compliance and analysis
+    
+    # Production export settings - balance performance with monitoring needs
+    export:
+      format: "summary_json"           # Use summary format for efficiency
+      output_directory: "prod_traces"  # Production trace directory
+      auto_export_interval: 1800       # Export every 30 minutes
+      compress_exports: true           # Compress to save storage
+      
+    # Production retention policy - compliance-focused
+    retention:
+      max_age_days: 90                 # Keep traces for 90 days for compliance
+      cleanup_interval: 3600           # Clean up every hour
+      archive_before_cleanup: true     # Archive for long-term storage
+      archive_directory: "traces/archive/prod"
+      
+    # Production optimization - prioritize performance
+    optimization:
+      async_collection: true           # Asynchronous for performance
+      batch_size: 100                  # Larger batches for efficiency
+      enable_sampling: true            # Enable sampling to reduce load
+      sampling_rate: 0.1               # Sample 10% of traces in production
+      
+    # Production output - balance debugging with security
+    output_options:
+      include_context_data: false      # Exclude context for privacy
+      include_metadata: true           # Include metadata for analysis
+      include_performance_metrics: true # Include performance data
+      redact_sensitive_data: true      # Always redact sensitive data in production
+      
+    # Production integration - full monitoring
+    integration:
+      langsmith_sync: true             # Sync to LangSmith for monitoring
+      session_tracker_sync: true      # Sync with session tracking
+      export_to_analytics: true       # Export to analytics systems
+  
+  langsmith:
+    enabled: true
+    project_name: "hybrid-ai-system-prod"
+    tags: ["production", "live"]
+
+# Production security (strict)
+security:
+  api_key_rotation: true
+  session_encryption: true
+  audit_logging: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 30  # Conservative rate limit
+    burst_limit: 5
+
+# Production performance (optimized)
+performance:
+  model_caching: true
+  cache_size: 3
+  preload_models: true
+  parallel_processing: true
+  max_concurrent_requests: 20
+
+# Production error handling (robust)
+error_handling:
+  retry_strategy: "exponential_backoff"
+  max_retry_attempts: 3
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 3
+    recovery_timeout: 60
+
+# Production alerts and notifications
+alerts:
+  enabled: true
+  escalation_rate_threshold: 0.15  # Alert if >15% escalation rate
+  response_time_threshold: 30
+  error_rate_threshold: 0.05  # Alert if >5% error rate
+  
+  channels:
+    email: "alerts@company.com"
+    slack: "#ai-system-alerts"
+    webhook: "https://monitoring.company.com/webhooks/ai-system"

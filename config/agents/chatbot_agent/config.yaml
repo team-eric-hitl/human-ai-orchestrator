@@ -1,0 +1,38 @@
+# Chatbot Agent Configuration
+# This agent provides primary customer service responses and handles most user interactions
+#
+# BEGINNER'S GUIDE:
+# This agent is the "main AI" that customers talk to. It generates responses and decides when
+# to escalate to humans. Key settings: 'models' (which AI to use), 'escalation' (when to get help)
+
+agent:
+  name: "chatbot_agent"                   # Agent identifier (must match directory name)
+  version: "1.0.0"                       # Agent version for compatibility
+  description: "Primary response generation agent that provides direct answers to user queries"
+  type: "llm_agent"                      # Type of agent (uses language models)
+  created: "2025-01-17"                  # Creation date
+  last_modified: "2025-01-17"            # Last modification date
+
+# Basic AI settings - control how the AI behaves
+# NOTE: Model selection moved to models.yaml for consistency
+settings:
+  temperature: 0.7           # Creativity level (0=robotic, 1=creative)
+  max_tokens: 2000          # Maximum response length
+  timeout: 30               # How long to wait for AI response (seconds)
+  response_time_limit: 30   # Maximum time for entire response
+  max_retries: 3            # Retry attempts if AI fails
+
+# Behavior configuration - how the agent acts
+behavior:
+  context_integration: true            # Use conversation history
+  response_style: "clear_and_professional"  # Communication style
+  personalization: true                # Adapt to individual users
+
+# Escalation settings - when to pass to human agents
+escalation:
+  confidence_threshold: 0.7     # Escalate if AI confidence below 70%
+  enable_auto_escalation: true  # Allow automatic escalation
+  escalation_triggers:          # Situations that trigger escalation
+    - "low_confidence"          # AI isn't confident in its answer
+    - "user_dissatisfaction"    # User seems unhappy
+    - "repeat_query"           # User keeps asking the same thing
