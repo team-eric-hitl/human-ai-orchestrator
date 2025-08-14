@@ -1,6 +1,0 @@
-timestamp,event_type,duration_ms,agent_name,stage,decision,details
-2025-08-03T22:00:10.209376,workflow_stage,0.0,,query_received,,
-2025-08-03T22:00:17.440897,workflow_stage,7231.521,,frustration_agent_complete,,
-2025-08-03T22:00:24.426795,workflow_stage,14217.419,,chatbot_response_complete,,
-2025-08-03T22:00:34.025217,workflow_stage,23815.841,,quality_assessment_complete,,
-2025-08-03T22:00:10.224264,agent_interaction,7216.633,frustration_agent,,,Next: continue

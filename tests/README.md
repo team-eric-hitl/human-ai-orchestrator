@@ -8,29 +8,13 @@ This directory contains comprehensive unit and integration tests for the Modular
 tests/
 ├── unit/                           # Unit tests for individual components
 │   ├── core/                       # Core infrastructure tests
-│   │   ├── test_config_system.py   # Configuration management
-│   │   ├── test_logging_system.py  # Logging and error handling
-│   │   ├── test_context_management.py # Context storage and retrieval
-│   │   └── test_session_tracking.py   # Session metrics and lifecycle
-│   ├── nodes/                      # LangGraph node tests
-│   │   ├── test_chatbot_agent.py   # Chatbot generation logic
-│   │   ├── test_evaluator_agent.py # Response evaluation
-│   │   └── test_escalation_router.py # Human agent routing
-│   ├── integrations/               # Integration component tests
-│   │   ├── test_llm_providers.py   # LLM provider abstraction
-│   │   └── test_langsmith_setup.py # LangSmith integration
-│   └── schemas/                    # Data model tests
-│       ├── test_state_schema.py    # State validation
-│       └── test_config_schemas.py  # Config validation
+│   │   └── test_agent_config_system.py # Agent-centric configuration management
+│   ├── nodes/                      # Node component tests
+│   │   └── test_node_initialization.py # Basic node initialization and interface
+│   └── integrations/               # Integration component tests (placeholder)
 ├── integration/                    # Integration tests
-│   ├── test_workflow_orchestration.py # End-to-end workflows
-│   ├── test_provider_factory.py      # Provider creation & switching
-│   └── test_system_startup.py        # System initialization
-├── fixtures/                       # Test data and utilities
-│   ├── config_files/              # Test configurations
-│   ├── mock_responses/             # LLM response mocks
-│   └── test_data/                  # Sample conversations
-└── test_*.py                       # Validation and framework tests
+│   └── test_agent_system_startup.py   # System initialization and component integration
+└── README.md                       # This documentation
 ```
 
 ## Running Tests
@@ -48,11 +32,11 @@ uv run python -m pytest tests/unit/
 # Integration tests only
 uv run python -m pytest tests/integration/
 
-# Core infrastructure tests
+# Core infrastructure tests (agent configuration)
 uv run python -m pytest tests/unit/core/
 
-# LLM provider tests
-uv run python -m pytest tests/unit/integrations/
+# Node initialization tests
+uv run python -m pytest tests/unit/nodes/
 ```
 
 ### Run with Coverage
@@ -62,41 +46,32 @@ uv run python -m pytest --cov=src --cov-report=html
 
 ### Run Specific Test File
 ```bash
-uv run python -m pytest tests/unit/core/test_config_system.py -v
+uv run python -m pytest tests/unit/core/test_agent_config_system.py -v
 ```
 
 ### Run Specific Test Function
 ```bash
-uv run python -m pytest tests/unit/core/test_config_system.py::TestConfigManager::test_initialization_success -v
+uv run python -m pytest tests/unit/core/test_agent_config_system.py::TestAgentConfigManager::test_initialization_success -v
 ```
 
 ## Test Features
 
-### Comprehensive Coverage
-- **Configuration Management**: Tests all aspects of config loading, validation, and management
-- **Logging System**: Tests structured logging, error handling, and context management
-- **Context Storage**: Tests SQLite-based context storage and retrieval
-- **Session Tracking**: Tests session metrics and lifecycle management
-- **LLM Providers**: Tests provider abstraction and model integration
-- **System Integration**: Tests end-to-end system startup and workflows
+### Current Coverage
+- **Agent Configuration System**: Comprehensive tests for agent-centric configuration management including loading, validation, model preferences, and environment overrides
+- **Node Initialization**: Basic tests for all node types ensuring proper initialization and interface compliance
+- **System Integration**: End-to-end system startup testing with proper component integration
 
-### Mock Strategy
-- **External Services**: OpenAI API, LangSmith API, file system operations
-- **Heavy Operations**: Model loading, database queries, network calls
-- **Environment Dependencies**: Environment variables, system time
-- **Provider Interfaces**: Test doubles for provider contracts
+### Test Strategy
+- **Focused Testing**: Tests concentrate on public interfaces and core functionality
+- **Mock External Dependencies**: LLM providers, external APIs, and heavy operations are mocked
+- **Temporary Resources**: Tests use temporary directories and files for isolation
+- **Environment Agnostic**: Tests work regardless of API key availability or external services
 
-### Test Data Management
-- **Temporary Files**: All tests use temporary directories and files
-- **Sample Configurations**: Valid and invalid config examples
-- **Mock Responses**: Realistic LLM response data
-- **Edge Cases**: Error conditions and boundary values
-
-### Error Testing
-- **Configuration Errors**: Missing files, invalid JSON/YAML, validation failures
-- **Runtime Errors**: Model failures, network timeouts, database issues
-- **Recovery Testing**: Fallback mechanisms and error recovery
-- **Performance Testing**: Large datasets and concurrent operations
+### Key Test Areas
+- **Configuration Loading**: Agent configs, system configs, model preferences, and environment overrides
+- **Component Integration**: Proper initialization of core system components
+- **Error Handling**: Graceful handling of missing configurations and initialization failures
+- **Interface Compliance**: All nodes implement expected interfaces and return proper state objects
 
 ## Test Development Guidelines
 
@@ -137,21 +112,27 @@ uv run python -m pytest --cov=src --cov-report=term-missing
 ## Continuous Integration
 
 These tests are designed to run in CI/CD environments:
-- No external dependencies (all mocked)
-- Fast execution (< 30 seconds for full suite)
-- Reliable (no flaky tests)
-- Comprehensive coverage (>90% code coverage target)
+- No external dependencies (all properly mocked)
+- Fast execution (< 10 seconds for full suite)
+- Reliable (focused on stable public interfaces)
+- Clean and maintainable (minimal legacy clutter)
 
-## Replacing Simple Scripts
+## Test Philosophy
 
-This comprehensive test suite replaces the previous simple scripts:
-- `tests/simple_scripts/test_setup/` → `tests/unit/core/test_config_system.py`
-- `tests/simple_scripts/test_logging/` → `tests/unit/core/test_logging_system.py`  
-- `tests/simple_scripts/test_local/` → `tests/unit/integrations/test_llm_providers.py`
+This test suite follows a **lean testing approach** suitable for a system in development:
 
-The new test suite provides:
-- **Automated execution** with pytest
-- **Proper assertions** and test isolation
-- **Coverage reporting** to track completeness
-- **CI/CD integration** capability
-- **Better maintainability** with structured organization
+### What We Test
+- **Core Infrastructure**: Agent configuration system that powers the entire application
+- **Public Interfaces**: Node initialization and basic call patterns
+- **System Integration**: End-to-end component integration and startup
+
+### What We Don't Test
+- Private implementation details that may change during development
+- Complex business logic that isn't yet finalized
+- Legacy components that aren't part of the current system
+
+### Benefits
+- **Fast feedback**: Tests run quickly and provide immediate validation
+- **Maintainable**: Focused tests that don't break when internal implementations change
+- **Clear purpose**: Each test has a specific, important function
+- **Development friendly**: Tests support rapid iteration without being overly constraining

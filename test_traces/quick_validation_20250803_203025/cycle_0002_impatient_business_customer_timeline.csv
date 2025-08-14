@@ -1,4 +1,0 @@
-timestamp,event_type,duration_ms,agent_name,stage,decision,details
-2025-08-03T20:30:25.740816,workflow_stage,0.0,,query_received,,
-2025-08-03T20:30:25.771843,workflow_stage,31.026999999999997,,frustration_agent_complete,,
-2025-08-03T20:30:25.771829,agent_interaction,0.014,frustration_agent,,,Next: continue
