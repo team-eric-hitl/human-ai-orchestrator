@@ -1,0 +1,143 @@
+:root {
+  --bg: #0b1020;
+  --panel: #121a30;
+  --muted: #94a3b8;
+  --text: #e2e8f0;
+  --accent: #22c55e;
+  --accent-2: #60a5fa;
+  --danger: #ef4444;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
+  color: var(--text);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(18, 26, 48, 0.7);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.nav a { opacity: 0.9; }
+.nav a.active { color: var(--accent); }
+
+.btn {
+  background: linear-gradient(135deg, var(--accent), #16a34a);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.panel {
+  background: rgba(18, 26, 48, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.two-cols {
+  grid-template-columns: 2fr 1fr;
+}
+
+.metric {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.tag { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.tag.green { background: rgba(34,197,94,.15); color: #34d399; }
+.tag.red { background: rgba(239,68,68,.15); color: #f87171; }
+.tag.blue { background: rgba(96,165,250,.15); color: #93c5fd; }
+
+/* Icon badges for status */
+.badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1px solid rgba(148,163,184,.14);
+}
+.badge.green { background: rgba(34,197,94,.18); color: #34d399; border-color: rgba(34,197,94,.35); }
+.badge.red { background: rgba(239,68,68,.18); color: #f87171; border-color: rgba(239,68,68,.35); }
+.badge.blue { background: rgba(96,165,250,.18); color: #93c5fd; border-color: rgba(96,165,250,.35); }
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 74px);
+}
+
+/* .chat-main is removed in user-facing view */
+
+.messages {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.bubble {
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  background: rgba(30,41,59,.75);
+  border: 1px solid rgba(148,163,184,.12);
+}
+
+.bubble.user { background: rgba(96,165,250,.18); border-color: rgba(59,130,246,.25); }
+.bubble.bot { background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.25); }
+.bubble.agent { background: rgba(253,224,71,.14); border-color: rgba(253,224,71,.25); }
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 12px;
+}
+
+.input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,.2);
+  background: rgba(2,6,23,.4);
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th, .table td { padding: 10px; border-bottom: 1px solid rgba(148,163,184,.12); text-align: left; }
+.muted { color: var(--muted); }
+
+
