@@ -1,10 +1,37 @@
-# Human-in-the-Loop AI System: Improving Customer AND Employee Experience
+# VIA - Intelligent Human Esclalaton Engine
 
 A sophisticated AI workflow orchestration platform that enhances both customer support quality and employee wellbeing through intelligent human-AI collaboration. The system intercepts all customer-AI interactions to ensure quality, detect frustration, and route escalations while protecting employee mental health and job satisfaction.
+
+## Dallas AI Summer Program 2025
+
+This project was developed as part of the Dallas AI Summer Program 2025. Mentors and participants are grouped together in teams of 2-5 people and given 8 weeks to conceive, design, and implement a prototype or demo of an AI product.
+
+## Mentor
+
+[Eric Poon](https://www.linkedin.com/in/epoon02/) - C-Suite Professional | Senior Global IT Executive
+
+## Team
+
+Our team was comprised of:
+ - [Chris Munch](https://www.linkedin.com/in/chris-munch/) - Product Manager, Product Design, Backend/AI Development
+ - [Snehaa Muthiah](https://www.linkedin.com/in/snehaamuthiah/) - Creative Director, Movie Director/Editor, Branding, Marketing, Presentation
+ - [Nithin Dodla](https://www.linkedin.com/in/nithin-dodla/) - Frontend/UI Development
+ - [Thomas Siskos](https://www.linkedin.com/in/thomasasiskos/) - Human Factors, Marketing, Presentation
 
 ## 🎯 Overview
 
 This system implements a **Human-in-the-Loop (HITL) Architecture** that goes beyond simple escalation - it actively improves the entire support experience for customers while protecting employees from burnout and frustration overload. Every AI response is quality-checked, customer frustration is monitored in real-time, and human routing considers both customer needs and employee wellbeing.
+
+## Limitations
+
+This is more of a proof of concept. We ran out time and had limited technical expertise (only 2 technical people and no background in AI programming). We did not have time to wire together the frontend and backend. We used Gemini Flash 2.5 API calls for all the models. The context manager agent is limited to SQL searches and has no vectorized knowledgebase features.
+
+Chris plans to continue working on this project for portofolio and learning purposes and add the following features:
+
+- More comprehensive evaluation and testing framework
+- More comphehensive context manager agent with RAG capabilities
+- More peformant, specialized models for each agent
+
 
 ### Key Features
 
@@ -14,6 +41,13 @@ This system implements a **Human-in-the-Loop (HITL) Architecture** that goes bey
 - **🎯 Intelligent Routing**: LLM-powered smart assignment considering customer needs and employee wellbeing
 - **📊 Context Management**: Multi-source context aggregation with audience-specific summarization
 
+## Demos/Presentations
+
+ - [Frontend/UI](/frontend/)
+ - [Backend/AI demo](https://huggingface.co/spaces/chris-munch/VIA_tech_demo)
+ - [Presentation Deck](via_showcase_presentation.pdf)
+ - Presentation Video - coming soon
+ - Promo Video - coming soon
 
 ## 🏗️ Architecture
 
