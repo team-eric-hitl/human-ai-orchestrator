@@ -1,5 +1,5 @@
 [project]
-name = "modular-langgraph-hybrid-system"
+name = "human-ai-orchestrator"
 version = "1.0.0"
 description = "A modular AI system that combines LangGraph workflows with human-in-the-loop capabilities"
 readme = "README.md"

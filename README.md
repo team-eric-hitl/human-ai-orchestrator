@@ -8,13 +8,12 @@ This system implements a **Human-in-the-Loop (HITL) Architecture** that goes bey
 
 ### Key Features
 
-- **🤖 Automation-First Design**: MockAutomationAgent handles routine insurance tasks before AI/human intervention
 - **🛡️ Quality Interception**: All AI responses reviewed and improved before customer delivery
 - **😤 Frustration Detection**: Real-time sentiment analysis with intelligent escalation triggers  
 - **👥 Employee Protection**: Workload balancing and burnout prevention with wellbeing metrics
 - **🎯 Intelligent Routing**: LLM-powered smart assignment considering customer needs and employee wellbeing
 - **📊 Context Management**: Multi-source context aggregation with audience-specific summarization
-- **🎭 Realistic Simulation**: Complete customer/employee interaction simulation with 6 demo scenarios
+
 
 ## 🏗️ Architecture
 
@@ -34,7 +33,7 @@ src/
 │   ├── chatbot_agent.py           # Customer service-focused chatbot
 │   ├── quality_agent.py           # Response quality assessment & improvement
 │   ├── frustration_agent.py       # Customer frustration detection & analysis
-│   ├── routing_agent.py           # Employee wellbeing-aware routing
+│   ├── human_routing_agent.py     # Employee wellbeing-aware routing
 │   └── context_manager_agent.py   # Multi-source context aggregation
 ├── simulation/                    # Realistic testing framework
 │   ├── human_customer_simulator.py # Customer personality simulation
@@ -58,7 +57,7 @@ src/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd hybrid-ai-system
+cd human-ai-orchestrator
 
 # Setup with uv (recommended)
 make setup
@@ -88,7 +87,7 @@ ANTHROPIC_API_KEY=your_anthropic_key_here
 # Monitoring and Tracing (optional)
 LANGCHAIN_API_KEY=your_langsmith_key_here
 LANGCHAIN_TRACING_V2=true
-LANGCHAIN_PROJECT=hybrid-ai-system
+LANGCHAIN_PROJECT=human-ai-orchestrator
 
 # Environment Setting
 ENVIRONMENT=development
@@ -105,7 +104,7 @@ ENVIRONMENT=development
 ## 🤖 The Five Core HITL Agents
 
 ### 1. Chatbot Agent (`chatbot_agent.py`)
-**Purpose**: Customer service-focused response generation with emotional intelligence
+**Purpose**: Customer service-focused response generation - our stand-in for a generic chatbot
 - Real-time customer sentiment analysis (urgency, frustration, politeness)
 - Context-aware personalization using conversation history
 - Service-oriented response enhancement with empathy integration
@@ -142,13 +141,6 @@ ENVIRONMENT=development
 ## ⚙️ Configuration System
 
 The system uses an **agent-centric configuration approach** with streamlined model management:
-
-### Model Configuration Consolidation
-**IMPORTANT**: As of the latest update, model configuration has been consolidated:
-- **models.yaml is the SINGLE SOURCE** for all model preferences per agent
-- **config.yaml files NO LONGER contain model sections** to eliminate duplication
-- **Standardized structure** uses `primary_model` and `model_preferences` across all agents
-- **Fast model alias** (gemini-1.5-flash) configured for speed optimization
 
 ### Configuration Structure
 ```
@@ -256,8 +248,8 @@ state = context_manager_agent(state)
 # Result: Provides context for human agent
 # Output: {context_summaries, user_history, similar_cases}
 
-# 5. Routing Agent selects appropriate human (protecting employee wellbeing)
-state = routing_agent(state)
+# 5. Human Routing Agent selects appropriate human (protecting employee wellbeing)
+state = human_routing_agent(state)
 # Result: Routes to available agent with high frustration tolerance
 # Output: {assigned_human_agent, routing_strategy, employee_protection_applied}
 
@@ -270,7 +262,7 @@ state = routing_agent(state)
 ### Adding New Agents
 
 1. **Create the Agent**: Implement the `NodeInterface` in `/src/nodes/`
-2. **Add Configuration**: Update `/config/prompts.json`
+2. **Add Configuration**: Create agent config files in `/config/agents/<agent_name>/`
 3. **Integrate Workflow**: Modify `/src/workflows/hybrid_workflow.py`
 4. **Add Tests**: Create tests in `/tests/unit/nodes/`
 
@@ -291,17 +283,17 @@ state = routing_agent(state)
 ### Docker Support
 ```bash
 # Build container
-docker build -t hybrid-ai-system .
+docker build -t human-ai-orchestrator .
 
 # Run with .env file
-docker run --env-file .env hybrid-ai-system
+docker run --env-file .env human-ai-orchestrator
 
 # Or mount .env file as volume
-docker run -v $(pwd)/.env:/app/.env hybrid-ai-system
+docker run -v $(pwd)/.env:/app/.env human-ai-orchestrator
 
 # For GPU support
-docker build -f Dockerfile.gpu -t hybrid-ai-system:gpu .
-docker run --gpus all --env-file .env hybrid-ai-system:gpu
+docker build -f Dockerfile.gpu -t human-ai-orchestrator:gpu .
+docker run --gpus all --env-file .env human-ai-orchestrator:gpu
 ```
 
 ### Dev Container Support
@@ -310,21 +302,6 @@ For development with VSCode/Cursor:
 - **GPU-enabled devcontainer**: `.devcontainer/devcontainer.gpu.json` 
 
 The GPU devcontainer automatically configures NVIDIA GPU access for local LLM models.
-
-### Environment Configuration
-- **Development**: Comprehensive logging, local models
-- **Production**: Optimized performance, cloud models, monitoring
-- **Testing**: Mock providers, isolated database
-
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Add tests** for new functionality
-4. **Ensure** all tests pass (`make test`)
-5. **Check** code quality (`make check`)
-6. **Commit** changes (`git commit -m 'Add amazing feature'`)
-7. **Submit** a pull request
 
 ### Development Guidelines
 - Follow the existing code style and patterns
@@ -357,13 +334,6 @@ This Human-in-the-Loop system architecture is ideal for:
 - **Employee Burnout Prevention**: Workload balancing and stress management
 - **Performance Analytics**: Customer satisfaction and employee wellbeing metrics
 
-### Beyond Customer Support
-- **Technical Documentation**: AI-powered help with expert validation and context
-- **Educational Platforms**: Tutoring systems with teacher oversight and student frustration monitoring
-- **Content Moderation**: AI screening with human review and moderator wellbeing protection  
-- **Code Review**: Automated analysis with developer consultation and workload distribution
-- **Healthcare Support**: Patient interaction with medical professional oversight
-- **Financial Advisory**: AI guidance with human expert validation and compliance
 
 ### Key Benefits
 - **Improved Customer Experience**: Higher quality responses, faster frustration resolution
@@ -371,4 +341,3 @@ This Human-in-the-Loop system architecture is ideal for:
 - **Operational Excellence**: Comprehensive analytics, quality metrics, performance optimization
 - **Scalable Growth**: AI handles routine cases, humans focus on complex and high-value interactions
 
-Built with ❤️ using [LangGraph](https://langchain-ai.github.io/langgraph/), [LangChain](https://langchain.com/), and [LangSmith](https://smith.langchain.com/).
